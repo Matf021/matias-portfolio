@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
+/* =========================================
+   MATIAS FRANCO — DESIGN SYSTEM
+   Version: 0.1.1
+   ========================================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --background: #081120;
+  --surface: #142744;
+  --surface-elevated: #1b3455;
+
+  /* Brand colors */
+  --accent: #8ab8ff;
+  --accent-hover: #b3d2ff;
+  --accent-muted: #254a7d;
+
+  /* Typography */
+  --foreground: #edf4ff;
+  --text-secondary: #b8c9e2;
+  --text-muted: #91a6c4;
+
+  /* Borders */
+  --border: #304765;
+
+  /* Layout */
+  --container-width: 1280px;
+  --section-spacing: clamp(5rem, 10vw, 9rem);
 }
 
+/* Make our colors available to Tailwind */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-muted: var(--accent-muted);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Global foundation */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
+  margin: 0;
+  min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Consistent text selection */
+::selection {
+  background: var(--accent);
+  color: var(--background);
+}
+
+/* Accessible keyboard focus */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* Respect accessibility preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
