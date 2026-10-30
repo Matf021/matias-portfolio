@@ -1,3 +1,5 @@
+import ConstellationViewer from "@/components/constellation/ConstellationViewer";
+
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6">
@@ -41,12 +43,10 @@ export default function Home() {
 
         {/* Future constellation placeholder */}
         <div
-          className="mt-16 flex h-48 items-center justify-center rounded-2xl border border-border bg-surface/40 sm:h-64"
-          aria-label="Interactive constellation coming soon"
+          className="mt-16 h-[420px] overflow-hidden rounded-2xl border border-border bg-surface/20 sm:h-[520px]"
+          aria-label="Interactive 3D constellation representing software development disciplines"
         >
-          <p className="font-mono text-sm tracking-widest text-text-muted">
-            [ CONSTELLATION SYSTEM / INITIALIZING ]
-          </p>
+          <ConstellationViewer />
         </div>
       </div>
     </main>
