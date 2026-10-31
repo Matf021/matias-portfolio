@@ -35,7 +35,7 @@ import {
 
 import ConstellationLabel from "./ConstellationLabel";
 
-import ResponsiveCamera from "./ResponsiveCamera";
+import CinematicCameraController from "./CinematicCameraController";
 
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
@@ -298,19 +298,23 @@ function SceneContent({
                 />
             ))}
 
+
             <OrbitControls
                 ref={controlsRef}
                 enablePan={false}
                 enableZoom
-                minDistance={5}
-                maxDistance={50}
+                minDistance={3}
+                maxDistance={40}
                 enableDamping
                 dampingFactor={0.05}
             />
-            <ResponsiveCamera
+
+            <CinematicCameraController
                 nodes={positionedNodes}
+                selectedId={selectedId}
                 controlsRef={controlsRef}
             />
+
         </>
     );
 }
