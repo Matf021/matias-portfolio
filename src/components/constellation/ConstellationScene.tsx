@@ -35,6 +35,10 @@ import {
 
 import ConstellationLabel from "./ConstellationLabel";
 
+import ResponsiveCamera from "./ResponsiveCamera";
+
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+
 import type {
     ConstellationNodeData,
     ConstellationEdge,
@@ -236,6 +240,7 @@ function SceneContent({
         () => resolveNodePositions(constellationNodes),
         []
     );
+    const controlsRef = useRef<OrbitControlsImpl>(null);
     const nodeMap = useMemo(
         () =>
             new Map(
@@ -294,13 +299,17 @@ function SceneContent({
             ))}
 
             <OrbitControls
-                target={[0, 0.4, 0]}
+                ref={controlsRef}
                 enablePan={false}
                 enableZoom
-                minDistance={10}
-                maxDistance={22}
+                minDistance={5}
+                maxDistance={50}
                 enableDamping
                 dampingFactor={0.05}
+            />
+            <ResponsiveCamera
+                nodes={positionedNodes}
+                controlsRef={controlsRef}
             />
         </>
     );
