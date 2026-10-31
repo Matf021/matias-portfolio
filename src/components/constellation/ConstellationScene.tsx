@@ -15,7 +15,6 @@ import {
 
 import {
     OrbitControls,
-    Text,
 } from "@react-three/drei";
 
 import * as THREE from "three";
@@ -33,6 +32,8 @@ import {
 import {
     resolveNodePositions
 } from "@/lib/constellationLayout";
+
+import ConstellationLabel from "./ConstellationLabel";
 
 import type {
     ConstellationNodeData,
@@ -58,9 +59,10 @@ function ConstellationNode({
 
     const isSelected = selectedId === node.id;
 
+    const isConnected = connectedIds.has(node.id);
+
     const isDimmed =
-        selectedId !== null &&
-        !connectedIds.has(node.id);
+        selectedId !== null && !isConnected;
 
     useEffect(() => {
         if (!hovered) return;
@@ -115,15 +117,6 @@ function ConstellationNode({
             );
     });
 
-    const labelSize =
-        node.category === "identity"
-            ? 0.2
-            : node.category === "discipline"
-                ? 0.16
-                : node.category === "project"
-                    ? 0.13
-                    : 0.1;
-
     return (
         <group position={node.position}>
             <mesh
@@ -152,23 +145,13 @@ function ConstellationNode({
                 />
             </mesh>
 
-            <Text
-                position={[0, -node.size - 0.2, 0]}
-                fontSize={labelSize}
-                color={
-                    isSelected
-                        ? "#ffffff"
-                        : isDimmed
-                            ? "#52647e"
-                            : "#b8c9e2"
-                }
-                anchorX="center"
-                anchorY="middle"
-                outlineWidth={0.004}
-                outlineColor="#081120"
-            >
-                {node.label}
-            </Text>
+            <ConstellationLabel
+                node={node}
+                hovered={hovered}
+                selected={isSelected}
+                connected={isConnected}
+                hasSelection={selectedId !== null}
+            />
         </group>
     );
 }
@@ -311,6 +294,7 @@ function SceneContent({
             ))}
 
             <OrbitControls
+                target={[0, 0.4, 0]}
                 enablePan={false}
                 enableZoom
                 minDistance={10}
