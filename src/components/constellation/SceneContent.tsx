@@ -5,6 +5,7 @@ import { useMemo, useRef } from "react";
 import { OrbitControls } from "@react-three/drei";
 import { Stats } from "@react-three/drei";
 import AtmosphericStarfield from "./AtmosphericStarfield";
+import ConstellationLighting from "./ConstellationLighting";
 
 import type {
     OrbitControls as OrbitControlsImpl,
@@ -66,6 +67,8 @@ export default function SceneContent({
 
     return (
         <>
+            <ConstellationLighting />
+
             <ambientLight intensity={0.6} />
 
             <pointLight

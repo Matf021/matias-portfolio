@@ -12,7 +12,47 @@ import type {
     ConstellationNodeData,
 } from "@/types/constellation";
 
-const ARRIVAL_FLASH_DECAY = 5;
+const NODE_LIGHTING = {
+    identity: {
+        idle: 0.08,
+        selected: 0.18,
+        halo: 0.10,
+    },
+    discipline: {
+        idle: 0.06,
+        selected: 0.15,
+        halo: 0.05,
+    },
+    detail: {
+        idle: 0.04,
+        selected: 0.12,
+        halo: 0,
+    },
+    hoverBoost: 0.06,
+    arrivalBoost: 0.30,
+    arrivalDecay: 3,
+} as const;
+
+type NodeTier = "identity" | "discipline" | "detail";
+
+const DISCIPLINE_IDS = new Set([
+    "ai",
+    "cloud",
+    "creative",
+    "software",
+]);
+
+function getNodeTier(id: string): NodeTier {
+    if (id === "matias") {
+        return "identity";
+    }
+
+    if (DISCIPLINE_IDS.has(id)) {
+        return "discipline";
+    }
+
+    return "detail";
+}
 
 type ConstellationNodeProps = {
     node: ConstellationNodeData;
@@ -35,6 +75,8 @@ export default function ConstellationNode({
 
     const isSelected = selectedId === node.id;
     const isConnected = connectedIds.has(node.id);
+    const tier = getNodeTier(node.id);
+    const lighting = NODE_LIGHTING[tier];
 
     const isDimmed =
         selectedId !== null && !isConnected;
@@ -58,13 +100,15 @@ export default function ConstellationNode({
         );
     }, [node.id]);
 
+
     const baseHaloIntensity = isSelected
-        ? 0.9
+        ? 0.65
         : hovered
-            ? 0.45
-            : isConnected
-                ? 0.3
-                : 0;
+            ? 0.3
+            : isConnected && selectedId !== null
+                ? 0.15
+                : lighting.halo;
+
 
     useFrame((_, delta) => {
         if (!meshRef.current || !materialRef.current) {
@@ -72,6 +116,16 @@ export default function ConstellationNode({
         }
 
         const smoothing = 1 - Math.exp(-8 * delta);
+
+        // Decay arrival feedback over time.
+        arrivalFlashRef.current *= Math.exp(
+            -NODE_LIGHTING.arrivalDecay * delta
+        );
+
+        // Avoid keeping extremely small residual values.
+        if (arrivalFlashRef.current < 0.001) {
+            arrivalFlashRef.current = 0;
+        }
 
         // Animate node scale.
         const targetScale = isSelected
@@ -97,34 +151,30 @@ export default function ConstellationNode({
             smoothing
         );
 
-        // Animate emissive brightness.
-        const targetEmissiveIntensity = isDimmed
-            ? 0.05
+
+        const baseEmissive = isDimmed
+            ? lighting.idle * 0.5
             : isSelected
-                ? 1.8
+                ? lighting.selected
                 : hovered
-                    ? 1.1
-                    : isConnected
-                        ? 0.85
-                        : 0.25;
+                    ? lighting.idle + NODE_LIGHTING.hoverBoost
+                    : isConnected && selectedId !== null
+                        ? lighting.idle + 0.025
+                        : lighting.idle;
 
 
-        // Exponential decay of the arrival flash.
-        arrivalFlashRef.current *= Math.exp(-ARRIVAL_FLASH_DECAY * delta);
+        const arrivalEmissive =
+            arrivalFlashRef.current *
+            NODE_LIGHTING.arrivalBoost;
 
-        const arrivalBoost =
-            arrivalFlashRef.current * 1.4;
+        const targetEmissive =
+            baseEmissive + arrivalEmissive;
 
-        const finalEmissiveIntensity =
-            targetEmissiveIntensity + arrivalBoost;
-
-
-        materialRef.current.emissiveIntensity =
-            THREE.MathUtils.lerp(
-                materialRef.current.emissiveIntensity,
-                finalEmissiveIntensity,
-                smoothing
-            );
+        materialRef.current.emissiveIntensity = THREE.MathUtils.lerp(
+            materialRef.current.emissiveIntensity,
+            targetEmissive,
+            smoothing
+        );
     });
 
     return (
@@ -151,16 +201,19 @@ export default function ConstellationNode({
             >
                 <sphereGeometry args={[node.size, 24, 24]} />
 
+
                 <meshStandardMaterial
                     ref={materialRef}
                     color={node.color}
                     emissive={node.color}
-                    emissiveIntensity={0.4}
-                    roughness={0.3}
+                    emissiveIntensity={lighting.idle}
+                    roughness={0.42}
+                    metalness={0.08}
                     transparent
                     opacity={1}
                     depthWrite={false}
                 />
+
             </mesh>
 
             <ConstellationLabel

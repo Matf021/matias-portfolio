@@ -73,6 +73,10 @@ export default function NodeHalo({
     const materialRef =
         useRef<THREE.ShaderMaterial>(null);
 
+    const baseIntensityRef = useRef(0);
+    const arrivalIntensityRef = useRef(0);
+    const arrivalExpansionRef = useRef(0);
+
     const uniforms = useMemo(
         () => ({
             uColor: {
@@ -93,11 +97,30 @@ export default function NodeHalo({
 
         const time = clock.getElapsedTime();
 
+
         const pulse = selected
             ? 1 + Math.sin(time * 2.2) * 0.06
             : 1;
 
-        const targetScale = radius * 2 * pulse;
+        // The arrival signal is shared with the brightness animation.
+        const arrivalSignal = arrivalFlashRef?.current ?? 0;
+
+        // Smoothly follow the arrival signal for expansion.
+        const expansionSmoothing =
+            1 - Math.exp(-7 * delta);
+
+        arrivalExpansionRef.current = THREE.MathUtils.lerp(
+            arrivalExpansionRef.current,
+            arrivalSignal,
+            expansionSmoothing
+        );
+
+        // Expand the halo by up to 18% during an arrival.
+        const expansion =
+            1 + arrivalExpansionRef.current * 0.18;
+
+        const targetScale =
+            radius * 2 * pulse * expansion;
 
         const smoothing =
             1 - Math.exp(-6 * delta);
@@ -110,21 +133,37 @@ export default function NodeHalo({
 
         mesh.scale.setScalar(nextScale);
 
-        const currentIntensity =
-            material.uniforms.uIntensity.value;
 
-        const arrivalBoost =
-            (arrivalFlashRef?.current ?? 0) * 0.5;
+        // Smooth the underlying selection/hover glow.
+        baseIntensityRef.current = THREE.MathUtils.lerp(
+            baseIntensityRef.current,
+            intensity,
+            smoothing
+        );
 
-        const targetIntensity =
-            intensity + arrivalBoost;
+        // Apply the arrival flash directly, without
+        // smoothing away its initial brightness.
+
+        const arrivalTarget = arrivalSignal * 0.4;
+
+        // Smoothly follow the arrival signal.
+        // Rise quickly, but fade more gently.
+        const arrivalSmoothing =
+            1 - Math.exp(
+                -(arrivalTarget > arrivalIntensityRef.current
+                    ? 14
+                    : 4) * delta
+            );
+
+        arrivalIntensityRef.current = THREE.MathUtils.lerp(
+            arrivalIntensityRef.current,
+            arrivalTarget,
+            arrivalSmoothing
+        );
 
         material.uniforms.uIntensity.value =
-            THREE.MathUtils.lerp(
-                currentIntensity,
-                targetIntensity,
-                smoothing
-            );
+            baseIntensityRef.current +
+            arrivalIntensityRef.current;
     });
 
     return (
