@@ -4,6 +4,7 @@
 import { useMemo, useRef } from "react";
 import { OrbitControls } from "@react-three/drei";
 import { Stats } from "@react-three/drei";
+import AtmosphericStarfield from "./AtmosphericStarfield";
 
 import type {
     OrbitControls as OrbitControlsImpl,
@@ -70,6 +71,11 @@ export default function SceneContent({
             <pointLight
                 position={[3, 4, 5]}
                 intensity={25}
+            />
+
+            <AtmosphericStarfield
+                count={450}
+                radius={75}
             />
 
             {constellationEdges.map((edge) => {
