@@ -12,6 +12,8 @@ import type {
     ConstellationNodeData,
 } from "@/types/constellation";
 
+const ARRIVAL_FLASH_DECAY = 5;
+
 type ConstellationNodeProps = {
     node: ConstellationNodeData;
     selectedId: string | null;
@@ -108,7 +110,7 @@ export default function ConstellationNode({
 
 
         // Exponential decay of the arrival flash.
-        arrivalFlashRef.current *= Math.exp(-5 * delta);
+        arrivalFlashRef.current *= Math.exp(-ARRIVAL_FLASH_DECAY * delta);
 
         const arrivalBoost =
             arrivalFlashRef.current * 1.4;

@@ -3,6 +3,7 @@
 
 import { useMemo, useRef } from "react";
 import { OrbitControls } from "@react-three/drei";
+import { Stats } from "@react-three/drei";
 
 import type {
     OrbitControls as OrbitControlsImpl,
@@ -116,6 +117,9 @@ export default function SceneContent({
                 selectedId={selectedId}
                 controlsRef={controlsRef}
             />
+            {process.env.NODE_ENV === "development" && (
+                <Stats showPanel={0} />
+            )}
         </>
     );
 }

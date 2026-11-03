@@ -6,9 +6,10 @@ import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 
 type EnergyParticleProps = {
-  meshRef: React.RefObject<THREE.Mesh | null>;
-  materialRef: React.RefObject<THREE.ShaderMaterial | null>;
-  color?: string;
+    groupRef: React.RefObject<THREE.Group | null>;
+    meshRef: React.RefObject<THREE.Mesh | null>;
+    materialRef: React.RefObject<THREE.ShaderMaterial | null>;
+    color?: string;
 };
 
 const vertexShader = `
@@ -70,45 +71,50 @@ const fragmentShader = `
 `;
 
 export default function EnergyParticle({
-  meshRef,
-  materialRef,
-  color = "#8ab8ff",
+    groupRef,
+    meshRef,
+    materialRef,
+    color = "#8ab8ff",
 }: EnergyParticleProps) {
-  const uniforms = useMemo(
-    () => ({
-      uColor: {
-        value: new THREE.Color(color),
-      },
-      uOpacity: {
-        value: 0,
-      },
-    }),
-    [color]
-  );
+    const uniforms = useMemo(
+        () => ({
+            uColor: {
+                value: new THREE.Color(color),
+            },
+            uOpacity: {
+                value: 0,
+            },
+        }),
+        [color]
+    );
 
-  return (
-    <Billboard follow>
-      <mesh
-        ref={meshRef}
-        visible={false}
-        scale={0.16}
-        raycast={() => []}
-        renderOrder={3}
-      >
-        <planeGeometry args={[1, 1]} />
 
-        <shaderMaterial
-          ref={materialRef}
-          uniforms={uniforms}
-          vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
-          transparent
-          depthWrite={false}
-          depthTest={false}
-          blending={THREE.AdditiveBlending}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-    </Billboard>
-  );
+    return (
+        <group ref={groupRef}>
+            <Billboard follow>
+                <mesh
+                    ref={meshRef}
+                    visible={false}
+                    position={[0, 0, 0]}
+                    scale={0.16}
+                    raycast={() => []}
+                    renderOrder={3}
+                >
+                    <planeGeometry args={[1, 1]} />
+
+                    <shaderMaterial
+                        ref={materialRef}
+                        uniforms={uniforms}
+                        vertexShader={vertexShader}
+                        fragmentShader={fragmentShader}
+                        transparent
+                        depthWrite={false}
+                        depthTest={false}
+                        blending={THREE.AdditiveBlending}
+                        side={THREE.DoubleSide}
+                    />
+                </mesh>
+            </Billboard>
+        </group>
+    );
 }
