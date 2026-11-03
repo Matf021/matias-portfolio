@@ -11,6 +11,7 @@ type NodeHaloProps = {
     radius: number;
     intensity: number;
     selected: boolean;
+    arrivalFlashRef?: React.RefObject<number>;
 };
 
 const vertexShader = `
@@ -65,6 +66,7 @@ export default function NodeHalo({
     radius,
     intensity,
     selected,
+    arrivalFlashRef,
 }: NodeHaloProps) {
     const meshRef = useRef<THREE.Mesh>(null);
 
@@ -111,14 +113,19 @@ export default function NodeHalo({
         const currentIntensity =
             material.uniforms.uIntensity.value;
 
+        const arrivalBoost =
+            (arrivalFlashRef?.current ?? 0) * 0.5;
+
+        const targetIntensity =
+            intensity + arrivalBoost;
+
         material.uniforms.uIntensity.value =
             THREE.MathUtils.lerp(
                 currentIntensity,
-                intensity,
+                targetIntensity,
                 smoothing
             );
     });
-
 
     return (
         <Billboard follow>

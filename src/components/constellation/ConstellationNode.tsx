@@ -1,10 +1,10 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { subscribeToNodeArrival } from "@/lib/constellationEvents";
 import ConstellationLabel from "./ConstellationLabel";
 import NodeHalo from "./NodeHalo";
 
@@ -28,7 +28,7 @@ export default function ConstellationNode({
     const meshRef = useRef<THREE.Mesh>(null);
     const materialRef =
         useRef<THREE.MeshStandardMaterial>(null);
-
+    const arrivalFlashRef = useRef(0);
     const [hovered, setHovered] = useState(false);
 
     const isSelected = selectedId === node.id;
@@ -47,7 +47,16 @@ export default function ConstellationNode({
         };
     }, [hovered]);
 
-    const haloIntensity = isSelected
+    useEffect(() => {
+        return subscribeToNodeArrival(
+            node.id,
+            () => {
+                arrivalFlashRef.current = 1;
+            }
+        );
+    }, [node.id]);
+
+    const baseHaloIntensity = isSelected
         ? 0.9
         : hovered
             ? 0.45
@@ -97,10 +106,21 @@ export default function ConstellationNode({
                         ? 0.85
                         : 0.25;
 
+
+        // Exponential decay of the arrival flash.
+        arrivalFlashRef.current *= Math.exp(-5 * delta);
+
+        const arrivalBoost =
+            arrivalFlashRef.current * 1.4;
+
+        const finalEmissiveIntensity =
+            targetEmissiveIntensity + arrivalBoost;
+
+
         materialRef.current.emissiveIntensity =
             THREE.MathUtils.lerp(
                 materialRef.current.emissiveIntensity,
-                targetEmissiveIntensity,
+                finalEmissiveIntensity,
                 smoothing
             );
     });
@@ -110,7 +130,8 @@ export default function ConstellationNode({
             <NodeHalo
                 color={node.color}
                 radius={node.size * 4}
-                intensity={haloIntensity}
+                intensity={baseHaloIntensity}
+                arrivalFlashRef={arrivalFlashRef}
                 selected={isSelected}
             />
 
