@@ -10,7 +10,6 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { calculateCameraFraming } from "@/lib/cameraFraming";
 import { calculateFocusDestination } from "@/lib/cameraFocus";
 import { createCameraTrajectory } from "@/lib/cameraTrajectory";
-import { easeInOutQuint } from "@/lib/cameraEasing";
 import { easeInOutCubic } from "@/lib/cameraEasing";
 
 import type {
