@@ -1,4 +1,6 @@
 
+import * as THREE from "three";
+
 import type {
   ConstellationNodeData,
   Position3D,
@@ -20,18 +22,36 @@ const focusDistances: Record<
 };
 
 export function calculateFocusDestination(
-  node: ConstellationNodeData
+  node: ConstellationNodeData,
+  currentCameraPosition: THREE.Vector3,
+  currentTarget: THREE.Vector3
 ): CameraDestination {
-  const [x, y, z] = node.position;
+  const target = new THREE.Vector3(...node.position);
+
+  // Preserve the visitor's current viewing direction.
+  const viewingDirection = currentCameraPosition
+    .clone()
+    .sub(currentTarget);
+
+  // Fallback if camera and target overlap.
+  if (viewingDirection.lengthSq() < 0.000001) {
+    viewingDirection.set(0, 0, 1);
+  }
+
+  viewingDirection.normalize();
 
   const distance = focusDistances[node.category];
 
+  const destination = target
+    .clone()
+    .addScaledVector(viewingDirection, distance);
+
   return {
-    target: [x, y, z],
+    target: [target.x, target.y, target.z],
     position: [
-      x,
-      y + distance * 0.12,
-      z + distance,
+      destination.x,
+      destination.y,
+      destination.z,
     ],
   };
 }

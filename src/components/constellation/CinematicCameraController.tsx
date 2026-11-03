@@ -7,13 +7,11 @@ import * as THREE from "three";
 
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
-import {
-    calculateCameraFraming,
-} from "@/lib/cameraFraming";
-
-import {
-    calculateFocusDestination,
-} from "@/lib/cameraFocus";
+import { calculateCameraFraming } from "@/lib/cameraFraming";
+import { calculateFocusDestination } from "@/lib/cameraFocus";
+import { createCameraTrajectory } from "@/lib/cameraTrajectory";
+import { easeInOutQuint } from "@/lib/cameraEasing";
+import { easeInOutCubic } from "@/lib/cameraEasing";
 
 import type {
     ConstellationNodeData,
@@ -25,8 +23,15 @@ type Props = {
     controlsRef: React.RefObject<OrbitControlsImpl | null>;
 };
 
-const TRANSITION_SPEED = 3.5;
-const POSITION_EPSILON = 0.015;
+type CameraFlight = {
+    curve: THREE.QuadraticBezierCurve3;
+    startTarget: THREE.Vector3;
+    endTarget: THREE.Vector3;
+    elapsed: number;
+    duration: number;
+};
+
+const FLIGHT_DURATION = 1.35;
 
 export default function CinematicCameraController({
     nodes,
@@ -35,10 +40,7 @@ export default function CinematicCameraController({
 }: Props) {
     const { camera, size } = useThree();
 
-    const destinationPosition = useRef(new THREE.Vector3());
-    const destinationTarget = useRef(new THREE.Vector3());
-
-    const animating = useRef(false);
+    const flight = useRef<CameraFlight | null>(null);
     const initialized = useRef(false);
 
     const framing = useMemo(
@@ -57,99 +59,99 @@ export default function CinematicCameraController({
         [nodes, selectedId]
     );
 
-    // Initialize or change the camera destination.
+    // Calculate and begin a new camera flight.
     useEffect(() => {
         const controls = controlsRef.current;
-
         if (!controls) return;
 
         const destination = selectedNode
-            ? calculateFocusDestination(selectedNode)
+            ? calculateFocusDestination(
+                selectedNode,
+                camera.position,
+                controls.target
+            )
             : framing;
 
-        const nextPosition = new THREE.Vector3(
+        const endPosition = new THREE.Vector3(
             ...destination.position
         );
 
-        const nextTarget = new THREE.Vector3(
+        const endTarget = new THREE.Vector3(
             ...destination.target
         );
 
         if (!initialized.current) {
-            camera.position.copy(nextPosition);
-            controls.target.copy(nextTarget);
+            camera.position.copy(endPosition);
+            controls.target.copy(endTarget);
             controls.update();
 
             initialized.current = true;
             return;
         }
 
-        destinationPosition.current.copy(nextPosition);
-        destinationTarget.current.copy(nextTarget);
+        const startPosition = camera.position.clone();
+        const startTarget = controls.target.clone();
 
-        animating.current = true;
+        flight.current = {
+            curve: createCameraTrajectory(
+                startPosition,
+                endPosition,
+                camera,
+                0.4
+            ),
+            startTarget,
+            endTarget,
+            elapsed: 0,
+            duration: FLIGHT_DURATION,
+        };
     }, [selectedNode, framing, camera, controlsRef]);
 
-
+    // Allow the visitor to interrupt the flight.
     useEffect(() => {
         const controls = controlsRef.current;
         if (!controls) return;
 
-        const interruptAnimation = () => {
-            animating.current = false;
+        const interruptFlight = () => {
+            flight.current = null;
         };
 
-        controls.addEventListener("start", interruptAnimation);
+        controls.addEventListener("start", interruptFlight);
 
         return () => {
-            controls.removeEventListener("start", interruptAnimation);
+            controls.removeEventListener("start", interruptFlight);
         };
     }, [controlsRef]);
 
-
-    // Smooth camera movement.
+    // Advance the camera flight each frame.
     useFrame((_, delta) => {
         const controls = controlsRef.current;
+        const activeFlight = flight.current;
 
-        if (!controls || !animating.current) return;
+        if (!controls || !activeFlight) return;
 
-        const smoothing =
-            1 - Math.exp(-TRANSITION_SPEED * delta);
+        activeFlight.elapsed += Math.min(delta, 0.05);
 
-        camera.position.lerp(
-            destinationPosition.current,
-            smoothing
+        const progress = Math.min(
+            activeFlight.elapsed / activeFlight.duration,
+            1
         );
 
-        controls.target.lerp(
-            destinationTarget.current,
-            smoothing
+        const easedProgress = easeInOutCubic(progress);
+
+        camera.position.copy(
+            activeFlight.curve.getPoint(easedProgress)
+        );
+
+        controls.target.lerpVectors(
+            activeFlight.startTarget,
+            activeFlight.endTarget,
+            easedProgress
         );
 
         controls.update();
 
-        const positionReached =
-            camera.position.distanceTo(
-                destinationPosition.current
-            ) < POSITION_EPSILON;
-
-        const targetReached =
-            controls.target.distanceTo(
-                destinationTarget.current
-            ) < POSITION_EPSILON;
-
-        if (positionReached && targetReached) {
-            camera.position.copy(
-                destinationPosition.current
-            );
-
-            controls.target.copy(
-                destinationTarget.current
-            );
-
-            controls.update();
-
-            animating.current = false;
+        if (progress >= 1) {
+            flight.current = null;
         }
     });
 
