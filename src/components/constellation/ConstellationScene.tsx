@@ -6,6 +6,7 @@ import { Canvas } from "@react-three/fiber";
 import { constellationNodes } from "@/data/constellation";
 import SceneContent from "./SceneContent";
 import type { ScreenRect } from "@/types/camera";
+import ConstellationInfoPanel from "./ConstellationInfoPanel";
 
 export default function ConstellationScene() {
     const [selectedId, setSelectedId] =
@@ -94,37 +95,19 @@ export default function ConstellationScene() {
                 />
             </Canvas>
 
+
             {/* Information panel */}
             {selectedNode && (
                 <div
                     ref={panelRef}
-                    className="pointer-events-none absolute bottom-4 left-4 right-4 z-10 sm:right-auto sm:w-80"
+                    className="pointer-events-none absolute bottom-4 left-4 right-4 z-10 max-h-[calc(100%-2rem)] sm:right-auto sm:w-96"
                 >
-                    <div className="pointer-events-auto rounded-xl border border-border bg-background/95 p-5 shadow-2xl backdrop-blur-md">
-                        <div className="mb-3 flex items-start justify-between gap-3">
-                            <div>
-                                <p className="mb-1 font-mono text-xs uppercase tracking-widest text-accent">
-                                    {selectedNode.category}
-                                </p>
-
-                                <h3 className="text-lg font-semibold text-foreground">
-                                    {selectedNode.label}
-                                </h3>
-                            </div>
-
-                            <button
-                                onClick={() => setSelectedId(null)}
-                                className="rounded-md px-2 py-1 text-text-secondary hover:bg-surface hover:text-foreground"
-                                aria-label="Close project information"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <p className="text-sm leading-relaxed text-text-secondary">
-                            {selectedNode.description ??
-                                "Explore the connections within this part of my development journey."}
-                        </p>
+                    <div className="pointer-events-auto max-h-[calc(100dvh-2rem)]">
+                        <ConstellationInfoPanel
+                            key={selectedNode.id}
+                            node={selectedNode}
+                            onClose={() => setSelectedId(null)}
+                        />
                     </div>
                 </div>
             )}

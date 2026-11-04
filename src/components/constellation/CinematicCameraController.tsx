@@ -53,6 +53,14 @@ export default function CinematicCameraController({
     const { camera, size } = useThree();
 
     const flight = useRef<CameraFlight | null>(null);
+
+    const lastSelectionRef = useRef<string | null | undefined>(undefined);
+
+    const lastViewportRef = useRef({
+        width: 0,
+        height: 0,
+    });
+
     const initialized = useRef(false);
 
     const framing = useMemo(
@@ -88,12 +96,33 @@ export default function CinematicCameraController({
     }, [selectedId, nodes, edges]);
 
 
+
     // Calculate and begin a new camera flight.
     useEffect(() => {
         const controls = controlsRef.current;
         if (!controls) return;
 
+        const selectionChanged =
+            lastSelectionRef.current !== selectedId;
 
+        const viewportChanged =
+            lastViewportRef.current.width !== size.width ||
+            lastViewportRef.current.height !== size.height;
+
+        // Ignore panel-only changes after initialization.
+        if (
+            initialized.current &&
+            !selectionChanged &&
+            !viewportChanged
+        ) {
+            return;
+        }
+
+        lastSelectionRef.current = selectedId;
+        lastViewportRef.current = {
+            width: size.width,
+            height: size.height,
+        };
 
         const baseDestination = selectedNode
             ? calculateFocusDestination(
@@ -147,6 +176,7 @@ export default function CinematicCameraController({
             duration: FLIGHT_DURATION,
         };
     }, [
+        selectedId,
         selectedNode,
         selectionPositions,
         framing,
