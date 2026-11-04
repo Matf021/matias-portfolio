@@ -11,6 +11,15 @@ import { calculateCameraFraming } from "@/lib/cameraFraming";
 import { calculateFocusDestination } from "@/lib/cameraFocus";
 import { createCameraTrajectory } from "@/lib/cameraTrajectory";
 import { easeInOutCubic } from "@/lib/cameraEasing";
+import { getConnectedNodes } from "@/lib/graph";
+import { getSelectionFramingPositions } from "@/lib/cameraSelection";
+import { applyCameraSafeArea } from "@/lib/cameraComposition";
+import type { ScreenRect } from "@/types/camera";
+
+
+import type {
+    ConstellationEdge,
+} from "@/types/constellation";
 
 import type {
     ConstellationNodeData,
@@ -18,8 +27,10 @@ import type {
 
 type Props = {
     nodes: ConstellationNodeData[];
+    edges: ConstellationEdge[];
     selectedId: string | null;
     controlsRef: React.RefObject<OrbitControlsImpl | null>;
+    panelRect: ScreenRect | null;
 };
 
 type CameraFlight = {
@@ -34,8 +45,10 @@ const FLIGHT_DURATION = 1.35;
 
 export default function CinematicCameraController({
     nodes,
+    edges,
     selectedId,
     controlsRef,
+    panelRect,
 }: Props) {
     const { camera, size } = useThree();
 
@@ -58,18 +71,48 @@ export default function CinematicCameraController({
         [nodes, selectedId]
     );
 
+
+    const selectionPositions = useMemo(() => {
+        if (!selectedId) return [];
+
+        const connectedIds = getConnectedNodes(
+            selectedId,
+            edges
+        );
+
+        return getSelectionFramingPositions(
+            selectedId,
+            nodes,
+            connectedIds
+        );
+    }, [selectedId, nodes, edges]);
+
+
     // Calculate and begin a new camera flight.
     useEffect(() => {
         const controls = controlsRef.current;
         if (!controls) return;
 
-        const destination = selectedNode
+
+
+        const baseDestination = selectedNode
             ? calculateFocusDestination(
                 selectedNode,
                 camera.position,
-                controls.target
+                controls.target,
+                camera as THREE.PerspectiveCamera,
+                selectionPositions
             )
             : framing;
+
+        const destination = selectedNode
+            ? applyCameraSafeArea(
+                baseDestination,
+                camera as THREE.PerspectiveCamera,
+                size,
+                panelRect
+            )
+            : baseDestination;
 
         const endPosition = new THREE.Vector3(
             ...destination.position
@@ -103,7 +146,15 @@ export default function CinematicCameraController({
             elapsed: 0,
             duration: FLIGHT_DURATION,
         };
-    }, [selectedNode, framing, camera, controlsRef]);
+    }, [
+        selectedNode,
+        selectionPositions,
+        framing,
+        camera,
+        controlsRef,
+        panelRect,
+        size,
+    ]);
 
     // Allow the visitor to interrupt the flight.
     useEffect(() => {

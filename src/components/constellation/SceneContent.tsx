@@ -6,6 +6,7 @@ import { OrbitControls } from "@react-three/drei";
 import { Stats } from "@react-three/drei";
 import AtmosphericStarfield from "./AtmosphericStarfield";
 import ConstellationLighting from "./ConstellationLighting";
+import type { ScreenRect } from "@/types/camera";
 
 import type {
     OrbitControls as OrbitControlsImpl,
@@ -29,11 +30,13 @@ import CinematicCameraController from "./CinematicCameraController";
 type SceneContentProps = {
     selectedId: string | null;
     onSelect: (id: string) => void;
+    panelRect: ScreenRect | null;
 };
 
 export default function SceneContent({
     selectedId,
     onSelect,
+    panelRect,
 }: SceneContentProps) {
     const controlsRef =
         useRef<OrbitControlsImpl>(null);
@@ -123,8 +126,10 @@ export default function SceneContent({
 
             <CinematicCameraController
                 nodes={positionedNodes}
+                edges={constellationEdges}
                 selectedId={selectedId}
                 controlsRef={controlsRef}
+                panelRect={panelRect}
             />
             {process.env.NODE_ENV === "development" && (
                 <Stats showPanel={0} />
