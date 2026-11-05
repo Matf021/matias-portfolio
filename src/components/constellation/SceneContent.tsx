@@ -31,13 +31,17 @@ import CinematicCameraController from "./CinematicCameraController";
 type SceneContentProps = {
     selectedId: string | null;
     onSelect: (id: string) => void;
+    onExplore: () => void;
     panelRect: ScreenRect | null;
+    overviewRequest: number;
 };
 
 export default function SceneContent({
     selectedId,
     onSelect,
+    onExplore,
     panelRect,
+    overviewRequest,
 }: SceneContentProps) {
     const controlsRef =
         useRef<OrbitControlsImpl>(null);
@@ -136,6 +140,7 @@ export default function SceneContent({
                 maxDistance={40}
                 enableDamping
                 dampingFactor={0.05}
+                onStart={onExplore}
             />
 
             <CinematicCameraController
@@ -144,6 +149,7 @@ export default function SceneContent({
                 selectedId={selectedId}
                 controlsRef={controlsRef}
                 panelRect={panelRect}
+                overviewRequest={overviewRequest}
             />
             {process.env.NODE_ENV === "development" && (
                 <Stats showPanel={0} />

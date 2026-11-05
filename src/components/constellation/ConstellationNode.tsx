@@ -143,7 +143,7 @@ export default function ConstellationNode({
         const targetScale = isSelected
             ? 1.5
             : hovered
-                ? 1.3
+                ? 1.18
                 : 1;
 
         const nextScale = THREE.MathUtils.lerp(

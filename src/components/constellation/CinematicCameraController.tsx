@@ -31,6 +31,7 @@ type Props = {
     selectedId: string | null;
     controlsRef: React.RefObject<OrbitControlsImpl | null>;
     panelRect: ScreenRect | null;
+    overviewRequest: number;
 };
 
 type CameraFlight = {
@@ -49,12 +50,15 @@ export default function CinematicCameraController({
     selectedId,
     controlsRef,
     panelRect,
+    overviewRequest,
 }: Props) {
     const { camera, size } = useThree();
 
     const flight = useRef<CameraFlight | null>(null);
 
     const lastSelectionRef = useRef<string | null | undefined>(undefined);
+
+    const lastOverviewRequestRef = useRef(overviewRequest);
 
     const lastViewportRef = useRef({
         width: 0,
@@ -109,16 +113,22 @@ export default function CinematicCameraController({
             lastViewportRef.current.width !== size.width ||
             lastViewportRef.current.height !== size.height;
 
+        const overviewRequested =
+            lastOverviewRequestRef.current !== overviewRequest;
+
         // Ignore panel-only changes after initialization.
         if (
             initialized.current &&
             !selectionChanged &&
-            !viewportChanged
+            !viewportChanged &&
+            !overviewRequested
         ) {
             return;
         }
 
         lastSelectionRef.current = selectedId;
+        lastOverviewRequestRef.current = overviewRequest;
+
         lastViewportRef.current = {
             width: size.width,
             height: size.height,
@@ -150,6 +160,21 @@ export default function CinematicCameraController({
         const endTarget = new THREE.Vector3(
             ...destination.target
         );
+
+        const positionDistance =
+            camera.position.distanceTo(endPosition);
+
+        const targetDistance =
+            controls.target.distanceTo(endTarget);
+
+        if (
+            initialized.current &&
+            positionDistance < 0.01 &&
+            targetDistance < 0.01
+        ) {
+            flight.current = null;
+            return;
+        }
 
         if (!initialized.current) {
             camera.position.copy(endPosition);
@@ -184,6 +209,7 @@ export default function CinematicCameraController({
         controlsRef,
         panelRect,
         size,
+        overviewRequest,
     ]);
 
     // Allow the visitor to interrupt the flight.

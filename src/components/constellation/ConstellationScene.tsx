@@ -7,12 +7,14 @@ import { constellationNodes } from "@/data/constellation";
 import SceneContent from "./SceneContent";
 import type { ScreenRect } from "@/types/camera";
 import ConstellationInfoPanel from "./ConstellationInfoPanel";
+import ConstellationInteractionHint from "./ConstellationInteractionHint";
 
 export default function ConstellationScene() {
     const [selectedId, setSelectedId] =
         useState<string | null>(null);
 
-
+    const [overviewRequest, setOverviewRequest] = useState(0);
+    const [hasInteracted, setHasInteracted] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
 
@@ -24,9 +26,15 @@ export default function ConstellationScene() {
         useState<ScreenRect | null>(null);
 
     function handleSelect(id: string) {
+        setHasInteracted(true);
+
         setSelectedId((current) =>
             current === id ? null : id
         );
+    }
+    function handleOverview() {
+        setSelectedId(null);
+        setOverviewRequest((current) => current + 1);
     }
 
     useEffect(() => {
@@ -73,11 +81,33 @@ export default function ConstellationScene() {
         return () => observer.disconnect();
     }, [selectedId]);
 
+    useEffect(() => {
+        if (!selectedId) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== "Escape") return;
+
+            setSelectedId(null);
+            setOverviewRequest((current) => current + 1);
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [selectedId]);
+
     return (
         <div
             ref={containerRef}
             className="relative h-full w-full"
         >
+            <p className="sr-only">
+                Interactive constellation of projects and technical skills.
+                Select a node to explore its details.
+                Drag to rotate the constellation and scroll to zoom.
+            </p>
             <Canvas
                 camera={{
                     position: [0, 0, 16],
@@ -91,10 +121,15 @@ export default function ConstellationScene() {
                 <SceneContent
                     selectedId={selectedId}
                     onSelect={handleSelect}
+                    onExplore={() => setHasInteracted(true)}
                     panelRect={selectedId ? panelRect : null}
+                    overviewRequest={overviewRequest}
                 />
             </Canvas>
 
+            <ConstellationInteractionHint
+                dismissed={hasInteracted}
+            />
 
             {/* Information panel */}
             {selectedNode && (
@@ -112,15 +147,33 @@ export default function ConstellationScene() {
                 </div>
             )}
 
-            {/* Reset view */}
-            {selectedId && (
-                <button
-                    onClick={() => setSelectedId(null)}
-                    className="absolute right-4 top-4 z-10 rounded-lg border border-border bg-background/90 px-3 py-2 text-xs text-text-secondary hover:text-foreground"
-                >
-                    Reset View
-                </button>
-            )}
+            {/* Overview navigation */}
+            <button
+                type="button"
+                onClick={handleOverview}
+                aria-label="Return to constellation overview"
+                className="
+                    absolute right-4 top-4 z-10
+                    flex items-center gap-2
+                    rounded-lg
+                    border border-white/10
+                    bg-[#081120]/65
+                    px-3 py-2
+                    text-xs font-medium
+                    text-[#a9bddb]
+                    backdrop-blur-md
+                    transition-all duration-200
+                    hover:border-white/25
+                    hover:bg-[#101d33]/85
+                    hover:text-white
+                    focus-visible:outline-2
+                    focus-visible:outline-offset-2
+                    focus-visible:outline-blue-400
+                "
+            >
+                <span aria-hidden="true">◎</span>
+                Overview
+            </button>
         </div>
     );
 }
