@@ -5,97 +5,157 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Billboard, Text } from "@react-three/drei";
 import * as THREE from "three";
+import { getLabelFontSize } from "@/lib/labelProjection";
 
 import type {
-  ConstellationNodeData,
+    ConstellationNodeData,
 } from "@/types/constellation";
 
+const LABEL_DISTANCE = {
+    project: {
+        near: 8,
+        far: 15,
+    },
+    technology: {
+        near: 5,
+        far: 10,
+    },
+} as const;
+
 type ConstellationLabelProps = {
-  node: ConstellationNodeData;
-  hovered: boolean;
-  selected: boolean;
-  connected: boolean;
-  hasSelection: boolean;
+    node: ConstellationNodeData;
+    hovered: boolean;
+    selected: boolean;
+    connected: boolean;
+    hasSelection: boolean;
+    hiddenLabelsRef: React.RefObject<Set<string>>;
 };
 
 export default function ConstellationLabel({
-  node,
-  hovered,
-  selected,
-  connected,
-  hasSelection,
+    node,
+    hovered,
+    selected,
+    connected,
+    hasSelection,
+    hiddenLabelsRef,
 }: ConstellationLabelProps) {
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+    const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+    const billboardRef = useRef<THREE.Group>(null);
+    const worldPosition = useRef(new THREE.Vector3());
 
-  const isTechnology = node.category === "technology";
+    const isPriority = hovered || selected;
 
-  const isRelevant =
-    !hasSelection || selected || connected;
+    const isConnectedLabel =
+        hasSelection && connected && !selected;
 
-  const shouldShow =
-    hovered ||
-    selected ||
-    (hasSelection && connected) ||
-    (!isTechnology && !hasSelection);
+    const isOverviewLabel =
+        node.category === "identity" ||
+        node.category === "discipline";
 
-  const labelSize =
-    node.category === "identity"
-      ? 0.24
-      : node.category === "discipline"
-        ? 0.2
-        : node.category === "project"
-          ? 0.17
-          : 0.15;
+    const labelSize = getLabelFontSize(node);
 
-  useFrame((_, delta) => {
-    if (!materialRef.current) return;
-
-    const targetOpacity = shouldShow
-      ? isRelevant || hovered
-        ? 1
-        : 0.25
-      : 0;
-
-    const smoothing = 1 - Math.exp(-7 * delta);
-
-    materialRef.current.opacity = THREE.MathUtils.lerp(
-      materialRef.current.opacity,
-      targetOpacity,
-      smoothing
-    );
-  });
-
-  return (
-    <Billboard follow lockX={false} lockY={false} lockZ={false}>
-      <Text
-        position={[0, -node.size - 0.23, 0]}
-        fontSize={labelSize}
-        color={
-          selected || hovered
+    const labelColor =
+        selected || hovered
             ? "#ffffff"
-            : "#c4d4eb"
-        }
-        anchorX="center"
-        anchorY="middle"
-        outlineWidth={0.004}
-        outlineColor="#081120"
-        raycast={() => null}
-      >
-        {node.label}
+            : isConnectedLabel
+                ? "#dce9ff"
+                : "#c4d4eb";
 
-        <meshBasicMaterial
-          ref={materialRef}
-          color={
-            selected || hovered
-              ? "#ffffff"
-              : "#c4d4eb"
-          }
-          transparent
-          opacity={shouldShow ? 1 : 0}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </Text>
-    </Billboard>
-  );
+    const emphasizedLabelSize =
+        selected
+            ? labelSize * 1.12
+            : hovered
+                ? labelSize * 1.06
+                : labelSize;
+
+    useFrame(({ camera }, delta) => {
+        const material = materialRef.current;
+        const billboard = billboardRef.current;
+
+        if (!material || !billboard) return;
+
+        billboard.getWorldPosition(worldPosition.current);
+
+        const distance = camera.position.distanceTo(
+            worldPosition.current
+        );
+
+        let targetOpacity = 0;
+
+        if (isPriority) {
+            targetOpacity = 1;
+        } else if (isConnectedLabel) {
+            targetOpacity = 0.9;
+        } else if (!hasSelection && isOverviewLabel) {
+            targetOpacity = 1;
+        } else if (!hasSelection && node.category === "project") {
+            const { near, far } = LABEL_DISTANCE.project;
+
+            const distanceVisibility = THREE.MathUtils.clamp(
+                (far - distance) / (far - near),
+                0,
+                1
+            );
+
+            targetOpacity = THREE.MathUtils.lerp(
+                0.35,
+                1,
+                distanceVisibility
+            );
+        }
+
+        if (
+            hiddenLabelsRef.current.has(node.id) &&
+            !selected &&
+            !hovered
+        ) {
+            targetOpacity *= 0.08;
+        }
+
+        const smoothing = 1 - Math.exp(-7 * delta);
+
+        material.opacity = THREE.MathUtils.lerp(
+            material.opacity,
+            targetOpacity,
+            smoothing
+        );
+    });
+
+    return (
+        <Billboard
+            ref={billboardRef}
+            follow
+            lockX={false}
+            lockY={false}
+            lockZ={false}
+        >
+            <Text
+                position={[0, -node.size - 0.23, 0]}
+                fontSize={emphasizedLabelSize}
+                color={labelColor}
+                anchorX="center"
+                anchorY="middle"
+                outlineWidth={0.004}
+                outlineColor="#081120"
+                raycast={() => null}
+            >
+                {node.label}
+
+                <meshBasicMaterial
+                    ref={materialRef}
+                    color={labelColor}
+                    transparent
+                    opacity={
+                        isPriority ||
+                            isConnectedLabel ||
+                            (!hasSelection && isOverviewLabel)
+                            ? 1
+                            : 0
+                    }
+                    depthWrite={false}
+                    toneMapped={false}
+                />
+            </Text>
+        </Billboard>
+    );
 }

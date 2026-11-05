@@ -59,6 +59,8 @@ type ConstellationNodeProps = {
     selectedId: string | null;
     connectedIds: Set<string>;
     onSelect: (id: string) => void;
+    hoveredIdsRef: React.RefObject<Set<string>>;
+    hiddenLabelsRef: React.RefObject<Set<string>>;
 };
 
 export default function ConstellationNode({
@@ -66,6 +68,8 @@ export default function ConstellationNode({
     selectedId,
     connectedIds,
     onSelect,
+    hoveredIdsRef,
+    hiddenLabelsRef,
 }: ConstellationNodeProps) {
     const meshRef = useRef<THREE.Mesh>(null);
     const materialRef =
@@ -100,6 +104,14 @@ export default function ConstellationNode({
         );
     }, [node.id]);
 
+    useEffect(() => {
+        const hoveredIds = hoveredIdsRef.current;
+        const nodeId = node.id;
+
+        return () => {
+            hoveredIds.delete(nodeId);
+        };
+    }, [node.id, hoveredIdsRef]);
 
     const baseHaloIntensity = isSelected
         ? 0.65
@@ -195,9 +207,15 @@ export default function ConstellationNode({
                 }}
                 onPointerOver={(event) => {
                     event.stopPropagation();
+
+                    hoveredIdsRef.current.add(node.id);
                     setHovered(true);
                 }}
-                onPointerOut={() => setHovered(false)}
+
+                onPointerOut={() => {
+                    hoveredIdsRef.current.delete(node.id);
+                    setHovered(false);
+                }}
             >
                 <sphereGeometry args={[node.size, 24, 24]} />
 
@@ -222,6 +240,7 @@ export default function ConstellationNode({
                 selected={isSelected}
                 connected={isConnected}
                 hasSelection={selectedId !== null}
+                hiddenLabelsRef={hiddenLabelsRef}
             />
         </group>
     );
