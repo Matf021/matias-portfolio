@@ -3,9 +3,9 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import ConnectionPulse from "./ConnectionPulse";
 import * as THREE from "three";
 
+import ConnectionPulse from "./ConnectionPulse";
 import { isConnectedEdge } from "@/lib/graph";
 
 import type {
@@ -28,6 +28,68 @@ type ConstellationConnectionProps = {
     startRadius: number;
     endRadius: number;
 };
+
+const vertexShader = `
+    attribute float aProgress;
+
+    varying float vProgress;
+
+    void main() {
+        vProgress = aProgress;
+
+        gl_Position =
+            projectionMatrix *
+            modelViewMatrix *
+            vec4(position, 1.0);
+    }
+`;
+
+const fragmentShader = `
+    uniform vec3 uColor;
+    uniform float uOpacity;
+
+    uniform float uLength;
+    uniform float uStartFade;
+    uniform float uEndFade;
+
+    varying float vProgress;
+
+    void main() {
+        // Distance from each endpoint
+        // measured along the connection.
+        float fromStart =
+            vProgress * uLength;
+
+        float fromEnd =
+            (1.0 - vProgress) * uLength;
+
+        // The line disappears near each
+        // stellar surface and gradually
+        // emerges outside its atmosphere.
+        float startVisibility = smoothstep(
+            uStartFade * 0.65,
+            uStartFade,
+            fromStart
+        );
+
+        float endVisibility = smoothstep(
+            uEndFade * 0.65,
+            uEndFade,
+            fromEnd
+        );
+
+        float visibility =
+            startVisibility * endVisibility;
+
+        float alpha =
+            uOpacity * visibility;
+
+        gl_FragColor = vec4(
+            uColor,
+            alpha
+        );
+    }
+`;
 
 function getEdgeDelay(
     source: string,
@@ -54,13 +116,28 @@ export default function ConstellationConnection({
     endRadius,
 }: ConstellationConnectionProps) {
     const materialRef =
-        useRef<THREE.LineBasicMaterial>(null);
+        useRef<THREE.ShaderMaterial>(null);
 
     const geometry = useMemo(() => {
-        return new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(...start),
-            new THREE.Vector3(...end),
-        ]);
+        const buffer = new THREE.BufferGeometry();
+
+        buffer.setAttribute(
+            "position",
+            new THREE.Float32BufferAttribute(
+                [...start, ...end],
+                3
+            )
+        );
+
+        buffer.setAttribute(
+            "aProgress",
+            new THREE.Float32BufferAttribute(
+                [0, 1],
+                1
+            )
+        );
+
+        return buffer;
     }, [start, end]);
 
     useEffect(() => {
@@ -68,6 +145,32 @@ export default function ConstellationConnection({
             geometry.dispose();
         };
     }, [geometry]);
+
+    const length = useMemo(() => {
+        return new THREE.Vector3(...start)
+            .distanceTo(new THREE.Vector3(...end));
+    }, [start, end]);
+
+    const uniforms = useMemo(
+        () => ({
+            uColor: {
+                value: CONNECTION_COLORS.normal.clone(),
+            },
+            uOpacity: {
+                value: 0.5,
+            },
+            uLength: {
+                value: length,
+            },
+            uStartFade: {
+                value: startRadius * 2.0,
+            },
+            uEndFade: {
+                value: endRadius * 2.0,
+            },
+        }),
+        [length, startRadius, endRadius]
+    );
 
     const highlighted =
         selectedId !== null &&
@@ -95,7 +198,9 @@ export default function ConstellationConnection({
     );
 
     useFrame((_, delta) => {
-        if (!materialRef.current) return;
+        const material = materialRef.current;
+
+        if (!material) return;
 
         const targetOpacity =
             selectedId !== null
@@ -106,36 +211,43 @@ export default function ConstellationConnection({
                     ? 0.78
                     : 0.5;
 
-        const smoothing = 1 - Math.exp(-8 * delta);
-
-        materialRef.current.opacity = THREE.MathUtils.lerp(
-            materialRef.current.opacity,
-            targetOpacity,
-            smoothing
-        );
-
         const targetColor = highlighted
             ? CONNECTION_COLORS.selected
             : hoverHighlighted
                 ? CONNECTION_COLORS.hover
                 : CONNECTION_COLORS.normal;
 
-        materialRef.current.color.lerp(
+        const smoothing =
+            1 - Math.exp(-8 * delta);
+
+        material.uniforms.uOpacity.value =
+            THREE.MathUtils.lerp(
+                material.uniforms.uOpacity.value,
+                targetOpacity,
+                smoothing
+            );
+
+        (
+            material.uniforms.uColor
+                .value as THREE.Color
+        ).lerp(
             targetColor,
             smoothing
         );
     });
 
-
     return (
         <>
             <lineSegments geometry={geometry}>
-                <lineBasicMaterial
+                <shaderMaterial
                     ref={materialRef}
-                    color="#456b9a"
+                    uniforms={uniforms}
+                    vertexShader={vertexShader}
+                    fragmentShader={fragmentShader}
                     transparent
-                    opacity={0.5}
                     depthWrite={false}
+                    depthTest
+                    toneMapped={false}
                 />
             </lineSegments>
 
