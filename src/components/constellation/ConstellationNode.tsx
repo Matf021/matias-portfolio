@@ -7,6 +7,10 @@ import * as THREE from "three";
 import { subscribeToNodeArrival } from "@/lib/constellationEvents";
 import ConstellationLabel from "./ConstellationLabel";
 import NodeHalo from "./NodeHalo";
+import StellarCoreMaterial from "./StellarCoreMaterial";
+import ProceduralPhotosphereMaterial from "./ProceduralPhotosphereMaterial";
+import StellarChromosphere from "./StellarChromosphere";
+import StellarCorona from "./StellarCorona";
 
 import type {
     ConstellationNodeData,
@@ -16,17 +20,17 @@ const NODE_LIGHTING = {
     identity: {
         idle: 0.08,
         selected: 0.18,
-        halo: 0.10,
+        halo: 0.16,
     },
     discipline: {
         idle: 0.06,
         selected: 0.15,
-        halo: 0.05,
+        halo: 0.09,
     },
     detail: {
         idle: 0.04,
         selected: 0.12,
-        halo: 0,
+        halo: 0.025,
     },
     hoverBoost: 0.06,
     arrivalBoost: 0.30,
@@ -61,6 +65,9 @@ type ConstellationNodeProps = {
     onSelect: (id: string) => void;
     hoveredIdsRef: React.RefObject<Set<string>>;
     hiddenLabelsRef: React.RefObject<Set<string>>;
+    hoveredId: string | null;
+    hoverConnectedIds: Set<string>;
+    onHoverChange: (id: string | null) => void;
 };
 
 export default function ConstellationNode({
@@ -70,10 +77,13 @@ export default function ConstellationNode({
     onSelect,
     hoveredIdsRef,
     hiddenLabelsRef,
+    hoveredId,
+    hoverConnectedIds,
+    onHoverChange,
 }: ConstellationNodeProps) {
     const meshRef = useRef<THREE.Mesh>(null);
     const materialRef =
-        useRef<THREE.MeshStandardMaterial>(null);
+        useRef<THREE.ShaderMaterial>(null);
     const arrivalFlashRef = useRef(0);
     const [hovered, setHovered] = useState(false);
 
@@ -81,6 +91,11 @@ export default function ConstellationNode({
     const isConnected = connectedIds.has(node.id);
     const tier = getNodeTier(node.id);
     const lighting = NODE_LIGHTING[tier];
+
+    const isHoverRelated =
+        hoveredId !== null &&
+        hoveredId !== node.id &&
+        hoverConnectedIds.has(node.id);
 
     const isDimmed =
         selectedId !== null && !isConnected;
@@ -119,7 +134,9 @@ export default function ConstellationNode({
             ? 0.3
             : isConnected && selectedId !== null
                 ? 0.15
-                : lighting.halo;
+                : isHoverRelated && selectedId === null
+                    ? lighting.halo + 0.09
+                    : lighting.halo;
 
 
     useFrame((_, delta) => {
@@ -157,8 +174,10 @@ export default function ConstellationNode({
         // Animate node transparency.
         const targetOpacity = isDimmed ? 0.12 : 1;
 
-        materialRef.current.opacity = THREE.MathUtils.lerp(
-            materialRef.current.opacity,
+        const uniforms = materialRef.current.uniforms;
+
+        uniforms.uOpacity.value = THREE.MathUtils.lerp(
+            uniforms.uOpacity.value,
             targetOpacity,
             smoothing
         );
@@ -172,7 +191,9 @@ export default function ConstellationNode({
                     ? lighting.idle + NODE_LIGHTING.hoverBoost
                     : isConnected && selectedId !== null
                         ? lighting.idle + 0.025
-                        : lighting.idle;
+                        : isHoverRelated
+                            ? lighting.idle + 0.035
+                            : lighting.idle;
 
 
         const arrivalEmissive =
@@ -182,22 +203,36 @@ export default function ConstellationNode({
         const targetEmissive =
             baseEmissive + arrivalEmissive;
 
-        materialRef.current.emissiveIntensity = THREE.MathUtils.lerp(
-            materialRef.current.emissiveIntensity,
-            targetEmissive,
+        const targetBrightness =
+            1 + targetEmissive * 1.5;
+
+        uniforms.uBrightness.value = THREE.MathUtils.lerp(
+            uniforms.uBrightness.value,
+            targetBrightness,
             smoothing
         );
     });
 
     return (
         <group position={node.position}>
-            <NodeHalo
-                color={node.color}
-                radius={node.size * 4}
-                intensity={baseHaloIntensity}
-                arrivalFlashRef={arrivalFlashRef}
-                selected={isSelected}
-            />
+            {node.id === "matias" ? (
+                <StellarCorona
+                    color={node.color}
+                    radius={node.size}
+                    selected={isSelected}
+                    photosphereRef={meshRef}
+                    arrivalFlashRef={arrivalFlashRef}
+                    debug={false}
+                />
+            ) : (
+                <NodeHalo
+                    color={node.color}
+                    radius={node.size * 4}
+                    intensity={baseHaloIntensity}
+                    arrivalFlashRef={arrivalFlashRef}
+                    selected={isSelected}
+                />
+            )}
 
             <mesh
                 ref={meshRef}
@@ -207,30 +242,40 @@ export default function ConstellationNode({
                 }}
                 onPointerOver={(event) => {
                     event.stopPropagation();
-
                     hoveredIdsRef.current.add(node.id);
                     setHovered(true);
+                    onHoverChange(node.id);
                 }}
 
                 onPointerOut={() => {
                     hoveredIdsRef.current.delete(node.id);
                     setHovered(false);
+                    onHoverChange(null);
                 }}
             >
                 <sphereGeometry args={[node.size, 24, 24]} />
 
 
-                <meshStandardMaterial
-                    ref={materialRef}
-                    color={node.color}
-                    emissive={node.color}
-                    emissiveIntensity={lighting.idle}
-                    roughness={0.42}
-                    metalness={0.08}
-                    transparent
-                    opacity={1}
-                    depthWrite={false}
-                />
+                {node.id === "matias" ? (
+                    <ProceduralPhotosphereMaterial
+                        color={node.color}
+                        materialRef={materialRef}
+                    />
+                ) : (
+                    <StellarCoreMaterial
+                        color={node.color}
+                        materialRef={materialRef}
+                    />
+                )}
+
+                {node.id === "matias" && (
+                    <StellarChromosphere
+                        color={node.color}
+                        radius={node.size}
+                        selected={isSelected}
+                        arrivalFlashRef={arrivalFlashRef}
+                    />
+                )}
 
             </mesh>
 

@@ -57,7 +57,9 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [-4.5, 0.6, 0.6],
     color: "#a6d8ff",
     size: 0.2,
-    description: "Machine learning system for detecting manatee vocalizations.",
+    description:
+      "Machine learning system for detecting manatee vocalizations.",
+    disciplines: ["ai", "software"],
   },
   {
     id: "voice-notes",
@@ -66,7 +68,9 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [4.4, 0.7, 0.6],
     color: "#c3b0ff",
     size: 0.2,
-    description: "Cloud-based audio transcription and NLP application.",
+    description:
+      "Cloud-based audio transcription and NLP application.",
+    disciplines: ["cloud", "ai", "software"],
   },
   {
     id: "hospitality",
@@ -75,7 +79,9 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [4.3, -3, 0.4],
     color: "#a8ffe0",
     size: 0.2,
-    description: "Oracle database system for hospitality operations.",
+    description:
+      "Oracle database system for hospitality operations.",
+    disciplines: ["software"],
   },
   {
     id: "pipboy",
@@ -84,7 +90,9 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [-4.4, -3, 0.4],
     color: "#ffdaa6",
     size: 0.2,
-    description: "Gamified desktop productivity dashboard built with Rainmeter.",
+    description:
+      "Gamified desktop productivity dashboard built with Rainmeter.",
+    disciplines: ["creative", "software"],
   },
 
   // Technologies
@@ -95,6 +103,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [-2.1, 0.5, 1.5],
     color: "#a7cfff",
     size: 0.12,
+    disciplines: ["ai", "cloud", "software"],
   },
   {
     id: "flask",
@@ -103,6 +112,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [-5.3, 1.4, -0.4],
     color: "#a7cfff",
     size: 0.12,
+    disciplines: ["ai", "software"],
   },
   {
     id: "ml",
@@ -111,6 +121,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [-4.8, 2.8, -0.6],
     color: "#a7cfff",
     size: 0.12,
+    disciplines: ["ai"],
   },
   {
     id: "aws",
@@ -119,6 +130,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [4.9, 2.8, -0.6],
     color: "#c5b7ff",
     size: 0.12,
+    disciplines: ["cloud"],
   },
   {
     id: "chalice",
@@ -127,6 +139,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [5.5, 1.5, -0.4],
     color: "#c5b7ff",
     size: 0.12,
+    disciplines: ["cloud", "software"],
   },
   {
     id: "nlp",
@@ -135,6 +148,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [2, 0.7, 1.5],
     color: "#c5b7ff",
     size: 0.12,
+    disciplines: ["ai", "cloud"],
   },
   {
     id: "sql",
@@ -143,6 +157,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [5.3, -2.1, -0.4],
     color: "#b2ffe2",
     size: 0.12,
+    disciplines: ["software"],
   },
   {
     id: "oracle",
@@ -151,6 +166,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [5, -4, -0.5],
     color: "#b2ffe2",
     size: 0.12,
+    disciplines: ["software"],
   },
   {
     id: "docker",
@@ -159,6 +175,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [2.1, -3.2, 1.2],
     color: "#b2ffe2",
     size: 0.12,
+    disciplines: ["software", "cloud"],
   },
   {
     id: "rainmeter",
@@ -167,6 +184,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [-5.4, -4, -0.5],
     color: "#ffe0b4",
     size: 0.12,
+    disciplines: ["creative"],
   },
   {
     id: "lua",
@@ -175,6 +193,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [-5.3, -2.1, -0.4],
     color: "#ffe0b4",
     size: 0.12,
+    disciplines: ["creative", "software"],
   },
   {
     id: "react",
@@ -183,6 +202,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [1.6, -1.4, 1.5],
     color: "#b2ffe2",
     size: 0.12,
+    disciplines: ["software", "creative"],
   },
   {
     id: "typescript",
@@ -191,6 +211,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     position: [1.5, -2.6, 1.5],
     color: "#b2ffe2",
     size: 0.12,
+    disciplines: ["software", "creative"],
   },
 ];
 

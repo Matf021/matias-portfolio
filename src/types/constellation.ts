@@ -4,6 +4,12 @@ export type NodeCategory =
   | "project"
   | "technology";
 
+export type DisciplineId =
+  | "ai"
+  | "cloud"
+  | "creative"
+  | "software";
+
 export type Position3D = [number, number, number];
 
 export interface ConstellationNodeData {
@@ -14,6 +20,8 @@ export interface ConstellationNodeData {
   color: string;
   size: number;
   description?: string;
+
+  disciplines?: DisciplineId[];
 }
 
 export interface ConstellationEdge {

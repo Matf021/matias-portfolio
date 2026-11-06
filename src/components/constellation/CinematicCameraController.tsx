@@ -16,7 +16,6 @@ import { getSelectionFramingPositions } from "@/lib/cameraSelection";
 import { applyCameraSafeArea } from "@/lib/cameraComposition";
 import type { ScreenRect } from "@/types/camera";
 
-
 import type {
     ConstellationEdge,
 } from "@/types/constellation";

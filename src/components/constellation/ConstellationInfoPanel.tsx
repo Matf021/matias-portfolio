@@ -48,7 +48,15 @@ export default function ConstellationInfoPanel({
     return (
         <div
             style={accentStyle}
-            className="constellation-panel-enter flex max-h-[min(70vh,36rem)] flex-col overflow-hidden rounded-xl border border-border bg-background/95 shadow-2xl backdrop-blur-md"
+            className="
+                constellation-panel-enter
+                flex w-full flex-col overflow-hidden
+                max-h-[min(45svh,24rem)]
+                rounded-none border-x-0 border-b-0 border-t border-border
+                bg-background/95 shadow-2xl backdrop-blur-md
+                sm:max-h-[min(70vh,36rem)]
+                sm:rounded-xl sm:border
+            "
         >
             <div
                 className="h-[2px] shrink-0"
@@ -97,7 +105,7 @@ export default function ConstellationInfoPanel({
                 ref={contentRef}
                 className="min-h-0 overflow-y-auto overscroll-contain px-5 py-4"
             >
-                
+
                 <p className="text-sm leading-relaxed text-text-secondary">
                     {node.description ??
                         "Explore the connections within this part of my development journey."}

@@ -72,33 +72,55 @@ export function applyCameraSafeArea(
     const panelTop =
         panelRect.y / height;
 
-    // Only adjust when the panel reaches into
-    // the central composition region.
-    const horizontalOverlap =
-        Math.max(0, panelRight - 0.35);
+    const panelWidthRatio =
+        panelRect.width / width;
 
-    const verticalOverlap =
-        Math.max(0, 0.65 - panelTop);
+    // Identify a bottom sheet by its geometry,
+    // rather than relying on the browser width alone.
+    const isBottomSheet = panelWidthRatio >= 0.9;
 
-    if (
-        horizontalOverlap === 0 ||
-        verticalOverlap === 0
-    ) {
-        return destination;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (isBottomSheet) {
+        // The sheet occupies the lower portion of
+        // the canvas, so shift the focus upward.
+        const sheetHeightRatio =
+            Math.max(0, 1 - panelTop);
+
+        // Position the focus around the center of
+        // the unobstructed region.
+        const upwardShift =
+            Math.min(sheetHeightRatio * 0.5, 0.3);
+
+        offsetY = -upwardShift * visibleHeight;
+    } else {
+        // Preserve the existing desktop behavior.
+        const horizontalOverlap =
+            Math.max(0, panelRight - 0.35);
+
+        const verticalOverlap =
+            Math.max(0, 0.65 - panelTop);
+
+        if (
+            horizontalOverlap === 0 ||
+            verticalOverlap === 0
+        ) {
+            return destination;
+        }
+
+        offsetX =
+            Math.min(horizontalOverlap, 0.15) *
+            visibleWidth;
+
+        offsetY =
+            Math.min(verticalOverlap, 0.12) *
+            visibleHeight;
     }
-
-    // Keep the adjustment subtle.
-    const offsetX =
-        Math.min(horizontalOverlap, 0.15) *
-        visibleWidth;
-
-    const offsetY =
-        Math.min(verticalOverlap, 0.12) *
-        visibleHeight;
 
     const offset = right
         .multiplyScalar(-offsetX)
-        .addScaledVector(up, -offsetY);
+        .addScaledVector(up, offsetY);
 
     position.add(offset);
     target.add(offset);

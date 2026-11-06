@@ -135,9 +135,13 @@ export default function ConstellationScene() {
             {selectedNode && (
                 <div
                     ref={panelRef}
-                    className="pointer-events-none absolute bottom-4 left-4 right-4 z-10 max-h-[calc(100%-2rem)] sm:right-auto sm:w-96"
+                    className="
+            pointer-events-none
+            absolute bottom-0 left-0 right-0 z-10
+            sm:bottom-4 sm:left-4 sm:right-auto sm:w-96
+        "
                 >
-                    <div className="pointer-events-auto max-h-[calc(100dvh-2rem)]">
+                    <div className="pointer-events-auto">
                         <ConstellationInfoPanel
                             key={selectedNode.id}
                             node={selectedNode}

@@ -13,15 +13,21 @@ import type {
     Position3D,
 } from "@/types/constellation";
 
+const CONNECTION_COLORS = {
+    normal: new THREE.Color("#456b9a"),
+    hover: new THREE.Color("#719bd0"),
+    selected: new THREE.Color("#8ab8ff"),
+};
+
 type ConstellationConnectionProps = {
     start: Position3D;
     end: Position3D;
     edge: ConstellationEdge;
     selectedId: string | null;
+    hoveredId: string | null;
     startRadius: number;
     endRadius: number;
 };
-
 
 function getEdgeDelay(
     source: string,
@@ -43,6 +49,7 @@ export default function ConstellationConnection({
     end,
     edge,
     selectedId,
+    hoveredId,
     startRadius,
     endRadius,
 }: ConstellationConnectionProps) {
@@ -66,6 +73,11 @@ export default function ConstellationConnection({
         selectedId !== null &&
         isConnectedEdge(selectedId, edge);
 
+    const hoverHighlighted =
+        selectedId === null &&
+        hoveredId !== null &&
+        isConnectedEdge(hoveredId, edge);
+
     const pulseStart =
         selectedId === edge.target ? end : start;
 
@@ -86,11 +98,13 @@ export default function ConstellationConnection({
         if (!materialRef.current) return;
 
         const targetOpacity =
-            selectedId === null
-                ? 0.5
-                : highlighted
+            selectedId !== null
+                ? highlighted
                     ? 1
-                    : 0.05;
+                    : 0.05
+                : hoverHighlighted
+                    ? 0.78
+                    : 0.5;
 
         const smoothing = 1 - Math.exp(-8 * delta);
 
@@ -100,10 +114,14 @@ export default function ConstellationConnection({
             smoothing
         );
 
+        const targetColor = highlighted
+            ? CONNECTION_COLORS.selected
+            : hoverHighlighted
+                ? CONNECTION_COLORS.hover
+                : CONNECTION_COLORS.normal;
+
         materialRef.current.color.lerp(
-            new THREE.Color(
-                highlighted ? "#8ab8ff" : "#456b9a"
-            ),
+            targetColor,
             smoothing
         );
     });

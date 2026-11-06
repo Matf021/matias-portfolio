@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Stats } from "@react-three/drei";
 import AtmosphericStarfield from "./AtmosphericStarfield";
@@ -43,15 +44,36 @@ export default function SceneContent({
     panelRect,
     overviewRequest,
 }: SceneContentProps) {
+    const { size } = useThree();
+
+    const layoutMode =
+        size.width < 640 ? "mobile" : "desktop";
     const controlsRef =
         useRef<OrbitControlsImpl>(null);
 
     const hoveredIdsRef = useRef<Set<string>>(new Set());
     const hiddenLabelsRef = useRef<Set<string>>(new Set());
 
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+    const hoverConnectedIds = useMemo(
+        () =>
+            hoveredId
+                ? getConnectedNodes(
+                    hoveredId,
+                    constellationEdges
+                )
+                : new Set<string>(),
+        [hoveredId]
+    );
+
     const positionedNodes = useMemo(
-        () => resolveNodePositions(constellationNodes),
-        []
+        () =>
+            resolveNodePositions(
+                constellationNodes,
+                layoutMode
+            ),
+        [layoutMode]
     );
 
     const nodeMap = useMemo(
@@ -107,6 +129,7 @@ export default function SceneContent({
                         endRadius={target.size}
                         edge={edge}
                         selectedId={selectedId}
+                        hoveredId={hoveredId}
                     />
                 );
             })}
@@ -128,6 +151,10 @@ export default function SceneContent({
                     onSelect={onSelect}
                     hoveredIdsRef={hoveredIdsRef}
                     hiddenLabelsRef={hiddenLabelsRef}
+
+                    hoveredId={hoveredId}
+                    hoverConnectedIds={hoverConnectedIds}
+                    onHoverChange={setHoveredId}
                 />
             ))}
 

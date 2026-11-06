@@ -27,6 +27,7 @@ const vertexShader = `
   }
 `;
 
+
 const fragmentShader = `
   uniform vec3 uColor;
   uniform float uIntensity;
@@ -35,29 +36,35 @@ const fragmentShader = `
 
   void main() {
     vec2 centeredUv = vUv - vec2(0.5);
+    float r = length(centeredUv) * 2.0;
 
-    float distanceFromCenter =
-      length(centeredUv) * 2.0;
-
-    // Soft radial falloff.
-    float glow = exp(
-      -2.5 *
-      distanceFromCenter *
-      distanceFromCenter
+    // Concentrated light close to the stellar core.
+    float innerCorona = exp(
+      -10.0 * r * r
     );
 
-    // Fade out at the outer boundary.
+    // Broad, faint atmospheric illumination.
+    float outerAtmosphere = exp(
+      -3.5 * r * r
+    );
+
+    // Smoothly fade the atmosphere at the
+    // edge of the billboard.
     float edgeFade =
-      1.0 - smoothstep(
-        0.55,
-        1.0,
-        distanceFromCenter
-      );
+      1.0 - smoothstep(0.65, 1.0, r);
+
+    // Keep the outer atmosphere restrained.
+    float glow =
+      innerCorona * 0.65 +
+      outerAtmosphere * 0.35;
 
     float alpha =
       glow * edgeFade * uIntensity;
 
-    gl_FragColor = vec4(uColor, alpha);
+    gl_FragColor = vec4(
+      uColor,
+      alpha
+    );
   }
 `;
 
