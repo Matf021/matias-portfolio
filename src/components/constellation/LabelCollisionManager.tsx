@@ -1,10 +1,13 @@
 
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { projectLabelBounds } from "@/lib/labelProjection";
+import {
+    getStellarVisualScale,
+} from "@/lib/stellarLabel";
 
 import {
     getLabelPriority,
@@ -36,8 +39,6 @@ export default function LabelCollisionManager({
 }: Props) {
     const { camera, size } = useThree();
 
-    const worldPosition = useRef(new THREE.Vector3());
-
     useFrame(() => {
         camera.updateMatrixWorld();
         const candidates: LabelCandidate[] = [];
@@ -45,6 +46,10 @@ export default function LabelCollisionManager({
         for (const node of nodes) {
             const selected = node.id === selectedId;
             const hovered = hoveredIdsRef.current.has(node.id);
+            const visualScale = getStellarVisualScale(
+                selected,
+                hovered
+            );
             const connected =
                 selectedId !== null &&
                 connectedIds.has(node.id);
@@ -62,13 +67,6 @@ export default function LabelCollisionManager({
                 continue;
             }
 
-            worldPosition.current.set(...node.position);
-
-            // Match the vertical label offset.
-            worldPosition.current.y -= node.size + 0.23;
-
-            worldPosition.current.project(camera);
-
             const scale =
                 selected ? 1.12 : hovered ? 1.06 : 1;
 
@@ -77,7 +75,8 @@ export default function LabelCollisionManager({
                 camera as THREE.PerspectiveCamera,
                 size.width,
                 size.height,
-                scale
+                scale,
+                visualScale
             );
 
             if (!rect) continue;

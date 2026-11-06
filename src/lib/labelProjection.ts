@@ -9,6 +9,10 @@ import type {
     LabelRect,
 } from "@/lib/labelCollision";
 
+import {
+    getStellarLabelOffset,
+} from "@/lib/stellarLabel";
+
 const LABEL_FONT_SIZE = {
     identity: 0.24,
     discipline: 0.2,
@@ -30,26 +34,40 @@ export function projectLabelBounds(
     camera: THREE.PerspectiveCamera,
     viewportWidth: number,
     viewportHeight: number,
-    scale = 1
+    scale = 1,
+    visualScale = 1
 ): LabelRect | null {
     const worldPosition = new THREE.Vector3(
         ...node.position
     );
 
-    worldPosition.y -= node.size + 0.23;
-
-    // Convert the world position to camera coordinates.
+    // Transform the node center into
+    // camera-space coordinates.
     const cameraSpace = worldPosition
         .clone()
         .applyMatrix4(camera.matrixWorldInverse);
 
+    // Billboard offsets are relative to
+    // the camera's vertical direction.
+    cameraSpace.y += getStellarLabelOffset(
+        node,
+        visualScale
+    );
+
     const depth = -cameraSpace.z;
 
-    if (depth <= camera.near || depth >= camera.far) {
+    if (
+        depth <= camera.near ||
+        depth >= camera.far
+    ) {
         return null;
     }
 
-    const projected = worldPosition.clone().project(camera);
+    // Project the camera-space position
+    // using the camera's projection matrix.
+    const projected = cameraSpace
+        .clone()
+        .applyMatrix4(camera.projectionMatrix);
 
     if (
         projected.z < -1 ||
@@ -58,7 +76,8 @@ export function projectLabelBounds(
         return null;
     }
 
-    const verticalFov = THREE.MathUtils.degToRad(camera.fov);
+    const verticalFov =
+        THREE.MathUtils.degToRad(camera.fov);
 
     const pixelsPerWorldUnit =
         viewportHeight /
@@ -68,7 +87,8 @@ export function projectLabelBounds(
             Math.tan(verticalFov / 2)
         );
 
-    const fontSize = getLabelFontSize(node) * scale;
+    const fontSize =
+        getLabelFontSize(node) * scale;
 
     const estimatedWorldWidth =
         node.label.length *

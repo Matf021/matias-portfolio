@@ -6,6 +6,10 @@ import { useFrame } from "@react-three/fiber";
 import { Billboard, Text } from "@react-three/drei";
 import * as THREE from "three";
 import { getLabelFontSize } from "@/lib/labelProjection";
+import {
+    getStellarLabelOffset,
+    getStellarVisualScale,
+} from "@/lib/stellarLabel";
 
 import type {
     ConstellationNodeData,
@@ -42,6 +46,17 @@ export default function ConstellationLabel({
     const materialRef = useRef<THREE.MeshBasicMaterial>(null);
     const billboardRef = useRef<THREE.Group>(null);
     const worldPosition = useRef(new THREE.Vector3());
+    const textRef = useRef<THREE.Mesh>(null);
+
+    const visualScale = getStellarVisualScale(
+        selected,
+        hovered
+    );
+
+    const targetLabelY = getStellarLabelOffset(
+        node,
+        visualScale
+    );
 
     const isPriority = hovered || selected;
 
@@ -75,6 +90,18 @@ export default function ConstellationLabel({
         if (!material || !billboard) return;
 
         billboard.getWorldPosition(worldPosition.current);
+
+        const text = textRef.current;
+
+        if (text) {
+            const smoothing = 1 - Math.exp(-8 * delta);
+
+            text.position.y = THREE.MathUtils.lerp(
+                text.position.y,
+                targetLabelY,
+                smoothing
+            );
+        }
 
         const distance = camera.position.distanceTo(
             worldPosition.current
@@ -130,7 +157,8 @@ export default function ConstellationLabel({
             lockZ={false}
         >
             <Text
-                position={[0, -node.size - 0.23, 0]}
+                ref={textRef}
+                position={[0, targetLabelY, 0]}
                 fontSize={emphasizedLabelSize}
                 color={labelColor}
                 anchorX="center"
