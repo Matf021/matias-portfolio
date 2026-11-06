@@ -8,6 +8,7 @@ import * as THREE from "three";
 type ProceduralPhotosphereMaterialProps = {
     color: string;
     materialRef: React.RefObject<THREE.ShaderMaterial | null>;
+    detail?: "primary" | "secondary";
 };
 
 const vertexShader = `
@@ -36,6 +37,9 @@ const fragmentShader = `
     uniform float uOpacity;
     uniform float uBrightness;
     uniform float uTime;
+    uniform float uLargeFrequency;
+    uniform float uFineFrequency;
+    uniform float uVariationStrength;
 
     varying vec3 vNormal;
     varying vec3 vViewPosition;
@@ -93,13 +97,13 @@ const fragmentShader = `
 
         // Large-scale convection-inspired structure.
         float largePattern = noise3D(
-            surfacePosition * 5.0 +
+            surfacePosition * uLargeFrequency +
             vec3(t, t * 0.6, -t * 0.4)
         );
 
         // Smaller surface granulation.
         float finePattern = noise3D(
-            surfacePosition * 17.0 +
+            surfacePosition * uFineFrequency +
             vec3(-t * 1.2, t * 0.8, t)
         );
 
@@ -110,7 +114,7 @@ const fragmentShader = `
 
         // Center the variation around zero.
         float thermalVariation =
-            (granulation - 0.5) * 0.42;
+            (granulation - 0.5) * uVariationStrength;
 
         // Photospheric limb darkening.
         float limbDarkening =
@@ -155,6 +159,7 @@ const fragmentShader = `
 export default function ProceduralPhotosphereMaterial({
     color,
     materialRef,
+    detail = "primary",
 }: ProceduralPhotosphereMaterialProps) {
     const uniforms = useMemo(
         () => ({
@@ -170,8 +175,17 @@ export default function ProceduralPhotosphereMaterial({
             uTime: {
                 value: 0,
             },
+            uLargeFrequency: {
+                value: detail === "primary" ? 5 : 4,
+            },
+            uFineFrequency: {
+                value: detail === "primary" ? 17 : 12,
+            },
+            uVariationStrength: {
+                value: detail === "primary" ? 0.42 : 0.28,
+            },
         }),
-        [color]
+        [color, detail]
     );
 
     useFrame(({ clock }) => {

@@ -90,6 +90,11 @@ export default function ConstellationNode({
     const isSelected = selectedId === node.id;
     const isConnected = connectedIds.has(node.id);
     const tier = getNodeTier(node.id);
+    const isPrimaryStar = tier === "identity";
+    const isDisciplineStar = tier === "discipline";
+
+    const hasStellarAtmosphere =
+        isPrimaryStar || isDisciplineStar;
     const lighting = NODE_LIGHTING[tier];
 
     const isHoverRelated =
@@ -97,8 +102,10 @@ export default function ConstellationNode({
         hoveredId !== node.id &&
         hoverConnectedIds.has(node.id);
 
-    const isDimmed =
-        selectedId !== null && !isConnected;
+    const isEclipsed =
+        selectedId !== null &&
+        !isSelected &&
+        !isConnected;
 
     useEffect(() => {
         if (!hovered) return;
@@ -172,7 +179,7 @@ export default function ConstellationNode({
         meshRef.current.scale.setScalar(nextScale);
 
         // Animate node transparency.
-        const targetOpacity = isDimmed ? 0.12 : 1;
+        const targetOpacity = isEclipsed ? 0.12 : 1;
 
         const uniforms = materialRef.current.uniforms;
 
@@ -183,7 +190,7 @@ export default function ConstellationNode({
         );
 
 
-        const baseEmissive = isDimmed
+        const baseEmissive = isEclipsed
             ? lighting.idle * 0.5
             : isSelected
                 ? lighting.selected
@@ -215,13 +222,15 @@ export default function ConstellationNode({
 
     return (
         <group position={node.position}>
-            {node.id === "matias" ? (
+            {hasStellarAtmosphere ? (
                 <StellarCorona
                     color={node.color}
                     radius={node.size}
                     selected={isSelected}
+                    eclipsed={isEclipsed}
                     photosphereRef={meshRef}
                     arrivalFlashRef={arrivalFlashRef}
+                    intensityScale={isPrimaryStar ? 1 : 0.7}
                     debug={false}
                 />
             ) : (
@@ -256,10 +265,11 @@ export default function ConstellationNode({
                 <sphereGeometry args={[node.size, 24, 24]} />
 
 
-                {node.id === "matias" ? (
+                {hasStellarAtmosphere ? (
                     <ProceduralPhotosphereMaterial
                         color={node.color}
                         materialRef={materialRef}
+                        detail={isPrimaryStar ? "primary" : "secondary"}
                     />
                 ) : (
                     <StellarCoreMaterial
@@ -268,12 +278,13 @@ export default function ConstellationNode({
                     />
                 )}
 
-                {node.id === "matias" && (
+                {hasStellarAtmosphere && (
                     <StellarChromosphere
                         color={node.color}
                         radius={node.size}
                         selected={isSelected}
                         arrivalFlashRef={arrivalFlashRef}
+                        intensityScale={isPrimaryStar ? 1 : 0.65}
                     />
                 )}
 

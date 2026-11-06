@@ -10,6 +10,7 @@ type StellarChromosphereProps = {
     radius: number;
     selected: boolean;
     arrivalFlashRef?: React.RefObject<number>;
+    intensityScale?: number;
 };
 
 const vertexShader = `
@@ -133,6 +134,7 @@ export default function StellarChromosphere({
     radius,
     selected,
     arrivalFlashRef,
+    intensityScale = 1,
 }: StellarChromosphereProps) {
     const materialRef =
         useRef<THREE.ShaderMaterial>(null);
@@ -160,8 +162,10 @@ export default function StellarChromosphere({
             arrivalFlashRef?.current ?? 0;
 
         const targetIntensity =
-            (selected ? 0.4 : 0.22) +
-            arrival * 0.25;
+            (
+                (selected ? 0.4 : 0.22) +
+                arrival * 0.25
+            ) * intensityScale;
 
         const smoothing =
             1 - Math.exp(-5 * delta);

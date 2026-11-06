@@ -10,8 +10,10 @@ type StellarCoronaProps = {
     color: string;
     radius: number;
     selected: boolean;
+    eclipsed?: boolean;
     photosphereRef: React.RefObject<THREE.Mesh | null>;
     arrivalFlashRef?: React.RefObject<number>;
+    intensityScale?: number;
     debug?: boolean;
 };
 
@@ -341,9 +343,11 @@ export default function StellarCorona({
     color,
     radius,
     selected,
+    eclipsed = false,
     photosphereRef,
     arrivalFlashRef,
     debug = false,
+    intensityScale = 1,
 }: StellarCoronaProps) {
     const meshRef = useRef<THREE.Mesh>(null);
 
@@ -383,13 +387,27 @@ export default function StellarCorona({
         const smoothing =
             1 - Math.exp(-5 * delta);
 
+        // An eclipsed star retains a luminous rim,
+        // but loses most of its extended atmosphere.
+        const innerBase = eclipsed
+            ? 0.46
+            : selected
+                ? 0.56
+                : 0.36;
+
+        const outerBase = eclipsed
+            ? 0.055
+            : selected
+                ? 0.46
+                : 0.24;
+
         const targetInner =
-            (selected ? 0.56 : 0.36) +
-            arrival * 0.16;
+            (innerBase + arrival * 0.16) *
+            intensityScale;
 
         const targetOuter =
-            (selected ? 0.38 : 0.24) +
-            arrival * 0.12;
+            (outerBase + arrival * 0.12) *
+            intensityScale;
 
         material.uniforms.uInnerIntensity.value =
             THREE.MathUtils.lerp(

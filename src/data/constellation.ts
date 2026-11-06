@@ -45,7 +45,7 @@ export const constellationNodes: ConstellationNodeData[] = [
     label: "Software Engineering",
     category: "discipline",
     position: [3.2, -1.8, 0],
-    color: "#92ffcf",
+    color: "#6ddbb8",
     size: 0.3,
   },
 
