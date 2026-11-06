@@ -165,8 +165,98 @@ const fragmentShader = `
             -1.15 * outside
         );
 
-        float outerCorona =
+        
+        // --------------------------------
+        // OUTER CORONAL FILAMENTS
+        // --------------------------------
+
+        // Keep the existing diffuse outer
+        // corona as our stable foundation.
+        float diffuseOuter =
             density * outerFalloff;
+
+        // Use an angle around the star.
+        float angle = atan(
+            direction.y,
+            direction.x
+        );
+
+        // A slow, radius-dependent angular
+        // displacement creates curved paths.
+        float filamentBend =
+            0.13 * outside +
+            0.045 * sin(
+                outside * 1.7 + t * 0.6
+            );
+
+        float filamentAngle =
+            angle + filamentBend;
+
+        // Four broad, smooth directional
+        // regions around the star.
+        //
+        // Each uses a periodic cosine,
+        // so there is no angular seam.
+        float filamentPattern =
+            0.5 + 0.5 * cos(
+                filamentAngle * 4.0 + 0.7
+            );
+
+        // Narrow the brighter regions,
+        // without introducing hard edges.
+        float filamentShape =
+            pow(filamentPattern, 6.0);
+
+        // Add gentle spatial variation
+        // along the filament paths.
+        vec2 filamentDirection = vec2(
+            cos(filamentAngle),
+            sin(filamentAngle)
+        );
+
+        float filamentVariation = noise2D(
+            filamentDirection *
+                (3.0 + outside * 0.35) +
+            vec2(
+                outside * 0.25,
+                -t * 0.4
+            )
+        );
+
+        float filamentDensity =
+            filamentShape *
+            mix(
+                0.65,
+                1.0,
+                filamentVariation
+            );
+
+        // Filaments become visible beyond
+        // the immediate atmospheric boundary.
+        float filamentStart = smoothstep(
+            0.10,
+            0.45,
+            outside
+        );
+
+        // Extend farther than the diffuse
+        // outer corona, but remain faint.
+        float filamentFalloff = exp(
+            -0.78 * outside
+        );
+
+        float filaments =
+            filamentDensity *
+            filamentStart *
+            filamentFalloff;
+
+        // Combine both outer structures.
+        // The diffuse atmosphere remains
+        // dominant.
+        float outerCorona =
+            diffuseOuter * 0.88 +
+            filaments * 0.12;
+
 
         // --------------------------------
         // COMPOSITION
