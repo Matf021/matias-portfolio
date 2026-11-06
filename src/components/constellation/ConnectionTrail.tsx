@@ -24,6 +24,7 @@ const vertexShader = `
   }
 `;
 
+
 const fragmentShader = `
   uniform vec3 uColor;
   uniform float uOpacity;
@@ -31,24 +32,37 @@ const fragmentShader = `
   varying vec2 vUv;
 
   void main() {
-    // Tail fades toward the left.
+    // Gradually brighten toward the traveling particle.
     float longitudinalFade =
       smoothstep(0.0, 1.0, vUv.x);
 
-    // Soft edges across the trail's width.
+    longitudinalFade *= longitudinalFade;
+
+    // A broader, softer luminous trail.
     float distanceFromCenter =
       abs(vUv.y - 0.5) * 2.0;
 
-    float widthFade =
-      exp(-6.0 * distanceFromCenter *
-          distanceFromCenter);
+    float widthFade = exp(
+      -4.5 *
+      distanceFromCenter *
+      distanceFromCenter
+    );
+
+    // Slightly soften the trail's tip.
+    float tipFade =
+      1.0 - 0.12 *
+      smoothstep(0.85, 1.0, vUv.x);
 
     float alpha =
       longitudinalFade *
       widthFade *
+      tipFade *
       uOpacity;
 
-    gl_FragColor = vec4(uColor, alpha);
+    gl_FragColor = vec4(
+      uColor,
+      alpha
+    );
   }
 `;
 

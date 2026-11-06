@@ -301,7 +301,7 @@ export default function ConnectionPulse({
             );
 
             trailMaterial.uniforms.uOpacity.value =
-                fade * 1.2;
+                fade * 0.7;
 
             trailMesh.visible = true;
         }

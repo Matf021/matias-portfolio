@@ -44,6 +44,7 @@ const vertexShader = `
     }
 `;
 
+
 const fragmentShader = `
     uniform vec3 uColor;
     uniform float uOpacity;
@@ -55,25 +56,21 @@ const fragmentShader = `
     varying float vProgress;
 
     void main() {
-        // Distance from each endpoint
-        // measured along the connection.
         float fromStart =
             vProgress * uLength;
 
         float fromEnd =
             (1.0 - vProgress) * uLength;
 
-        // The line disappears near each
-        // stellar surface and gradually
-        // emerges outside its atmosphere.
+        // Gradually emerge from each star's atmosphere.
         float startVisibility = smoothstep(
-            uStartFade * 0.65,
+            0.0,
             uStartFade,
             fromStart
         );
 
         float endVisibility = smoothstep(
-            uEndFade * 0.65,
+            0.0,
             uEndFade,
             fromEnd
         );
@@ -81,8 +78,17 @@ const fragmentShader = `
         float visibility =
             startVisibility * endVisibility;
 
+        // A restrained brightness variation along
+        // the connection, strongest near its center.
+        float centerPresence =
+            0.88 +
+            0.12 *
+            sin(vProgress * 3.14159265);
+
         float alpha =
-            uOpacity * visibility;
+            uOpacity *
+            visibility *
+            centerPresence;
 
         gl_FragColor = vec4(
             uColor,
@@ -90,6 +96,7 @@ const fragmentShader = `
         );
     }
 `;
+
 
 function getEdgeDelay(
     source: string,

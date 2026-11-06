@@ -25,6 +25,7 @@ const vertexShader = `
   }
 `;
 
+
 const fragmentShader = `
   uniform vec3 uColor;
   uniform float uOpacity;
@@ -37,19 +38,20 @@ const fragmentShader = `
     float distanceFromCenter =
       length(centered) * 2.0;
 
-    // Bright, concentrated white core.
-    float core =
-      exp(-80.0 *
-          distanceFromCenter *
-          distanceFromCenter);
+    // Small luminous center.
+    float core = exp(
+      -55.0 *
+      distanceFromCenter *
+      distanceFromCenter
+    );
 
-    // Soft surrounding glow.
-    float glow =
-      exp(-7.0 *
-          distanceFromCenter *
-          distanceFromCenter);
+    // Broader, diffuse stellar glow.
+    float glow = exp(
+      -5.5 *
+      distanceFromCenter *
+      distanceFromCenter
+    );
 
-    // Remove the square plane's corners.
     float edgeFade =
       1.0 - smoothstep(
         0.65,
@@ -57,18 +59,26 @@ const fragmentShader = `
         distanceFromCenter
       );
 
-    vec3 finalColor =
-      mix(uColor, vec3(1.0), core);
+    // Keep a recognizable white center,
+    // without turning the whole particle white.
+    vec3 finalColor = mix(
+      uColor,
+      vec3(1.0),
+      core * 0.8
+    );
 
     float alpha =
-      (core * 0.9 + glow * 0.7) *
+      (core * 0.8 + glow * 0.55) *
       edgeFade *
       uOpacity;
 
-    gl_FragColor =
-      vec4(finalColor, alpha);
+    gl_FragColor = vec4(
+      finalColor,
+      alpha
+    );
   }
 `;
+
 
 export default function EnergyParticle({
     groupRef,
