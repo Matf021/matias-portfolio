@@ -11,6 +11,7 @@ import StellarCoreMaterial from "./StellarCoreMaterial";
 import ProceduralPhotosphereMaterial from "./ProceduralPhotosphereMaterial";
 import StellarChromosphere from "./StellarChromosphere";
 import StellarCorona from "./StellarCorona";
+import { getStellarPalette } from "@/lib/stellarPalette";
 
 import type {
     ConstellationNodeData,
@@ -92,10 +93,17 @@ export default function ConstellationNode({
     const tier = getNodeTier(node.id);
     const isPrimaryStar = tier === "identity";
     const isDisciplineStar = tier === "discipline";
+    const isProjectStar = node.category === "project";
+
+    const stellarPalette = getStellarPalette(node);
 
     const hasStellarAtmosphere =
-        isPrimaryStar || isDisciplineStar;
+        isPrimaryStar || isDisciplineStar || isProjectStar;
+
     const lighting = NODE_LIGHTING[tier];
+
+    const usesProceduralPhotosphere =
+        hasStellarAtmosphere || isProjectStar;
 
     const isHoverRelated =
         hoveredId !== null &&
@@ -136,7 +144,9 @@ export default function ConstellationNode({
     }, [node.id, hoveredIdsRef]);
 
     const baseHaloIntensity = isSelected
-        ? 0.65
+        ? isProjectStar
+            ? 0.72
+            : 0.65
         : hovered
             ? 0.3
             : isConnected && selectedId !== null
@@ -210,8 +220,14 @@ export default function ConstellationNode({
         const targetEmissive =
             baseEmissive + arrivalEmissive;
 
-        const targetBrightness =
-            1 + targetEmissive * 1.5;
+        const brightnessMultiplier =
+            usesProceduralPhotosphere
+                ? 0.45
+                : 1.5;
+
+        const targetBrightness = isProjectStar
+            ? 1.0
+            : 1 + targetEmissive * brightnessMultiplier;
 
         uniforms.uBrightness.value = THREE.MathUtils.lerp(
             uniforms.uBrightness.value,
@@ -230,7 +246,13 @@ export default function ConstellationNode({
                     eclipsed={isEclipsed}
                     photosphereRef={meshRef}
                     arrivalFlashRef={arrivalFlashRef}
-                    intensityScale={isPrimaryStar ? 1 : 0.7}
+                    intensityScale={
+                        isPrimaryStar
+                            ? 1
+                            : isDisciplineStar
+                                ? 0.7
+                                : 0.5
+                    }
                     debug={false}
                 />
             ) : (
@@ -265,11 +287,16 @@ export default function ConstellationNode({
                 <sphereGeometry args={[node.size, 24, 24]} />
 
 
-                {hasStellarAtmosphere ? (
+                {usesProceduralPhotosphere ? (
                     <ProceduralPhotosphereMaterial
                         color={node.color}
                         materialRef={materialRef}
                         detail={isPrimaryStar ? "primary" : "secondary"}
+                        palette={
+                            isProjectStar
+                                ? stellarPalette
+                                : undefined
+                        }
                     />
                 ) : (
                     <StellarCoreMaterial
@@ -284,7 +311,13 @@ export default function ConstellationNode({
                         radius={node.size}
                         selected={isSelected}
                         arrivalFlashRef={arrivalFlashRef}
-                        intensityScale={isPrimaryStar ? 1 : 0.65}
+                        intensityScale={
+                            isPrimaryStar
+                                ? 1
+                                : isDisciplineStar
+                                    ? 0.65
+                                    : 0.45
+                        }
                     />
                 )}
 

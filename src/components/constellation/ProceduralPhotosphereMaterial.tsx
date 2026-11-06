@@ -4,10 +4,12 @@
 import { useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import type { StellarPalette } from "@/lib/stellarPalette";
 
 type ProceduralPhotosphereMaterialProps = {
     color: string;
     materialRef: React.RefObject<THREE.ShaderMaterial | null>;
+    palette?: StellarPalette;
     detail?: "primary" | "secondary";
 };
 
@@ -34,6 +36,10 @@ const vertexShader = `
 
 const fragmentShader = `
     uniform vec3 uColor;
+    uniform vec3 uPrimaryColor;
+    uniform vec3 uSecondaryColor;
+    uniform vec3 uTertiaryColor;
+    uniform float uColorCount;
     uniform float uOpacity;
     uniform float uBrightness;
     uniform float uTime;
@@ -112,6 +118,61 @@ const fragmentShader = `
             largePattern * 0.65 +
             finePattern * 0.35;
 
+        // Broad regions of different stellar temperatures.
+        // These reuse the existing noise system.
+        
+        vec3 blendedColor = uPrimaryColor;
+
+        if (uColorCount > 1.5) {
+            float colorPattern = noise3D(
+                surfacePosition * 3.2 +
+                vec3(
+                    t * 0.45,
+                    -t * 0.3,
+                    t * 0.2
+                )
+            );
+
+            float colorDetail = noise3D(
+                surfacePosition * 8.0 +
+                vec3(
+                    -t * 0.6,
+                    t * 0.4,
+                    t * 0.3
+                )
+            );
+
+            float colorVariation =
+                colorPattern * 0.8 +
+                colorDetail * 0.2;
+
+            float secondaryWeight = smoothstep(
+                0.40,
+                0.78,
+                colorVariation
+            ) * 0.24;
+
+            blendedColor = mix(
+                blendedColor,
+                uSecondaryColor,
+                secondaryWeight
+            );
+
+            if (uColorCount > 2.5) {
+                float tertiaryWeight = smoothstep(
+                    0.42,
+                    0.78,
+                    1.0 - colorVariation
+                ) * 0.25;
+
+                blendedColor = mix(
+                    blendedColor,
+                    uTertiaryColor,
+                    tertiaryWeight
+                );
+            }
+        }
+
         // Center the variation around zero.
         float thermalVariation =
             (granulation - 0.5) * uVariationStrength;
@@ -121,14 +182,17 @@ const fragmentShader = `
             0.68 + 0.32 * pow(facing, 0.65);
 
         // Mildly warmer/brighter regions.
+        float whiteningStrength =
+            uColorCount > 1.5 ? 0.06 : 0.10;
+
         vec3 brightColor = mix(
-            uColor,
+            blendedColor,
             vec3(1.0),
-            0.28
+            whiteningStrength
         );
 
         vec3 surfaceColor = mix(
-            uColor,
+            blendedColor,
             brightColor,
             clamp(
                 granulation * 0.85,
@@ -156,15 +220,37 @@ const fragmentShader = `
     }
 `;
 
+
 export default function ProceduralPhotosphereMaterial({
     color,
     materialRef,
+    palette,
     detail = "primary",
 }: ProceduralPhotosphereMaterialProps) {
+    const isPrimary = detail === "primary";
+
     const uniforms = useMemo(
         () => ({
             uColor: {
                 value: new THREE.Color(color),
+            },
+            uPrimaryColor: {
+                value: new THREE.Color(
+                    palette?.primary ?? color
+                ),
+            },
+            uSecondaryColor: {
+                value: new THREE.Color(
+                    palette?.secondary ?? color
+                ),
+            },
+            uTertiaryColor: {
+                value: new THREE.Color(
+                    palette?.tertiary ?? color
+                ),
+            },
+            uColorCount: {
+                value: palette?.colorCount ?? 1,
             },
             uOpacity: {
                 value: 1,
@@ -175,17 +261,26 @@ export default function ProceduralPhotosphereMaterial({
             uTime: {
                 value: 0,
             },
+
+            // Restore the procedural surface controls.
             uLargeFrequency: {
-                value: detail === "primary" ? 5 : 4,
+                value: isPrimary ? 5.0 : 6.5,
             },
             uFineFrequency: {
-                value: detail === "primary" ? 17 : 12,
+                value: isPrimary ? 17.0 : 21.0,
             },
             uVariationStrength: {
-                value: detail === "primary" ? 0.42 : 0.28,
+                value: isPrimary ? 0.42 : 0.34,
             },
         }),
-        [color, detail]
+        [
+            color,
+            palette?.primary,
+            palette?.secondary,
+            palette?.tertiary,
+            palette?.colorCount,
+            isPrimary,
+        ]
     );
 
     useFrame(({ clock }) => {
