@@ -33,6 +33,7 @@ type ConstellationLabelProps = {
     connected: boolean;
     hasSelection: boolean;
     hiddenLabelsRef: React.RefObject<Set<string>>;
+    labelOffsetsRef: React.RefObject<Map<string, number>>;
 };
 
 export default function ConstellationLabel({
@@ -42,6 +43,7 @@ export default function ConstellationLabel({
     connected,
     hasSelection,
     hiddenLabelsRef,
+    labelOffsetsRef,
 }: ConstellationLabelProps) {
     const materialRef = useRef<THREE.MeshBasicMaterial>(null);
     const billboardRef = useRef<THREE.Group>(null);
@@ -83,25 +85,44 @@ export default function ConstellationLabel({
                 ? labelSize * 1.06
                 : labelSize;
 
-    useFrame(({ camera }, delta) => {
+    useFrame(({ camera, size }, delta) => {
         const material = materialRef.current;
         const billboard = billboardRef.current;
+        const text = textRef.current;
+
+        if (text && camera instanceof THREE.PerspectiveCamera) {
+            const offsetPx =
+                labelOffsetsRef.current.get(node.id) ?? 0;
+
+            const depthPosition = worldPosition.current
+                .clone()
+                .applyMatrix4(camera.matrixWorldInverse);
+
+            const depth = -depthPosition.z;
+
+            if (depth > 0) {
+                const verticalFov =
+                    THREE.MathUtils.degToRad(camera.fov);
+
+                const worldUnitsPerPixel =
+                    (
+                        2 *
+                        depth *
+                        Math.tan(verticalFov / 2)
+                    ) /
+                    size.height;
+
+                const targetY =
+                    targetLabelY -
+                    offsetPx * worldUnitsPerPixel;
+
+                text.position.y = targetY;
+            }
+        }
 
         if (!material || !billboard) return;
 
         billboard.getWorldPosition(worldPosition.current);
-
-        const text = textRef.current;
-
-        if (text) {
-            const smoothing = 1 - Math.exp(-8 * delta);
-
-            text.position.y = THREE.MathUtils.lerp(
-                text.position.y,
-                targetLabelY,
-                smoothing
-            );
-        }
 
         const distance = camera.position.distanceTo(
             worldPosition.current

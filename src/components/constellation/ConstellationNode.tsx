@@ -69,6 +69,7 @@ type ConstellationNodeProps = {
     hoveredId: string | null;
     hoverConnectedIds: Set<string>;
     onHoverChange: (id: string | null) => void;
+    labelOffsetsRef: React.RefObject<Map<string, number>>;
 };
 
 export default function ConstellationNode({
@@ -81,6 +82,7 @@ export default function ConstellationNode({
     hoveredId,
     hoverConnectedIds,
     onHoverChange,
+    labelOffsetsRef,
 }: ConstellationNodeProps) {
     const meshRef = useRef<THREE.Mesh>(null);
     const materialRef =
@@ -330,6 +332,7 @@ export default function ConstellationNode({
                 connected={isConnected}
                 hasSelection={selectedId !== null}
                 hiddenLabelsRef={hiddenLabelsRef}
+                labelOffsetsRef={labelOffsetsRef}
             />
         </group>
     );

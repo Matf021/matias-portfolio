@@ -54,6 +54,10 @@ export default function SceneContent({
     const hoveredIdsRef = useRef<Set<string>>(new Set());
     const hiddenLabelsRef = useRef<Set<string>>(new Set());
 
+    const labelOffsetsRef = useRef<Map<string, number>>(
+        new Map()
+    );
+
     const [hoveredId, setHoveredId] = useState<string | null>(null);
 
     const hoverConnectedIds = useMemo(
@@ -136,10 +140,12 @@ export default function SceneContent({
 
             <LabelCollisionManager
                 nodes={positionedNodes}
+                edges={constellationEdges}
                 selectedId={selectedId}
                 connectedIds={connectedIds}
                 hoveredIdsRef={hoveredIdsRef}
                 hiddenLabelsRef={hiddenLabelsRef}
+                labelOffsetsRef={labelOffsetsRef}
             />
 
             {positionedNodes.map((node) => (
@@ -155,6 +161,7 @@ export default function SceneContent({
                     hoveredId={hoveredId}
                     hoverConnectedIds={hoverConnectedIds}
                     onHoverChange={setHoveredId}
+                    labelOffsetsRef={labelOffsetsRef}
                 />
             ))}
 

@@ -22,12 +22,23 @@ import type {
     ConstellationNodeData,
 } from "@/types/constellation";
 
+import {
+    projectConnections,
+    getConnectionAvoidanceOffset,
+} from "@/lib/labelConnection";
+
+import type {
+    ConstellationEdge,
+} from "@/types/constellation";
+
 type Props = {
     nodes: ConstellationNodeData[];
     selectedId: string | null;
     connectedIds: Set<string>;
     hoveredIdsRef: React.RefObject<Set<string>>;
     hiddenLabelsRef: React.RefObject<Set<string>>;
+    edges: ConstellationEdge[];
+    labelOffsetsRef: React.RefObject<Map<string, number>>;
 };
 
 export default function LabelCollisionManager({
@@ -36,11 +47,34 @@ export default function LabelCollisionManager({
     connectedIds,
     hoveredIdsRef,
     hiddenLabelsRef,
+    edges,
+    labelOffsetsRef,
 }: Props) {
     const { camera, size } = useThree();
 
-    useFrame(() => {
+    useFrame((_, delta) => {
         camera.updateMatrixWorld();
+        const perspectiveCamera =
+            camera as THREE.PerspectiveCamera;
+
+        const visibleEdges =
+            selectedId === null
+                ? edges
+                : edges.filter(
+                    (edge) =>
+                        edge.source === selectedId ||
+                        edge.target === selectedId
+                );
+
+        const segments = projectConnections(
+            nodes,
+            visibleEdges,
+            perspectiveCamera,
+            size.width,
+            size.height
+        );
+
+        const nextOffsets = new Map<string, number>();
         const candidates: LabelCandidate[] = [];
 
         for (const node of nodes) {
@@ -81,9 +115,45 @@ export default function LabelCollisionManager({
 
             if (!rect) continue;
 
+            const desiredOffset = getConnectionAvoidanceOffset(
+                node.id,
+                rect,
+                segments
+            );
+
+            const previousOffset =
+                labelOffsetsRef.current.get(node.id) ?? 0;
+
+            // Ignore tiny changes to avoid micro-adjustments.
+            const stableTarget =
+                Math.abs(desiredOffset - previousOffset) < 3
+                    ? previousOffset
+                    : desiredOffset;
+
+            const smoothing = 1 - Math.exp(-8 * delta);
+
+            const animatedOffset = THREE.MathUtils.lerp(
+                previousOffset,
+                stableTarget,
+                smoothing
+            );
+
+            const finalOffset =
+                Math.abs(animatedOffset) < 0.1 &&
+                    desiredOffset === 0
+                    ? 0
+                    : animatedOffset;
+
+            nextOffsets.set(node.id, finalOffset);
+
+            const adjustedRect = {
+                ...rect,
+                y: rect.y + finalOffset,
+            };
+
             candidates.push({
                 id: node.id,
-                rect,
+                rect: adjustedRect,
                 priority: getLabelPriority(
                     node.category,
                     selected,
@@ -93,6 +163,8 @@ export default function LabelCollisionManager({
                 ),
             });
         }
+
+        labelOffsetsRef.current = nextOffsets;
 
         hiddenLabelsRef.current = resolveLabelCollisions(
             candidates,
