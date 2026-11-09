@@ -9,6 +9,8 @@ import AtmosphericStarfield from "./AtmosphericStarfield";
 import ConstellationLighting from "./ConstellationLighting";
 import type { ScreenRect } from "@/types/camera";
 import LabelCollisionManager from "./LabelCollisionManager";
+import AtmosphericNebula from "./AtmosphericNebula";
+import SpatialDust from "./SpatialDust";
 
 import type {
     OrbitControls as OrbitControlsImpl,
@@ -112,6 +114,10 @@ export default function SceneContent({
                 position={[3, 4, 5]}
                 intensity={25}
             />
+
+            <AtmosphericNebula />
+
+            <SpatialDust />
 
             <AtmosphericStarfield
                 count={450}
