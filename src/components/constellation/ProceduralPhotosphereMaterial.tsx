@@ -17,6 +17,12 @@ type ProceduralPhotosphereMaterialProps = {
     detail?: "primary" | "secondary";
 };
 
+const STELLAR_RIFT = {
+    width: 0.16,
+    brightness: 0.38,
+    irregularity: 0.10,
+} as const;
+
 const vertexShader = `
     varying vec3 vNormal;
     varying vec3 vViewPosition;
@@ -53,6 +59,9 @@ const fragmentShader = `
     uniform float uDirectionalCount;
     uniform vec3 uDirectionalColors[3];
     uniform vec3 uDirectionalVectors[3];
+    uniform float uRiftWidth;
+    uniform float uRiftBrightness;
+    uniform float uRiftIrregularity;
 
     varying vec3 vNormal;
     varying vec3 vViewPosition;
@@ -129,6 +138,8 @@ const fragmentShader = `
         // These reuse the existing noise system.
         
         vec3 blendedColor = uPrimaryColor;
+        float riftMask = 0.0;
+        float riftShadow = 0.0;
 
         if (uColorCount > 1.5) {
             float colorPattern = noise3D(
@@ -183,12 +194,14 @@ const fragmentShader = `
         if (uDirectionalCount > 1.5) {
             vec3 weightedColor = vec3(0.0);
             float totalWeight = 0.0;
+            float firstWeight = 0.0;
+            float secondWeight = 0.0;
 
             // Gentle displacement of the boundaries,
             // driven by the existing surface noise.
             float boundaryVariation =
                 (granulation - 0.5) * 0.22;
-
+   
             for (int i = 0; i < 3; i++) {
                 if (float(i) >= uDirectionalCount) {
                     break;
@@ -202,8 +215,7 @@ const fragmentShader = `
                     direction
                 );
 
-                // Keep a small baseline influence
-                // so the back of the star stays colored.
+                // Calculate the weight first.
                 float weight = 0.04 + pow(
                     max(
                         alignment + boundaryVariation + 0.25,
@@ -212,16 +224,76 @@ const fragmentShader = `
                     3.0
                 );
 
+                // Store the first two weights
+                // for the rift calculation.
+                if (i == 0) {
+                    firstWeight = weight;
+                } else if (i == 1) {
+                    secondWeight = weight;
+                }
+
                 weightedColor +=
                     uDirectionalColors[i] * weight;
 
                 totalWeight += weight;
             }
-
+                
             blendedColor =
                 weightedColor / max(totalWeight, 0.0001);
-        }
 
+                        
+            if (uDirectionalCount > 1.5 &&
+                uDirectionalCount < 2.5) {
+
+                // Normalized difference between the
+                // two directional influences.
+                //
+                // Zero means both colors have
+                // approximately equal influence.
+                float balance = (
+                    firstWeight - secondWeight
+                ) / max(
+                    firstWeight + secondWeight,
+                    0.0001
+                );
+
+                // Slowly evolving irregularity.
+                // This distorts the seam without
+                // changing its overall orientation.
+                float riftNoise = noise3D(
+                    surfacePosition * 9.0 +
+                    vec3(
+                        t * 0.3,
+                        -t * 0.2,
+                        t * 0.15
+                    )
+                );
+
+                float distortion =
+                    (riftNoise - 0.5) *
+                    uRiftIrregularity;
+
+                float distanceToRift = abs(
+                    balance + distortion
+                );
+
+                // Narrow luminous center.
+                riftMask = 1.0 - smoothstep(
+                    0.0,
+                    uRiftWidth,
+                    distanceToRift
+                );
+
+                // Broader, subtle shadow around
+                // the center to suggest depth.
+                riftShadow = 1.0 - smoothstep(
+                    uRiftWidth * 0.35,
+                    uRiftWidth * 2.4,
+                    distanceToRift
+                );
+            }
+
+        }
 
         // Center the variation around zero.
         float thermalVariation =
@@ -250,6 +322,24 @@ const fragmentShader = `
                 1.0
             )
         );
+
+        // Darken the area surrounding the rift,
+        // suggesting a shallow depression.
+        surfaceColor *= 1.0 - riftShadow * 0.22;
+
+        // Warm plasma light along the fracture.
+        // The emission is deliberately restrained.
+        vec3 riftColor = vec3(
+            1.0,
+            0.87,
+            0.67
+        );
+
+        surfaceColor +=
+            riftColor *
+            riftMask *
+            uRiftBrightness;
+
 
         float luminosity =
             (1.0 + thermalVariation) *
@@ -352,6 +442,15 @@ export default function ProceduralPhotosphereMaterial({
                         )
                 ),
             },
+            uRiftWidth: {
+                value: STELLAR_RIFT.width,
+            },
+            uRiftBrightness: {
+                value: STELLAR_RIFT.brightness,
+            },
+            uRiftIrregularity: {
+                value: STELLAR_RIFT.irregularity,
+            },
         }),
         [
             color,
@@ -360,6 +459,7 @@ export default function ProceduralPhotosphereMaterial({
             palette?.tertiary,
             palette?.colorCount,
             isPrimary,
+            directionalKey,
         ]
     );
 
