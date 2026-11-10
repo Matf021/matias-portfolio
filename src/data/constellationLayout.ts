@@ -29,7 +29,7 @@ export const constellationLayout: Record<
     cloud: {
         center: [4.5, 3.6, -1.0],
         offsets: {
-            "voice-notes": [1.3, -0.9, 0.5],
+            "voice-notes": [-1.5, -1.3, 1.1],
             aws: [1.4, 1.1, -0.4],
             chalice: [2.1, -0.2, -0.5],
             nlp: [-0.4, -1.5, 1],
@@ -52,7 +52,7 @@ export const constellationLayout: Record<
             sql: [2.1, -0.2, -0.5],
             oracle: [1.5, -1.9, -0.4],
             docker: [-0.5, -1.8, 0.8],
-            react: [-1.4, 0.8, 0.5],
+            react: [-3.4, -1.2, 0.9],
             typescript: [-1.5, -0.5, 0.7],
         },
     },

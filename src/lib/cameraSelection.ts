@@ -6,20 +6,22 @@ import type {
     Position3D,
 } from "@/types/constellation";
 
-const MAX_NEIGHBOR_DISTANCE = {
+const MAX_NEIGHBOR_DISTANCE: Record<
+    ConstellationNodeData["category"],
+    number
+> = {
+    identity: 5.5,
+    discipline: 4.5,
     project: 4.5,
     technology: 4,
-} as const;
+};
 
 /**
- * Returns positions to consider when framing
- * a selected node.
+ * Returns positions used to frame a selected node.
  *
- * Identity and discipline nodes include all
- * directly connected nodes.
- *
- * Project and technology nodes prioritize
- * nearby connections.
+ * Nearby connected nodes influence camera distance.
+ * Distant connections remain part of the graph,
+ * but do not force the camera to zoom out.
  */
 export function getSelectionFramingPositions(
     selectedId: string,
@@ -37,12 +39,7 @@ export function getSelectionFramingPositions(
     );
 
     const maxDistance =
-        selectedNode.category === "project" ||
-        selectedNode.category === "technology"
-            ? MAX_NEIGHBOR_DISTANCE[
-                  selectedNode.category
-              ]
-            : Infinity;
+        MAX_NEIGHBOR_DISTANCE[selectedNode.category];
 
     return nodes
         .filter((node) => {
