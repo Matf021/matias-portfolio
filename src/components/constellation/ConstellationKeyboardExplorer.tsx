@@ -1,12 +1,22 @@
 
 "use client";
 
-import { useId, useRef, useState } from "react";
+import {
+    forwardRef,
+    useId,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from "react";
 
 import type {
     ConstellationNodeData,
     NodeCategory,
 } from "@/types/constellation";
+
+export type KeyboardExplorerHandle = {
+    focusTrigger: () => void;
+};
 
 type Props = {
     nodes: ConstellationNodeData[];
@@ -24,14 +34,23 @@ const categories: {
         { id: "technology", label: "Technologies" },
     ];
 
-export default function ConstellationKeyboardExplorer({
+const ConstellationKeyboardExplorer = forwardRef<
+    KeyboardExplorerHandle,
+    Props
+>(function ConstellationKeyboardExplorer({
     nodes,
     selectedId,
     onSelect,
-}: Props) {
+}, ref) {
+
     const [open, setOpen] = useState(false);
     const panelId = useId();
     const triggerRef = useRef<HTMLButtonElement>(null);
+    useImperativeHandle(ref, () => ({
+        focusTrigger() {
+            triggerRef.current?.focus();
+        },
+    }), []);
 
     function closeExplorer() {
         setOpen(false);
@@ -44,7 +63,18 @@ export default function ConstellationKeyboardExplorer({
     }
 
     return (
-        <div className="absolute left-4 top-4 z-20">
+
+        <div
+            className="absolute left-4 top-4 z-20"
+            onKeyDown={(event) => {
+                if (event.key === "Escape" && open) {
+                    event.stopPropagation();
+                    closeExplorer();
+                }
+            }}
+        >
+
+
             <button
                 ref={triggerRef}
                 type="button"
@@ -52,13 +82,18 @@ export default function ConstellationKeyboardExplorer({
                 aria-controls={panelId}
                 onClick={() => setOpen((current) => !current)}
                 className="
-                    absolute left-0 top-0
-                    -translate-y-[200%]
-                    rounded-md bg-background
-                    px-3 py-2 text-sm text-foreground
-                    opacity-0
-                    focus:translate-y-0
-                    focus:opacity-100
+                    sr-only
+                    focus:not-sr-only
+                    focus:absolute
+                    focus:left-0
+                    focus:top-0
+                    focus:z-30
+                    focus:rounded-md
+                    focus:bg-background
+                    focus:px-3
+                    focus:py-2
+                    focus:text-sm
+                    focus:text-foreground
                     focus-visible:outline-2
                     focus-visible:outline-accent
                 "
@@ -69,16 +104,10 @@ export default function ConstellationKeyboardExplorer({
             {open && (
                 <div
                     id={panelId}
-                    onKeyDown={(event) => {
-                        if (event.key === "Escape") {
-                            event.stopPropagation();
-                            closeExplorer();
-                        }
-                    }}
                     className="
                         absolute left-0 top-12
                         w-[min(85vw,20rem)]
-                        max-h-[65vh]
+                        max-h-[65svh]
                         overflow-y-auto rounded-xl
                         border border-border
                         bg-background/95 p-4
@@ -164,4 +193,6 @@ export default function ConstellationKeyboardExplorer({
             )}
         </div>
     );
-}
+});
+
+export default ConstellationKeyboardExplorer;
