@@ -36,6 +36,7 @@ const NODE_LIGHTING = {
     hoverBoost: 0.06,
     arrivalBoost: 0.30,
     arrivalDecay: 3,
+    discoveryProjectBoost: 0.10,
 } as const;
 
 type NodeTier = "identity" | "discipline" | "detail";
@@ -96,6 +97,11 @@ export default function ConstellationNode({
     const isPrimaryStar = tier === "identity";
     const isDisciplineStar = tier === "discipline";
     const isProjectStar = node.category === "project";
+    const isDiscoverableProject =
+        isProjectStar &&
+        isConnected &&
+        !isSelected &&
+        selectedId !== null;
 
     const stellarPalette = getStellarPalette(node);
 
@@ -227,8 +233,13 @@ export default function ConstellationNode({
                 ? 0.45
                 : 1.5;
 
+        const projectDiscoveryBoost =
+            isDiscoverableProject
+                ? NODE_LIGHTING.discoveryProjectBoost
+                : 0;
+
         const targetBrightness = isProjectStar
-            ? 1.0
+            ? 1.0 + projectDiscoveryBoost
             : 1 + targetEmissive * brightnessMultiplier;
 
         uniforms.uBrightness.value = THREE.MathUtils.lerp(
