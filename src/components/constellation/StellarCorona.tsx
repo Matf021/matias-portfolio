@@ -179,19 +179,32 @@ const fragmentShader = `
             flowing * 0.35 +
             detail * 0.10;
 
+        float reachNoise = noise2D(
+            direction * 1.8 +
+            vec2(21.4, 7.6)
+        );
+
+        // Broad, irregular variations in how far
+        // the atmosphere extends.
+        float reachVariation = mix(
+            0.82,
+            1.18,
+            reachNoise
+        );
+
         // Always retain a faint atmospheric
         // contribution in every direction.
         float density = mix(
-            0.38,
+            0.18,
             1.0,
             structure
         );
 
         // Outer plasma decays smoothly.
         float outerFalloff = exp(
-            -0.88 * outside
+            -0.65 * outside /
+            reachVariation
         );
-
         
         // --------------------------------
         // OUTER CORONAL FILAMENTS
@@ -281,9 +294,8 @@ const fragmentShader = `
         // The diffuse atmosphere remains
         // dominant.
         float outerCorona =
-            diffuseOuter * 0.88 +
-            filaments * 0.12;
-
+            diffuseOuter * 0.78 +
+            filaments * 0.22;
 
         // --------------------------------
         // COMPOSITION
@@ -301,8 +313,8 @@ const fragmentShader = `
         // boundary becomes visible.
         float boundaryFade =
             1.0 - smoothstep(
-                2.9,
-                3.8,
+                2.4,
+                3.95,
                 r
             );
 
