@@ -1,12 +1,11 @@
 
 import type { Position3D } from "@/types/constellation";
 
-export type ClusterId =
-    | "ai"
-    | "cloud"
-    | "creative"
-    | "software";
+import type {
+    DisciplineId,
+} from "@/types/constellation";
 
+export type ClusterId = DisciplineId;
 type ClusterLayout = {
     center: Position3D;
     offsets: Record<string, Position3D>;

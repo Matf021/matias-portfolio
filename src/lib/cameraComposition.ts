@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 import type { ScreenRect } from "@/types/camera";
 import type { CameraDestination } from "@/lib/cameraFocus";
-import type { Position3D } from "@/types/constellation";
+
 
 type ViewportSize = {
     width: number;
@@ -21,7 +21,6 @@ export function applyCameraSafeArea(
     camera: THREE.PerspectiveCamera,
     viewport: ViewportSize,
     panelRect: ScreenRect | null,
-    framingPositions: Position3D[] = []
 ): CameraDestination {
     if (!panelRect) return destination;
 
