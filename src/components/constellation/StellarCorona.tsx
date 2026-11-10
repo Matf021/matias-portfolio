@@ -21,6 +21,24 @@ type StellarCoronaProps = {
     directionalPalette?: DirectionalStellarPalette | null;
 };
 
+const CORONA_LUMINOSITY = {
+    standard: {
+        inner: 1.18,
+        outer: 1.30,
+    },
+    directional: {
+        inner: 1.85,
+        outer: 2.20,
+    },
+} as const;
+
+const SELECTION_LUMINOSITY = {
+    innerBoost: 0.22,
+    outerBoost: 0.35,
+    riseSpeed: 2.4,
+    fallSpeed: 1.6,
+} as const;
+
 const vertexShader = `
     varying vec2 vUv;
 
@@ -98,12 +116,12 @@ const fragmentShader = `
 
         // A soft transition at the limb.
         float limbGlow = exp(
-            -pow((r - 1.06) / 0.24, 2.0)
+            -pow((r - 1.08) / 0.32, 2.0)
         );
 
         float innerCorona =
-            innerGlow * 0.58 +
-            limbGlow * 0.42;
+            innerGlow * 0.42 +
+            limbGlow * 0.58;
 
         // --------------------------------
         // LAYER B: OUTER CORONA
@@ -171,7 +189,7 @@ const fragmentShader = `
 
         // Outer plasma decays smoothly.
         float outerFalloff = exp(
-            -1.15 * outside
+            -0.88 * outside
         );
 
         
@@ -345,10 +363,14 @@ const fragmentShader = `
 
         // Slightly different temperatures
         // for the two atmospheric regions.
+        float innerTint = uDirectionalCount > 1.5
+            ? 0.24
+            : 0.42;
+
         vec3 innerColor = mix(
             atmosphericBaseColor,
             vec3(0.88, 0.95, 1.0),
-            0.42
+            innerTint
         );
 
         vec3 outerColor = mix(
@@ -407,6 +429,7 @@ export default function StellarCorona({
     directionalPalette,
 }: StellarCoronaProps) {
     const meshRef = useRef<THREE.Mesh>(null);
+    const selectionLuminosityRef = useRef(0);
 
     const materialRef =
         useRef<THREE.ShaderMaterial>(null);
@@ -477,6 +500,29 @@ export default function StellarCorona({
         const smoothing =
             1 - Math.exp(-5 * delta);
 
+
+        const selectionTarget =
+            selected && !eclipsed ? 1 : 0;
+
+        const selectionSpeed =
+            selectionTarget > selectionLuminosityRef.current
+                ? SELECTION_LUMINOSITY.riseSpeed
+                : SELECTION_LUMINOSITY.fallSpeed;
+
+        const selectionSmoothing =
+            1 - Math.exp(-selectionSpeed * delta);
+
+        selectionLuminosityRef.current =
+            THREE.MathUtils.lerp(
+                selectionLuminosityRef.current,
+                selectionTarget,
+                selectionSmoothing
+            );
+
+        const selectionGlow =
+            selectionLuminosityRef.current;
+
+
         // An eclipsed star retains a luminous rim,
         // but loses most of its extended atmosphere.
         const innerBase = eclipsed
@@ -494,21 +540,33 @@ export default function StellarCorona({
         const isDirectional =
             (directionalPalette?.sources.length ?? 0) >= 2;
 
-        const innerBrightnessBoost =
-            isDirectional ? 1.25 : 1.10;
+        const luminosity = isDirectional
+            ? CORONA_LUMINOSITY.directional
+            : CORONA_LUMINOSITY.standard;
 
-        const outerBrightnessBoost =
-            isDirectional ? 1.35 : 1.15;
+
+        const selectionInnerMultiplier =
+            1 +
+            selectionGlow *
+            SELECTION_LUMINOSITY.innerBoost;
+
+        const selectionOuterMultiplier =
+            1 +
+            selectionGlow *
+            SELECTION_LUMINOSITY.outerBoost;
 
         const targetInner =
             (innerBase + arrival * 0.16) *
             intensityScale *
-            innerBrightnessBoost;
+            luminosity.inner *
+            selectionInnerMultiplier;
 
         const targetOuter =
             (outerBase + arrival * 0.12) *
             intensityScale *
-            outerBrightnessBoost;
+            luminosity.outer *
+            selectionOuterMultiplier;
+
 
         material.uniforms.uInnerIntensity.value =
             THREE.MathUtils.lerp(
