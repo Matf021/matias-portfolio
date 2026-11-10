@@ -276,6 +276,7 @@ export default function ConstellationNode({
                                 ? 0.7
                                 : 0.5
                     }
+                    directionalPalette={directionalPalette}
                     debug={false}
                 />
             ) : (

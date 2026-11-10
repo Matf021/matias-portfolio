@@ -5,6 +5,9 @@ import { useMemo, useRef } from "react";
 import { Billboard } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import type {
+    DirectionalStellarPalette,
+} from "@/lib/directionalStellarPalette";
 
 type StellarCoronaProps = {
     color: string;
@@ -15,6 +18,7 @@ type StellarCoronaProps = {
     arrivalFlashRef?: React.RefObject<number>;
     intensityScale?: number;
     debug?: boolean;
+    directionalPalette?: DirectionalStellarPalette | null;
 };
 
 const vertexShader = `
@@ -36,6 +40,9 @@ const fragmentShader = `
     uniform float uOuterIntensity;
     uniform float uTime;
     uniform float uDebug;
+    uniform float uDirectionalCount;
+    uniform vec3 uDirectionalColors[3];
+    uniform vec3 uDirectionalScreenVectors[3];
 
     varying vec2 vUv;
 
@@ -286,17 +293,66 @@ const fragmentShader = `
 
         outerCorona *=
             surfaceBlend * boundaryFade;
+                
+        // Start with the original corona color.
+        // Non-directional stars remain unchanged.
+        vec3 atmosphericBaseColor = uColor;
+
+        if (uDirectionalCount > 1.5) {
+            vec3 weightedColor = vec3(0.0);
+            float totalWeight = 0.0;
+
+            // Use the billboard's angular direction.
+            // This is intentionally softer than
+            // the photosphere's directional blending.
+            for (int i = 0; i < 3; i++) {
+                if (float(i) >= uDirectionalCount) {
+                    break;
+                }
+
+                vec3 sourceDirection =
+                    normalize(
+                        uDirectionalScreenVectors[i]
+                    );
+
+                float alignment = dot(
+                    direction,
+                    sourceDirection.xy
+                );
+
+                float weight =
+                    0.25 +
+                    pow(
+                        max(
+                            alignment + 0.35,
+                            0.0
+                        ),
+                        2.0
+                    );
+
+                weightedColor +=
+                    uDirectionalColors[i] * weight;
+
+                totalWeight += weight;
+            }
+
+            atmosphericBaseColor =
+                weightedColor / max(
+                    totalWeight,
+                    0.0001
+                );
+        }
 
         // Slightly different temperatures
         // for the two atmospheric regions.
         vec3 innerColor = mix(
-            uColor,
+            atmosphericBaseColor,
             vec3(0.88, 0.95, 1.0),
             0.42
         );
 
         vec3 outerColor = mix(
-            uColor,
+            atmosphericBaseColor,
             vec3(0.68, 0.82, 1.0),
             0.18
         );
@@ -348,11 +404,19 @@ export default function StellarCorona({
     arrivalFlashRef,
     debug = false,
     intensityScale = 1,
+    directionalPalette,
 }: StellarCoronaProps) {
     const meshRef = useRef<THREE.Mesh>(null);
 
     const materialRef =
         useRef<THREE.ShaderMaterial>(null);
+
+    const directionalKey = directionalPalette?.sources
+        .slice(0, 3)
+        .map((source) =>
+            `${source.color}:${source.direction.join(",")}`
+        )
+        .join("|") ?? "";
 
     const uniforms = useMemo(
         () => ({
@@ -371,11 +435,37 @@ export default function StellarCorona({
             uDebug: {
                 value: debug ? 1 : 0,
             },
+
+            uDirectionalCount: {
+                value: Math.min(
+                    directionalPalette?.sources.length ?? 0,
+                    3
+                ),
+            },
+            uDirectionalColors: {
+                value: [0, 1, 2].map(
+                    (index) =>
+                        new THREE.Color(
+                            directionalPalette?.sources[index]?.color ??
+                            color
+                        )
+                ),
+            },
+            uDirectionalScreenVectors: {
+                value: [0, 1, 2].map(
+                    () => new THREE.Vector3(0, 0, 1)
+                ),
+            },
         }),
-        [color, debug]
+        [color, debug, directionalKey]
     );
 
-    useFrame(({ clock }, delta) => {
+    const directionVector = useMemo(
+        () => new THREE.Vector3(),
+        []
+    );
+
+    useFrame(({ clock, camera }, delta) => {
         const mesh = meshRef.current;
         const material = materialRef.current;
 
@@ -401,13 +491,24 @@ export default function StellarCorona({
                 ? 0.46
                 : 0.24;
 
+        const isDirectional =
+            (directionalPalette?.sources.length ?? 0) >= 2;
+
+        const innerBrightnessBoost =
+            isDirectional ? 1.25 : 1.10;
+
+        const outerBrightnessBoost =
+            isDirectional ? 1.35 : 1.15;
+
         const targetInner =
             (innerBase + arrival * 0.16) *
-            intensityScale;
+            intensityScale *
+            innerBrightnessBoost;
 
         const targetOuter =
             (outerBase + arrival * 0.12) *
-            intensityScale;
+            intensityScale *
+            outerBrightnessBoost;
 
         material.uniforms.uInnerIntensity.value =
             THREE.MathUtils.lerp(
@@ -428,6 +529,38 @@ export default function StellarCorona({
 
         material.uniforms.uDebug.value =
             debug ? 1 : 0;
+
+
+        // Convert world-space discipline directions
+        // into camera-space directions.
+        //
+        // X/Y correspond to the billboard's axes.
+        // Z describes whether a discipline is
+        // toward or away from the camera.
+        for (
+            let index = 0;
+            index < Math.min(
+                directionalPalette?.sources.length ?? 0,
+                3
+            );
+            index++
+        ) {
+            const source =
+                directionalPalette!.sources[index];
+
+            directionVector
+                .set(...source.direction)
+                .transformDirection(
+                    camera.matrixWorldInverse
+                );
+
+            const vectors =
+                material.uniforms
+                    .uDirectionalScreenVectors
+                    .value as THREE.Vector3[];
+
+            vectors[index].copy(directionVector);
+        }
 
         // Synchronize the billboard with
         // the actual animated photosphere.
