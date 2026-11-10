@@ -1,13 +1,17 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { constellationNodes } from "@/data/constellation";
+import {
+    constellationNodes,
+    constellationEdges,
+} from "@/data/constellation";
 import SceneContent from "./SceneContent";
 import type { ScreenRect } from "@/types/camera";
 import ConstellationInfoPanel from "./ConstellationInfoPanel";
 import ConstellationInteractionHint from "./ConstellationInteractionHint";
+import { getNodeRelationships } from "@/lib/graph";
 
 export default function ConstellationScene() {
     const [selectedId, setSelectedId] =
@@ -21,6 +25,26 @@ export default function ConstellationScene() {
     const selectedNode = constellationNodes.find(
         (node) => node.id === selectedId
     );
+
+
+    const relatedNodes = useMemo(() => {
+        if (!selectedId) {
+            return [];
+        }
+
+        const relationships = getNodeRelationships(
+            selectedId,
+            constellationNodes,
+            constellationEdges
+        );
+
+        return constellationNodes.filter(
+            (node) =>
+                node.id !== selectedId &&
+                relationships.all.has(node.id)
+        );
+    }, [selectedId]);
+
 
     const [panelRect, setPanelRect] =
         useState<ScreenRect | null>(null);
@@ -145,6 +169,8 @@ export default function ConstellationScene() {
                         <ConstellationInfoPanel
                             key={selectedNode.id}
                             node={selectedNode}
+                            relatedNodes={relatedNodes}
+                            onNavigate={handleSelect}
                             onClose={() => setSelectedId(null)}
                         />
                     </div>

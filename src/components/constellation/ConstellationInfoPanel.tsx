@@ -5,19 +5,35 @@ import { useRef, useState } from "react";
 import { constellationDetails } from "@/data/constellationDetails";
 
 import type { ConstellationNodeData } from "@/types/constellation";
+import RelatedNodeSection from "./RelatedNodeSection";
 
 type Props = {
     node: ConstellationNodeData;
+    relatedNodes: ConstellationNodeData[];
+    onNavigate: (id: string) => void;
     onClose: () => void;
 };
 
 export default function ConstellationInfoPanel({
     node,
+    relatedNodes,
+    onNavigate,
     onClose,
 }: Props) {
     const [expanded, setExpanded] = useState(false);
 
     const details = constellationDetails[node.id];
+    const relatedProjects = relatedNodes.filter(
+        (related) => related.category === "project"
+    );
+
+    const relatedDisciplines = relatedNodes.filter(
+        (related) => related.category === "discipline"
+    );
+
+    const relatedTechnologies = relatedNodes.filter(
+        (related) => related.category === "technology"
+    );
     const accentStyle = {
         "--panel-accent": node.color,
     } as React.CSSProperties;
@@ -25,14 +41,17 @@ export default function ConstellationInfoPanel({
     const contentRef = useRef<HTMLDivElement>(null);
 
     const hasDetails = Boolean(
-        details &&
+        relatedNodes.length > 0 ||
         (
-            details.summary ||
-            details.highlights?.length ||
-            details.technologies?.length ||
-            details.relatedProjects?.length ||
-            details.repositoryUrl ||
-            details.externalUrl
+            details &&
+            (
+                details.summary ||
+                details.highlights?.length ||
+                details.technologies?.length ||
+                details.relatedProjects?.length ||
+                details.repositoryUrl ||
+                details.externalUrl
+            )
         )
     );
 
@@ -167,25 +186,25 @@ export default function ConstellationInfoPanel({
                                 </section>
                             )}
 
-                        {details?.relatedProjects &&
-                            details.relatedProjects.length > 0 && (
-                                <section>
-                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground">
-                                        Related Projects
-                                    </h4>
 
-                                    <div className="flex flex-wrap gap-2">
-                                        {details.relatedProjects.map((project) => (
-                                            <span
-                                                key={project}
-                                                className="rounded-md border border-border px-2.5 py-1 text-xs text-text-secondary"
-                                            >
-                                                {project}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </section>
-                            )}
+                        <RelatedNodeSection
+                            title="Related Projects"
+                            nodes={relatedProjects}
+                            onNavigate={onNavigate}
+                        />
+
+                        <RelatedNodeSection
+                            title="Related Disciplines"
+                            nodes={relatedDisciplines}
+                            onNavigate={onNavigate}
+                        />
+
+                        <RelatedNodeSection
+                            title="Related Technologies"
+                            nodes={relatedTechnologies}
+                            onNavigate={onNavigate}
+                        />
+
 
                         {details?.repositoryUrl && (
                             <a
