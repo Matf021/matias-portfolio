@@ -81,6 +81,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                 aria-expanded={open}
                 aria-controls={panelId}
                 onClick={() => setOpen((current) => !current)}
+
                 className="
                     sr-only
                     focus:not-sr-only
@@ -88,12 +89,16 @@ const ConstellationKeyboardExplorer = forwardRef<
                     focus:left-0
                     focus:top-0
                     focus:z-30
+                    focus:whitespace-nowrap
                     focus:rounded-md
+                    focus:border
+                    focus:border-border
                     focus:bg-background
                     focus:px-3
                     focus:py-2
                     focus:text-sm
                     focus:text-foreground
+                    focus:shadow-lg
                     focus-visible:outline-2
                     focus-visible:outline-accent
                 "
@@ -105,7 +110,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                 <div
                     id={panelId}
                     className="
-                        absolute left-0 top-12
+                        absolute left-0 top-14
                         w-[min(85vw,20rem)]
                         max-h-[65svh]
                         overflow-y-auto rounded-xl
