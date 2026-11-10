@@ -4,6 +4,9 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import type {
+    DirectionalStellarPalette,
+} from "@/lib/directionalStellarPalette";
 
 type StellarChromosphereProps = {
     color: string;
@@ -11,6 +14,7 @@ type StellarChromosphereProps = {
     selected: boolean;
     arrivalFlashRef?: React.RefObject<number>;
     intensityScale?: number;
+    directionalPalette?: DirectionalStellarPalette | null;
 };
 
 const vertexShader = `
@@ -35,6 +39,9 @@ const fragmentShader = `
     uniform vec3 uColor;
     uniform float uIntensity;
     uniform float uTime;
+    uniform float uDirectionalCount;
+    uniform vec3 uDirectionalColors[3];
+    uniform vec3 uDirectionalVectors[3];
 
     varying vec3 vNormal;
     varying vec3 vViewPosition;
@@ -82,7 +89,7 @@ const fragmentShader = `
         // Fresnel-style limb illumination.
         float rim = pow(
             1.0 - facing,
-            8.0
+            5.5
         );
 
         vec3 surfacePosition =
@@ -109,18 +116,71 @@ const fragmentShader = `
         // Slightly irregular brightness,
         // rather than a uniform neon outline.
         float atmosphericVariation =
-            mix(0.35, 1.0, irregularity);
+            mix(0.22, 1.0, irregularity);
 
         float alpha =
             rim *
             atmosphericVariation *
             uIntensity;
 
+                
+        vec3 atmosphericBaseColor = uColor;
+
+        // Directional project stars inherit
+        // the colors of their associated disciplines.
+        if (uDirectionalCount > 1.5) {
+            vec3 weightedColor = vec3(0.0);
+            float totalWeight = 0.0;
+
+            for (int i = 0; i < 3; i++) {
+                if (float(i) >= uDirectionalCount) {
+                    break;
+                }
+
+                vec3 sourceDirection =
+                    normalize(uDirectionalVectors[i]);
+
+                float alignment = dot(
+                    surfacePosition,
+                    sourceDirection
+                );
+
+                // Broad, overlapping color regions.
+                // A small baseline prevents abrupt
+                // boundaries between disciplines.
+                float weight =
+                    0.12 +
+                    pow(
+                        max(alignment + 0.4, 0.0),
+                        2.0
+                    );
+
+                weightedColor +=
+                    uDirectionalColors[i] * weight;
+
+                totalWeight += weight;
+            }
+
+            atmosphericBaseColor =
+                weightedColor / max(
+                    totalWeight,
+                    0.0001
+                );
+        }
+
+        // Keep a slightly luminous atmospheric tint,
+        // while preserving more color on directional stars.
+        float whiteBlend =
+            uDirectionalCount > 1.5
+                ? 0.12
+                : 0.20;
+
         vec3 chromosphereColor = mix(
-            uColor,
+            atmosphericBaseColor,
             vec3(1.0),
-            0.2
+            whiteBlend
         );
+
 
         gl_FragColor = vec4(
             chromosphereColor,
@@ -135,9 +195,19 @@ export default function StellarChromosphere({
     selected,
     arrivalFlashRef,
     intensityScale = 1,
+    directionalPalette,
 }: StellarChromosphereProps) {
     const materialRef =
         useRef<THREE.ShaderMaterial>(null);
+
+    const directionalKey =
+        directionalPalette?.sources
+            .slice(0, 3)
+            .map(
+                (source) =>
+                    `${source.color}:${source.direction.join(",")}`
+            )
+            .join("|") ?? "";
 
     const uniforms = useMemo(
         () => ({
@@ -150,8 +220,34 @@ export default function StellarChromosphere({
             uTime: {
                 value: 0,
             },
+
+            uDirectionalCount: {
+                value: Math.min(
+                    directionalPalette?.sources.length ?? 0,
+                    3
+                ),
+            },
+            uDirectionalColors: {
+                value: [0, 1, 2].map(
+                    (index) =>
+                        new THREE.Color(
+                            directionalPalette?.sources[index]?.color ??
+                            color
+                        )
+                ),
+            },
+            uDirectionalVectors: {
+                value: [0, 1, 2].map(
+                    (index) =>
+                        new THREE.Vector3(
+                            ...(directionalPalette?.sources[index]
+                                ?.direction ?? [0, 0, 1])
+                        ).normalize()
+                ),
+            },
+
         }),
-        [color]
+        [color, directionalKey]
     );
 
     useFrame(({ clock }, delta) => {
@@ -163,8 +259,8 @@ export default function StellarChromosphere({
 
         const targetIntensity =
             (
-                (selected ? 0.4 : 0.22) +
-                arrival * 0.25
+                (selected ? 0.34 : 0.19) +
+                arrival * 0.22
             ) * intensityScale;
 
         const smoothing =

@@ -269,6 +269,7 @@ export default function ConstellationNode({
                     eclipsed={isEclipsed}
                     photosphereRef={meshRef}
                     arrivalFlashRef={arrivalFlashRef}
+                    directionalPalette={directionalPalette}
                     intensityScale={
                         isPrimaryStar
                             ? 1
@@ -276,7 +277,6 @@ export default function ConstellationNode({
                                 ? 0.7
                                 : 0.5
                     }
-                    directionalPalette={directionalPalette}
                     debug={false}
                 />
             ) : (
@@ -336,6 +336,7 @@ export default function ConstellationNode({
                         radius={node.size}
                         selected={isSelected}
                         arrivalFlashRef={arrivalFlashRef}
+                        directionalPalette={directionalPalette}
                         intensityScale={
                             isPrimaryStar
                                 ? 1
