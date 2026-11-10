@@ -94,6 +94,19 @@ export const constellationNodes: ConstellationNodeData[] = [
             "Gamified desktop productivity dashboard built with Rainmeter.",
         disciplines: ["creative", "software"],
     },
+    {
+        id: "portfolio",
+        label: "Interactive Developer Portfolio",
+        category: "project",
+        position: [-3.0, -3.0, 0.9],
+        color: "#f0c6ff",
+        stellarColorMode: "directional",
+        size: 0.2,
+        description:
+            "An immersive 3D developer portfolio built around an interactive constellation, cinematic navigation, and contextual project discovery.",
+        disciplines: ["creative", "software"],
+    },
+
 
     // Technologies
     {
@@ -227,6 +240,7 @@ export const constellationEdges: ConstellationEdge[] = [
     { source: "cloud", target: "voice-notes" },
     { source: "software", target: "hospitality" },
     { source: "creative", target: "pipboy" },
+    { source: "creative", target: "portfolio" },
 
     // Projects to technologies
     { source: "manatee", target: "python" },
@@ -243,6 +257,9 @@ export const constellationEdges: ConstellationEdge[] = [
 
     { source: "pipboy", target: "rainmeter" },
     { source: "pipboy", target: "lua" },
+
+    { source: "portfolio", target: "react" },
+    { source: "portfolio", target: "typescript" },
 
     // Cross-discipline relationships
     { source: "software", target: "react" },

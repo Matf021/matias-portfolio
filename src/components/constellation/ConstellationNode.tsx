@@ -16,6 +16,7 @@ import { getStellarPalette } from "@/lib/stellarPalette";
 import type {
     ConstellationNodeData,
 } from "@/types/constellation";
+import { DirectionalStellarPalette } from "@/lib/directionalStellarPalette";
 
 const NODE_LIGHTING = {
     identity: {
@@ -71,6 +72,7 @@ type ConstellationNodeProps = {
     hoverConnectedIds: Set<string>;
     onHoverChange: (id: string | null) => void;
     labelOffsetsRef: React.RefObject<Map<string, number>>;
+    directionalPalette?: DirectionalStellarPalette | null;
 };
 
 export default function ConstellationNode({
@@ -84,6 +86,7 @@ export default function ConstellationNode({
     hoverConnectedIds,
     onHoverChange,
     labelOffsetsRef,
+    directionalPalette,
 }: ConstellationNodeProps) {
     const meshRef = useRef<THREE.Mesh>(null);
     const materialRef =
@@ -253,7 +256,11 @@ export default function ConstellationNode({
         <group position={node.position}>
             {hasStellarAtmosphere ? (
                 <StellarCorona
-                    color={node.color}
+                    color={
+                        isProjectStar
+                            ? stellarPalette.primary
+                            : node.color
+                    }
                     radius={node.size}
                     selected={isSelected}
                     eclipsed={isEclipsed}

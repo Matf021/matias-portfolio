@@ -20,6 +20,7 @@ export interface ConstellationNodeData {
     color: string;
     size: number;
     description?: string;
+    stellarColorMode?: "organic" | "directional";
 
     disciplines?: DisciplineId[];
 }

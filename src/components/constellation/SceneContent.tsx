@@ -11,6 +11,9 @@ import type { ScreenRect } from "@/types/camera";
 import LabelCollisionManager from "./LabelCollisionManager";
 import AtmosphericNebula from "./AtmosphericNebula";
 import SpatialDust from "./SpatialDust";
+import {
+    getDirectionalStellarPalette,
+} from "@/lib/directionalStellarPalette";
 
 import type {
     OrbitControls as OrbitControlsImpl,
@@ -161,12 +164,19 @@ export default function SceneContent({
                 <ConstellationNode
                     key={node.id}
                     node={node}
+                    directionalPalette={
+                        node.stellarColorMode === "directional"
+                            ? getDirectionalStellarPalette(
+                                node,
+                                positionedNodes
+                            )
+                            : null
+                    }
                     selectedId={selectedId}
                     connectedIds={connectedIds}
                     onSelect={onSelect}
                     hoveredIdsRef={hoveredIdsRef}
                     hiddenLabelsRef={hiddenLabelsRef}
-
                     hoveredId={hoveredId}
                     hoverConnectedIds={hoverConnectedIds}
                     onHoverChange={setHoveredId}

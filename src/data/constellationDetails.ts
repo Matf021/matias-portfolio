@@ -223,6 +223,30 @@ export const constellationDetails: Record<
             "https://github.com/Matf021/nlp-sentiment-analysis",
     },
 
+
+    portfolio: {
+        summary:
+            "An interactive 3D developer portfolio that transforms technical experience, projects, and skills into an explorable constellation. Designed to combine expressive visual presentation with practical navigation and accessibility.",
+        highlights: [
+            "Built an interactive 3D constellation using React Three Fiber and Three.js.",
+            "Implemented cinematic camera transitions with Bézier trajectories and interruptible user controls.",
+            "Developed graph-based navigation with visual and semantic relationships between projects, disciplines, and technologies.",
+            "Created responsive information panels with camera-aware composition and keyboard-accessible navigation.",
+            "Optimized interactive effects, particle animations, and starfield rendering for smooth performance.",
+        ],
+        technologies: [
+            "Next.js",
+            "React",
+            "TypeScript",
+            "Three.js",
+            "React Three Fiber",
+            "Tailwind CSS",
+        ],
+        repositoryUrl:
+            "https://github.com/Matf021/matias-portfolio",
+    },
+
+
     // TECHNOLOGIES
     python: {
         summary:
