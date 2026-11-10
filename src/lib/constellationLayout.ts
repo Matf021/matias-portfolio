@@ -1,5 +1,6 @@
 import {
     constellationLayout,
+    bridgePositions,
     addPositions,
 } from "@/data/constellationLayout";
 
@@ -51,6 +52,12 @@ export function resolveNodePositions(
                 addPositions(cluster.center, offset)
             );
         }
+    }
+
+    for (const [nodeId, position] of Object.entries(
+        bridgePositions
+    )) {
+        positions.set(nodeId, position);
     }
 
     return nodes.map((node) => {

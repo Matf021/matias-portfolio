@@ -52,11 +52,23 @@ export const constellationLayout: Record<
             sql: [2.1, -0.2, -0.5],
             oracle: [1.5, -1.9, -0.4],
             docker: [-0.5, -1.8, 0.8],
-            react: [-3.4, -1.2, 0.9],
             typescript: [-1.5, -0.5, 0.7],
         },
     },
 };
+
+
+/**
+ * Nodes that occupy independent positions because
+ * they connect multiple discipline clusters.
+ *
+ * These coordinates are absolute world positions,
+ * not offsets from a discipline center.
+ */
+export const bridgePositions: Record<string, Position3D> = {
+    react: [-0.7, -2.2, 1.5],
+};
+
 
 export function addPositions(
     a: Position3D,
