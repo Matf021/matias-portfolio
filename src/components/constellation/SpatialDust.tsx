@@ -1,8 +1,18 @@
 
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+
+import type {
+    ConstellationNodeData,
+} from "@/types/constellation";
+
+type SpatialDustProps = {
+    nodes: ConstellationNodeData[];
+    selectedId: string | null;
+};
 
 type DustFilament = {
     position: [number, number, number];
@@ -64,16 +74,32 @@ const FILAMENTS: DustFilament[] = [
     },
 ];
 
+const DISCIPLINE_IDS = [
+    "ai",
+    "cloud",
+    "creative",
+    "software",
+] as const;
+
+const LIGHT_RADIUS = 35;
+const LIGHT_STRENGTH = 0.22;
+
 const VERTEX_SHADER = `
     varying vec2 vUv;
+    varying vec3 vWorldPosition;
 
     void main() {
         vUv = uv;
 
+        vec4 worldPosition =
+            modelMatrix * vec4(position, 1.0);
+
+        vWorldPosition = worldPosition.xyz;
+
         gl_Position =
             projectionMatrix *
-            modelViewMatrix *
-            vec4(position, 1.0);
+            viewMatrix *
+            worldPosition;
     }
 `;
 
@@ -82,7 +108,15 @@ const FRAGMENT_SHADER = `
     uniform float uOpacity;
     uniform float uSeed;
 
+    uniform vec3 uLightPositions[4];
+    uniform vec3 uLightColors[4];
+    uniform float uLightRadius;
+    uniform float uLightStrength;
+    uniform vec4 uSelectionWeights;
+    uniform float uSelectionBoost;
+
     varying vec2 vUv;
+    varying vec3 vWorldPosition;
 
     float hash(vec2 p) {
         return fract(
@@ -124,14 +158,52 @@ const FRAGMENT_SHADER = `
 
         return value;
     }
+    
+        vec3 calculateStellarIllumination(
+            vec3 worldPosition
+        ) {
+            vec3 illumination = vec3(0.0);
+
+            for (int i = 0; i < 4; i++) {
+                float distanceToStar = distance(
+                    worldPosition,
+                    uLightPositions[i]
+                );
+
+                float influence =
+                    1.0 - smoothstep(
+                        0.0,
+                        uLightRadius,
+                        distanceToStar
+                    );
+
+                float selectionWeight =
+                    uSelectionWeights[i];
+
+                float strength =
+                    uLightStrength *
+                    (
+                        1.0 +
+                        selectionWeight * uSelectionBoost
+                    );
+
+                illumination +=
+                    uLightColors[i] *
+                    influence *
+                    strength;
+            }
+
+            return illumination;
+        }
+
 
     void main() {
         vec2 uv = vUv * 2.0 - 1.0;
 
-        // Coordinates elongated along X.
+        // Elongated sampling coordinates.
         vec2 p = uv * vec2(2.4, 3.0);
 
-        // Warp the vertical centerline.
+        // Distort the filament centerline.
         float warp = fbm(
             vec2(p.x * 0.8, uSeed)
         );
@@ -169,8 +241,7 @@ const FRAGMENT_SHADER = `
             density
         );
 
-        // Fade the ends without creating
-        // a large elliptical silhouette.
+        // Fade the ends of the filament.
         float endFade =
             1.0 - smoothstep(
                 0.55,
@@ -178,7 +249,7 @@ const FRAGMENT_SHADER = `
                 abs(uv.x)
             );
 
-        // Very faint surrounding material.
+        // Faint surrounding material.
         float diffuse =
             exp(
                 -8.0 *
@@ -194,14 +265,28 @@ const FRAGMENT_SHADER = `
             endFade *
             uOpacity;
 
+        // Calculate color contribution from stars.
+        vec3 illumination =
+            calculateStellarIllumination(
+                vWorldPosition
+            );
+
+        vec3 finalColor =
+            uColor + illumination;
+
         gl_FragColor = vec4(
-            uColor,
+            finalColor,
             alpha
         );
     }
 `;
 
-export default function SpatialDust() {
+export default function SpatialDust({
+    nodes,
+    selectedId,
+}: SpatialDustProps) {
+    const materialsRef = useRef<THREE.ShaderMaterial[]>([]);
+
     const filaments = useMemo(
         () =>
             FILAMENTS.map((filament) => ({
@@ -212,6 +297,142 @@ export default function SpatialDust() {
             })),
         []
     );
+
+    const disciplineLights = useMemo(() => {
+        return DISCIPLINE_IDS.map((id) => {
+            const node = nodes.find(
+                (candidate) => candidate.id === id
+            );
+
+            if (!node) {
+                throw new Error(
+                    `Missing discipline node: ${id}`
+                );
+            }
+
+            return node;
+        });
+    }, [nodes]);
+
+    const lightPositions = useMemo(
+        () =>
+            disciplineLights.map(
+                (node) =>
+                    new THREE.Vector3(...node.position)
+            ),
+        [disciplineLights]
+    );
+
+    const lightColors = useMemo(
+        () =>
+            disciplineLights.map(
+                (node) =>
+                    new THREE.Color(node.color)
+            ),
+        [disciplineLights]
+    );
+
+    const dustUniforms = useMemo(
+        () =>
+            filaments.map((filament) => ({
+                uColor: {
+                    value: filament.colorValue,
+                },
+                uOpacity: {
+                    value: filament.opacity,
+                },
+                uSeed: {
+                    value: filament.seed,
+                },
+                uLightPositions: {
+                    value: lightPositions,
+                },
+                uLightColors: {
+                    value: lightColors,
+                },
+                uLightRadius: {
+                    value: LIGHT_RADIUS,
+                },
+                uLightStrength: {
+                    value: LIGHT_STRENGTH,
+                },
+                uSelectionWeights: {
+                    value: new THREE.Vector4(0, 0, 0, 0),
+                },
+                uSelectionBoost: {
+                    value: 3.0,
+                },
+            })),
+        [filaments, lightPositions, lightColors]
+    );
+
+    const selectionWeights = useMemo(() => {
+        const weights = [0, 0, 0, 0];
+
+        if (!selectedId) {
+            return weights;
+        }
+
+        const selectedNode = nodes.find(
+            (node) => node.id === selectedId
+        );
+
+        if (!selectedNode) {
+            return weights;
+        }
+
+        const activeDisciplines =
+            selectedNode.category === "discipline"
+                ? [selectedNode.id]
+                : selectedNode.disciplines ?? [];
+
+        DISCIPLINE_IDS.forEach((id, index) => {
+            if (activeDisciplines.includes(id)) {
+                weights[index] = 1;
+            }
+        });
+
+        return weights;
+    }, [nodes, selectedId]);
+
+
+    useFrame((_, delta) => {
+        const smoothing =
+            1 - Math.exp(-3.5 * delta);
+
+        for (const material of materialsRef.current) {
+            if (!material) continue;
+
+            const weights =
+                material.uniforms.uSelectionWeights
+                    .value as THREE.Vector4;
+
+            weights.x = THREE.MathUtils.lerp(
+                weights.x,
+                selectionWeights[0],
+                smoothing
+            );
+
+            weights.y = THREE.MathUtils.lerp(
+                weights.y,
+                selectionWeights[1],
+                smoothing
+            );
+
+            weights.z = THREE.MathUtils.lerp(
+                weights.z,
+                selectionWeights[2],
+                smoothing
+            );
+
+            weights.w = THREE.MathUtils.lerp(
+                weights.w,
+                selectionWeights[3],
+                smoothing
+            );
+        }
+    });
+
 
     return (
         <group>
@@ -227,19 +448,14 @@ export default function SpatialDust() {
                     <planeGeometry args={[1, 1]} />
 
                     <shaderMaterial
+                        ref={(material) => {
+                            if (material) {
+                                materialsRef.current[index] = material;
+                            }
+                        }}
                         vertexShader={VERTEX_SHADER}
                         fragmentShader={FRAGMENT_SHADER}
-                        uniforms={{
-                            uColor: {
-                                value: filament.colorValue,
-                            },
-                            uOpacity: {
-                                value: filament.opacity,
-                            },
-                            uSeed: {
-                                value: filament.seed,
-                            },
-                        }}
+                        uniforms={dustUniforms[index]}
                         transparent
                         depthWrite={false}
                         depthTest={true}

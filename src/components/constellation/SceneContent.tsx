@@ -117,7 +117,10 @@ export default function SceneContent({
 
             <AtmosphericNebula />
 
-            <SpatialDust />
+            <SpatialDust
+                nodes={positionedNodes}
+                selectedId={selectedId}
+            />
 
             <AtmosphericStarfield
                 count={450}
