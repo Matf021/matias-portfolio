@@ -16,7 +16,10 @@ import { getStellarPalette } from "@/lib/stellarPalette";
 import type {
     ConstellationNodeData,
 } from "@/types/constellation";
-import { DirectionalStellarPalette } from "@/lib/directionalStellarPalette";
+
+import type {
+    DirectionalStellarPalette,
+} from "@/lib/directionalStellarPalette";
 
 const NODE_LIGHTING = {
     identity: {
@@ -317,6 +320,7 @@ export default function ConstellationNode({
                                 ? stellarPalette
                                 : undefined
                         }
+                        directionalPalette={directionalPalette}
                     />
                 ) : (
                     <StellarCoreMaterial

@@ -5,11 +5,15 @@ import { useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StellarPalette } from "@/lib/stellarPalette";
+import type {
+    DirectionalStellarPalette,
+} from "@/lib/directionalStellarPalette";
 
 type ProceduralPhotosphereMaterialProps = {
     color: string;
     materialRef: React.RefObject<THREE.ShaderMaterial | null>;
     palette?: StellarPalette;
+    directionalPalette?: DirectionalStellarPalette | null;
     detail?: "primary" | "secondary";
 };
 
@@ -46,6 +50,9 @@ const fragmentShader = `
     uniform float uLargeFrequency;
     uniform float uFineFrequency;
     uniform float uVariationStrength;
+    uniform float uDirectionalCount;
+    uniform vec3 uDirectionalColors[3];
+    uniform vec3 uDirectionalVectors[3];
 
     varying vec3 vNormal;
     varying vec3 vViewPosition;
@@ -173,6 +180,49 @@ const fragmentShader = `
             }
         }
 
+        if (uDirectionalCount > 1.5) {
+            vec3 weightedColor = vec3(0.0);
+            float totalWeight = 0.0;
+
+            // Gentle displacement of the boundaries,
+            // driven by the existing surface noise.
+            float boundaryVariation =
+                (granulation - 0.5) * 0.22;
+
+            for (int i = 0; i < 3; i++) {
+                if (float(i) >= uDirectionalCount) {
+                    break;
+                }
+
+                vec3 direction =
+                    normalize(uDirectionalVectors[i]);
+
+                float alignment = dot(
+                    surfacePosition,
+                    direction
+                );
+
+                // Keep a small baseline influence
+                // so the back of the star stays colored.
+                float weight = 0.04 + pow(
+                    max(
+                        alignment + boundaryVariation + 0.25,
+                        0.0
+                    ),
+                    3.0
+                );
+
+                weightedColor +=
+                    uDirectionalColors[i] * weight;
+
+                totalWeight += weight;
+            }
+
+            blendedColor =
+                weightedColor / max(totalWeight, 0.0001);
+        }
+
+
         // Center the variation around zero.
         float thermalVariation =
             (granulation - 0.5) * uVariationStrength;
@@ -226,8 +276,18 @@ export default function ProceduralPhotosphereMaterial({
     materialRef,
     palette,
     detail = "primary",
+    directionalPalette,
 }: ProceduralPhotosphereMaterialProps) {
     const isPrimary = detail === "primary";
+
+    const directionalSources =
+        directionalPalette?.sources.slice(0, 3) ?? [];
+
+    const directionalKey = directionalSources
+        .map((source) =>
+            `${source.color}:${source.direction.join(",")}`
+        )
+        .join("|");
 
     const uniforms = useMemo(
         () => ({
@@ -271,6 +331,26 @@ export default function ProceduralPhotosphereMaterial({
             },
             uVariationStrength: {
                 value: isPrimary ? 0.42 : 0.34,
+            },
+            uDirectionalCount: {
+                value: directionalSources.length,
+            },
+            uDirectionalColors: {
+                value: [0, 1, 2].map(
+                    (index) =>
+                        new THREE.Color(
+                            directionalSources[index]?.color ?? "#ffffff"
+                        )
+                ),
+            },
+            uDirectionalVectors: {
+                value: [0, 1, 2].map(
+                    (index) =>
+                        new THREE.Vector3(
+                            ...(directionalSources[index]?.direction ??
+                                [0, 0, 1])
+                        )
+                ),
             },
         }),
         [
