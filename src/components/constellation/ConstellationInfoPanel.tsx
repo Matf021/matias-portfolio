@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { constellationDetails } from "@/data/constellationDetails";
 
 import type { ConstellationNodeData } from "@/types/constellation";
@@ -10,14 +10,19 @@ import RelatedNodeSection from "./RelatedNodeSection";
 type Props = {
     node: ConstellationNodeData;
     relatedNodes: ConstellationNodeData[];
-    onNavigate: (id: string) => void;
+    onNavigate: (
+        id: string,
+        fromKeyboard: boolean
+    ) => void;
     onClose: () => void;
+    focusHeading?: boolean;
 };
 
 export default function ConstellationInfoPanel({
     node,
     relatedNodes,
     onNavigate,
+    focusHeading = false,
     onClose,
 }: Props) {
     const [expanded, setExpanded] = useState(false);
@@ -34,11 +39,19 @@ export default function ConstellationInfoPanel({
     const relatedTechnologies = relatedNodes.filter(
         (related) => related.category === "technology"
     );
+
+    // const exploreNext = [
+    //     ...relatedProjects,
+    //     ...relatedDisciplines,
+    //     ...relatedTechnologies,
+    // ].slice(0, 2);
+
     const accentStyle = {
         "--panel-accent": node.color,
     } as React.CSSProperties;
 
     const contentRef = useRef<HTMLDivElement>(null);
+    const headingRef = useRef<HTMLHeadingElement>(null);
 
     const hasDetails = Boolean(
         relatedNodes.length > 0 ||
@@ -54,6 +67,14 @@ export default function ConstellationInfoPanel({
             )
         )
     );
+
+    useEffect(() => {
+        if (focusHeading) {
+            headingRef.current?.focus({
+                preventScroll: true,
+            });
+        }
+    }, [focusHeading]);
 
     const highlightsHeading =
         node.category === "project"
@@ -103,7 +124,11 @@ export default function ConstellationInfoPanel({
                             {node.category}
                         </p>
 
-                        <h3 className="text-lg font-semibold text-foreground">
+                        <h3
+                            ref={headingRef}
+                            tabIndex={-1}
+                            className="text-lg font-semibold text-foreground"
+                        >
                             {node.label}
                         </h3>
                     </div>
@@ -129,6 +154,68 @@ export default function ConstellationInfoPanel({
                     {node.description ??
                         "Explore the connections within this part of my development journey."}
                 </p>
+
+                {/* 
+                {exploreNext.length > 0 && (
+                    <section
+                        aria-label="Suggested constellation destinations"
+                        className="mt-4 border-t border-border pt-3"
+                    >
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                            <h4 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-text-secondary">
+                                Explore Next
+                            </h4>
+
+                            <span className="font-mono text-[10px] text-text-secondary">
+                                {relatedNodes.length} connections
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                            {exploreNext.map((destination) => (
+                                <button
+                                    key={destination.id}
+                                    type="button"
+                                    onClick={() => onNavigate(destination.id)}
+                                    className="
+                        group flex min-h-14 min-w-0
+                        items-center justify-between gap-2
+                        rounded-md border border-border
+                        bg-surface/40 px-2.5 py-2
+                        text-left transition-colors
+                        hover:border-white/25
+                        hover:bg-surface
+                        focus-visible:outline-2
+                        focus-visible:outline-offset-2
+                        focus-visible:outline-accent
+                    "
+                                >
+                                    <span className="flex min-w-0 items-center gap-2">
+                                        <span
+                                            className="h-2 w-2 shrink-0 rounded-full"
+                                            style={{
+                                                backgroundColor: destination.color,
+                                                boxShadow: `0 0 8px ${destination.color}55`,
+                                            }}
+                                            aria-hidden="true"
+                                        />
+
+                                        <span className="text-xs leading-snug text-text-secondary transition-colors group-hover:text-foreground">
+                                            {destination.label}
+                                        </span>
+                                    </span>
+
+                                    <span
+                                        aria-hidden="true"
+                                        className="shrink-0 text-xs text-text-secondary transition-transform group-hover:translate-x-0.5"
+                                    >
+                                        ↗
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </section>
+                )} */}
 
                 {expanded && (
                     <div className="constellation-details-enter mt-4 space-y-4 border-t border-border pt-4">

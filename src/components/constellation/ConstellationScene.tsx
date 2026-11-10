@@ -12,6 +12,7 @@ import type { ScreenRect } from "@/types/camera";
 import ConstellationInfoPanel from "./ConstellationInfoPanel";
 import ConstellationInteractionHint from "./ConstellationInteractionHint";
 import { getNodeRelationships } from "@/lib/graph";
+import ConstellationKeyboardExplorer from "./ConstellationKeyboardExplorer";
 
 export default function ConstellationScene() {
     const [selectedId, setSelectedId] =
@@ -21,6 +22,7 @@ export default function ConstellationScene() {
     const [hasInteracted, setHasInteracted] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
+    const [focusHeading, setFocusHeading] = useState(false);
 
     const selectedNode = constellationNodes.find(
         (node) => node.id === selectedId
@@ -49,16 +51,34 @@ export default function ConstellationScene() {
     const [panelRect, setPanelRect] =
         useState<ScreenRect | null>(null);
 
+
     function handleSelect(id: string) {
         setHasInteracted(true);
+        setFocusHeading(false);
 
         setSelectedId((current) =>
             current === id ? null : id
         );
     }
+
+    function handleRelatedNavigate(
+        id: string,
+        fromKeyboard: boolean
+    ) {
+        setHasInteracted(true);
+        setFocusHeading(fromKeyboard);
+
+        setSelectedId(id);
+    }
     function handleOverview() {
+        setFocusHeading(false);
         setSelectedId(null);
         setOverviewRequest((current) => current + 1);
+    }
+    function handleKeyboardExplorerSelect(id: string) {
+        setHasInteracted(true);
+        setFocusHeading(true);
+        setSelectedId(id);
     }
 
     useEffect(() => {
@@ -111,6 +131,7 @@ export default function ConstellationScene() {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key !== "Escape") return;
 
+            setFocusHeading(false);
             setSelectedId(null);
             setOverviewRequest((current) => current + 1);
         };
@@ -126,12 +147,18 @@ export default function ConstellationScene() {
         <div
             ref={containerRef}
             className="relative h-full w-full"
+            
         >
             <p className="sr-only">
                 Interactive constellation of projects and technical skills.
                 Select a node to explore its details.
                 Drag to rotate the constellation and scroll to zoom.
             </p>
+            <ConstellationKeyboardExplorer
+                nodes={constellationNodes}
+                selectedId={selectedId}
+                onSelect={handleKeyboardExplorerSelect}
+            />
             <Canvas
                 camera={{
                     position: [0, 0, 16],
@@ -170,8 +197,9 @@ export default function ConstellationScene() {
                             key={selectedNode.id}
                             node={selectedNode}
                             relatedNodes={relatedNodes}
-                            onNavigate={handleSelect}
-                            onClose={() => setSelectedId(null)}
+                            onNavigate={handleRelatedNavigate}
+                            focusHeading={focusHeading}
+                            onClose={handleOverview}
                         />
                     </div>
                 </div>

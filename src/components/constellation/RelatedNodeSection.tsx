@@ -6,7 +6,10 @@ import type {
 type Props = {
     title: string;
     nodes: ConstellationNodeData[];
-    onNavigate: (id: string) => void;
+    onNavigate: (
+        id: string,
+        fromKeyboard: boolean
+    ) => void;
 };
 
 export default function RelatedNodeSection({
@@ -29,7 +32,9 @@ export default function RelatedNodeSection({
                     <button
                         key={node.id}
                         type="button"
-                        onClick={() => onNavigate(node.id)}
+                        onClick={(event) => {
+                            onNavigate(node.id, event.detail === 0);
+                        }}
                         className="
                             group flex w-full items-center
                             justify-between gap-3
