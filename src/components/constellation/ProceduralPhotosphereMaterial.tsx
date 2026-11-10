@@ -18,9 +18,9 @@ type ProceduralPhotosphereMaterialProps = {
 };
 
 const STELLAR_RIFT = {
-    width: 0.16,
-    brightness: 0.38,
-    irregularity: 0.10,
+    width: 0.055,
+    brightness: 0.24,
+    irregularity: 0.18,
 } as const;
 
 const vertexShader = `
@@ -140,6 +140,7 @@ const fragmentShader = `
         vec3 blendedColor = uPrimaryColor;
         float riftMask = 0.0;
         float riftShadow = 0.0;
+        float riftIntensity = 1.0;
 
         if (uColorCount > 1.5) {
             float colorPattern = noise3D(
@@ -237,60 +238,116 @@ const fragmentShader = `
 
                 totalWeight += weight;
             }
-                
+
             blendedColor =
                 weightedColor / max(totalWeight, 0.0001);
 
                         
             if (uDirectionalCount > 1.5 &&
                 uDirectionalCount < 2.5) {
+                
+            vec3 firstDirection =
+                normalize(uDirectionalVectors[0]);
 
-                // Normalized difference between the
-                // two directional influences.
-                //
-                // Zero means both colors have
-                // approximately equal influence.
-                float balance = (
-                    firstWeight - secondWeight
-                ) / max(
-                    firstWeight + secondWeight,
-                    0.0001
-                );
+            vec3 secondDirection =
+                normalize(uDirectionalVectors[1]);
 
-                // Slowly evolving irregularity.
-                // This distorts the seam without
-                // changing its overall orientation.
-                float riftNoise = noise3D(
-                    surfacePosition * 9.0 +
-                    vec3(
-                        t * 0.3,
-                        -t * 0.2,
-                        t * 0.15
-                    )
-                );
+            // The normal of the boundary separating
+            // the two directional color regions.
+            vec3 boundaryAxis = normalize(
+                firstDirection - secondDirection
+            );
 
-                float distortion =
-                    (riftNoise - 0.5) *
-                    uRiftIrregularity;
+            // Signed distance from the boundary
+            // in directional space.
+            float boundaryDistance = dot(
+                surfacePosition,
+                boundaryAxis
+            );
 
-                float distanceToRift = abs(
-                    balance + distortion
-                );
+            // Large-scale distortion:
+            // bends the overall path of the rift.
+            float broadNoise = noise3D(
+                surfacePosition * 3.5 +
+                vec3(
+                    t * 0.035,
+                    -t * 0.025,
+                    t * 0.02
+                )
+            );
 
-                // Narrow luminous center.
-                riftMask = 1.0 - smoothstep(
-                    0.0,
-                    uRiftWidth,
-                    distanceToRift
-                );
+            // Medium-scale distortion:
+            // introduces uneven curves and bends.
+            float mediumNoise = noise3D(
+                surfacePosition * 9.0 +
+                vec3(
+                    -t * 0.08,
+                    t * 0.06,
+                    t * 0.04
+                )
+            );
 
-                // Broader, subtle shadow around
-                // the center to suggest depth.
-                riftShadow = 1.0 - smoothstep(
-                    uRiftWidth * 0.35,
-                    uRiftWidth * 2.4,
-                    distanceToRift
-                );
+            // Fine-scale distortion:
+            // adds small irregularities along the edges.
+            float fineNoise = noise3D(
+                surfacePosition * 24.0
+            );
+
+            // Combine the three scales.
+            float distortion =
+                (broadNoise - 0.5) *
+                    uRiftIrregularity * 2.0 +
+                (mediumNoise - 0.5) *
+                    uRiftIrregularity * 0.75 +
+                (fineNoise - 0.5) *
+                    uRiftIrregularity * 0.25;
+
+            // Calculate distance from the
+            // irregularly displaced boundary.
+            float distanceToRift = abs(
+                boundaryDistance + distortion
+            );
+
+            // Stable variation along the fracture.
+            // Low frequency produces broad, natural
+            // sections rather than random pixel noise.
+            float widthNoise = noise3D(
+                surfacePosition * 6.0 +
+                vec3(17.3, 4.1, 9.7)
+            );
+
+            // Most sections stay close to the base width.
+            // Some narrow to 75%; others widen to 125%.
+            float localRiftWidth = uRiftWidth * mix(
+                0.75,
+                1.25,
+                widthNoise
+            );
+            
+            riftMask = 1.0 - smoothstep(
+                0.0,
+                localRiftWidth,
+                distanceToRift
+            );
+
+            riftShadow = 1.0 - smoothstep(
+                localRiftWidth * 0.5,
+                localRiftWidth * 2.0,
+                distanceToRift
+            );
+            // Different noise coordinates prevent
+            // brightness from perfectly following width.
+            float brightnessNoise = noise3D(
+                surfacePosition * 8.0 +
+                vec3(31.7, 12.4, 5.9)
+            );
+
+            // Gentle variation in emitted light.
+            riftIntensity = mix(
+                0.65,
+                1.20,
+                brightnessNoise
+            );
             }
 
         }
@@ -325,7 +382,7 @@ const fragmentShader = `
 
         // Darken the area surrounding the rift,
         // suggesting a shallow depression.
-        surfaceColor *= 1.0 - riftShadow * 0.22;
+        surfaceColor *= 1.0 - riftShadow * 0.12;
 
         // Warm plasma light along the fracture.
         // The emission is deliberately restrained.
@@ -338,8 +395,8 @@ const fragmentShader = `
         surfaceColor +=
             riftColor *
             riftMask *
-            uRiftBrightness;
-
+            uRiftBrightness *
+            riftIntensity;
 
         float luminosity =
             (1.0 + thermalVariation) *
