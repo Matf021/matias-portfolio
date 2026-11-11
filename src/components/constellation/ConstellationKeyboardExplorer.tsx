@@ -9,6 +9,12 @@ import {
     useState,
 } from "react";
 
+import {
+    Network,
+    ChevronDown,
+    X,
+} from "lucide-react";
+
 import type {
     ConstellationNodeData,
     NodeCategory,
@@ -75,48 +81,62 @@ const ConstellationKeyboardExplorer = forwardRef<
         >
 
 
+
             <button
                 ref={triggerRef}
                 type="button"
                 aria-expanded={open}
                 aria-controls={panelId}
+                aria-label="Explore constellation"
                 onClick={() => setOpen((current) => !current)}
-
                 className="
-                    sr-only
-                    focus:not-sr-only
-                    focus:absolute
-                    focus:left-0
-                    focus:top-0
-                    focus:z-30
-                    focus:whitespace-nowrap
-                    focus:rounded-md
-                    focus:border
-                    focus:border-border
-                    focus:bg-background
-                    focus:px-3
-                    focus:py-2
-                    focus:text-sm
-                    focus:text-foreground
-                    focus:shadow-lg
+                    flex items-center gap-2
+                    rounded-lg
+                    border border-white/10
+                    bg-[#081120]/65
+                    px-3 py-2
+                    text-xs font-medium
+                    text-[#a9bddb]
+                    backdrop-blur-md
+                    transition-all duration-200
+                    hover:border-white/25
+                    hover:bg-[#101d33]/85
+                    hover:text-white
                     focus-visible:outline-2
-                    focus-visible:outline-accent
+                    focus-visible:outline-offset-2
+                    focus-visible:outline-blue-400
                 "
             >
-                Explore constellation by keyboard
+                <Network size={14} aria-hidden="true" />
+
+                <span>Explore</span>
+
+                <ChevronDown
+                    size={13}
+                    aria-hidden="true"
+                    className={`
+            transition-transform duration-200
+            ${open ? "rotate-180" : ""}
+        `}
+                />
             </button>
+
 
             {open && (
                 <div
                     id={panelId}
+
                     className="
-                        absolute left-0 top-14
+                        absolute left-0 top-12
                         w-[min(85vw,20rem)]
-                        max-h-[65svh]
-                        overflow-y-auto rounded-xl
-                        border border-border
-                        bg-background/95 p-4
-                        shadow-2xl backdrop-blur-md
+                        max-h-[min(65svh,420px)]
+                        overflow-y-auto
+                        rounded-xl
+                        border border-white/10
+                        bg-[#081120]/95
+                        p-4
+                        shadow-2xl
+                        backdrop-blur-xl
                     "
                 >
                     <div className="mb-4 flex items-center justify-between gap-3">
@@ -124,14 +144,24 @@ const ConstellationKeyboardExplorer = forwardRef<
                             Constellation Explorer
                         </h2>
 
+
                         <button
                             type="button"
                             onClick={closeExplorer}
-                            className="rounded px-2 py-1 text-text-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent"
+                            className="
+                                rounded-md p-1.5
+                                text-[#a9bddb]
+                                transition-colors
+                                hover:bg-white/10
+                                hover:text-white
+                                focus-visible:outline-2
+                                focus-visible:outline-blue-400
+                            "
                             aria-label="Close constellation explorer"
                         >
-                            ✕
+                            <X size={16} aria-hidden="true" />
                         </button>
+
                     </div>
 
                     <div className="space-y-4">
