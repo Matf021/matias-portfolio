@@ -5,10 +5,14 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Billboard, Text } from "@react-three/drei";
 import * as THREE from "three";
-import { getLabelFontSize } from "@/lib/labelProjection";
+import {
+    getLabelFontSize,
+    getLabelScreenScale,
+} from "@/lib/labelProjection";
 import {
     getStellarLabelOffset,
     getStellarVisualScale,
+    getCameraAwareLabelOffset,
 } from "@/lib/stellarLabel";
 
 import type {
@@ -90,15 +94,19 @@ export default function ConstellationLabel({
         const billboard = billboardRef.current;
         const text = textRef.current;
 
+
         if (text && camera instanceof THREE.PerspectiveCamera) {
             const offsetPx =
                 labelOffsetsRef.current.get(node.id) ?? 0;
 
-            const depthPosition = worldPosition.current
-                .clone()
+            const nodeWorldPosition = new THREE.Vector3(
+                ...node.position
+            );
+
+            const cameraSpace = nodeWorldPosition
                 .applyMatrix4(camera.matrixWorldInverse);
 
-            const depth = -depthPosition.z;
+            const depth = -cameraSpace.z;
 
             if (depth > 0) {
                 const verticalFov =
@@ -112,11 +120,27 @@ export default function ConstellationLabel({
                     ) /
                     size.height;
 
+                const cameraAwareY = getCameraAwareLabelOffset(
+                    node,
+                    visualScale,
+                    worldUnitsPerPixel
+                );
+
                 const targetY =
-                    targetLabelY -
+                    cameraAwareY -
                     offsetPx * worldUnitsPerPixel;
 
                 text.position.y = targetY;
+
+                const screenScale = getLabelScreenScale(
+                    node,
+                    depth,
+                    camera,
+                    size.height,
+                    selected ? 1.12 : hovered ? 1.06 : 1
+                );
+
+                text.scale.setScalar(screenScale);
             }
         }
 

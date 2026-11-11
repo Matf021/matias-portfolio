@@ -10,7 +10,7 @@ import type {
 } from "@/lib/labelCollision";
 
 import {
-    getStellarLabelOffset,
+    getCameraAwareLabelOffset,
 } from "@/lib/stellarLabel";
 
 const LABEL_FONT_SIZE = {
@@ -29,6 +29,50 @@ export function getLabelFontSize(
     return LABEL_FONT_SIZE[node.category];
 }
 
+
+const MAX_LABEL_HEIGHT_PX = {
+    identity: 26,
+    discipline: 23,
+    project: 22,
+    technology: 19,
+} as const;
+
+export function getLabelScreenScale(
+    node: ConstellationNodeData,
+    depth: number,
+    camera: THREE.PerspectiveCamera,
+    viewportHeight: number,
+    emphasisScale = 1
+): number {
+    if (depth <= 0 || viewportHeight <= 0) {
+        return 1;
+    }
+
+    const verticalFov = THREE.MathUtils.degToRad(
+        camera.fov
+    );
+
+    const pixelsPerWorldUnit =
+        viewportHeight /
+        (
+            2 *
+            depth *
+            Math.tan(verticalFov / 2)
+        );
+
+    const naturalHeightPx =
+        getLabelFontSize(node) *
+        emphasisScale *
+        pixelsPerWorldUnit;
+
+    return Math.min(
+        1,
+        MAX_LABEL_HEIGHT_PX[node.category] /
+        Math.max(naturalHeightPx, 0.001)
+    );
+}
+
+
 export function projectLabelBounds(
     node: ConstellationNodeData,
     camera: THREE.PerspectiveCamera,
@@ -41,30 +85,45 @@ export function projectLabelBounds(
         ...node.position
     );
 
-    // Transform the node center into
-    // camera-space coordinates.
+    // Convert the node's position into camera space.
     const cameraSpace = worldPosition
         .clone()
         .applyMatrix4(camera.matrixWorldInverse);
-
-    // Billboard offsets are relative to
-    // the camera's vertical direction.
-    cameraSpace.y += getStellarLabelOffset(
-        node,
-        visualScale
-    );
 
     const depth = -cameraSpace.z;
 
     if (
         depth <= camera.near ||
-        depth >= camera.far
+        depth >= camera.far ||
+        viewportHeight <= 0
     ) {
         return null;
     }
 
-    // Project the camera-space position
-    // using the camera's projection matrix.
+    // Calculate perspective conversion factors.
+    const verticalFov =
+        THREE.MathUtils.degToRad(camera.fov);
+
+    const worldUnitsPerPixel =
+        (
+            2 *
+            depth *
+            Math.tan(verticalFov / 2)
+        ) /
+        viewportHeight;
+
+    const pixelsPerWorldUnit =
+        1 / worldUnitsPerPixel;
+
+    // Position the label beneath the star,
+    // limiting the screen-space gap.
+    cameraSpace.y += getCameraAwareLabelOffset(
+        node,
+        visualScale,
+        worldUnitsPerPixel
+    );
+
+    // Project the label into screen space.
     const projected = cameraSpace
         .clone()
         .applyMatrix4(camera.projectionMatrix);
@@ -76,20 +135,22 @@ export function projectLabelBounds(
         return null;
     }
 
-    const verticalFov =
-        THREE.MathUtils.degToRad(camera.fov);
-
-    const pixelsPerWorldUnit =
-        viewportHeight /
-        (
-            2 *
-            depth *
-            Math.tan(verticalFov / 2)
-        );
+    // Apply the same font-size limit
+    // used by the rendered label.
+    const screenScale = getLabelScreenScale(
+        node,
+        depth,
+        camera,
+        viewportHeight,
+        scale
+    );
 
     const fontSize =
-        getLabelFontSize(node) * scale;
+        getLabelFontSize(node) *
+        scale *
+        screenScale;
 
+    // Estimate the label's screen-space dimensions.
     const estimatedWorldWidth =
         node.label.length *
         fontSize *

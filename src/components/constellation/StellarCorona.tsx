@@ -446,13 +446,6 @@ export default function StellarCorona({
     const materialRef =
         useRef<THREE.ShaderMaterial>(null);
 
-    const directionalKey = directionalPalette?.sources
-        .slice(0, 3)
-        .map((source) =>
-            `${source.color}:${source.direction.join(",")}`
-        )
-        .join("|") ?? "";
-
     const uniforms = useMemo(
         () => ({
             uColor: {
@@ -492,7 +485,11 @@ export default function StellarCorona({
                 ),
             },
         }),
-        [color, debug, directionalKey]
+        [
+            color,
+            debug,
+            directionalPalette?.sources,
+        ]
     );
 
     const directionVector = useMemo(

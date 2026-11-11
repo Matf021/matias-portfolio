@@ -427,14 +427,10 @@ export default function ProceduralPhotosphereMaterial({
 }: ProceduralPhotosphereMaterialProps) {
     const isPrimary = detail === "primary";
 
-    const directionalSources =
-        directionalPalette?.sources.slice(0, 3) ?? [];
-
-    const directionalKey = directionalSources
-        .map((source) =>
-            `${source.color}:${source.direction.join(",")}`
-        )
-        .join("|");
+    const directionalSources = useMemo(
+        () => directionalPalette?.sources.slice(0, 3) ?? [],
+        [directionalPalette?.sources]
+    );
 
     const uniforms = useMemo(
         () => ({
@@ -516,7 +512,7 @@ export default function ProceduralPhotosphereMaterial({
             palette?.tertiary,
             palette?.colorCount,
             isPrimary,
-            directionalKey,
+            directionalSources,
         ]
     );
 

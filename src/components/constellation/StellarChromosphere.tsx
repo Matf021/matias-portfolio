@@ -200,15 +200,6 @@ export default function StellarChromosphere({
     const materialRef =
         useRef<THREE.ShaderMaterial>(null);
 
-    const directionalKey =
-        directionalPalette?.sources
-            .slice(0, 3)
-            .map(
-                (source) =>
-                    `${source.color}:${source.direction.join(",")}`
-            )
-            .join("|") ?? "";
-
     const uniforms = useMemo(
         () => ({
             uColor: {
@@ -247,7 +238,7 @@ export default function StellarChromosphere({
             },
 
         }),
-        [color, directionalKey]
+        [color, directionalPalette?.sources]
     );
 
     useFrame(({ clock }, delta) => {
@@ -279,7 +270,7 @@ export default function StellarChromosphere({
 
     return (
         <mesh
-            scale={1.025}
+            scale={1.012}
             raycast={() => []}
             renderOrder={2}
         >

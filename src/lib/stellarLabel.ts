@@ -29,3 +29,29 @@ export function getStellarLabelOffset(
         LABEL_GAP[node.category]
     );
 }
+
+
+export function getCameraAwareLabelOffset(
+    node: ConstellationNodeData,
+    visualScale: number,
+    worldUnitsPerPixel: number
+): number {
+    const naturalGap = LABEL_GAP[node.category];
+
+    const maxGapPx = {
+        identity: 24,
+        discipline: 21,
+        project: 18,
+        technology: 16,
+    }[node.category];
+
+    const adjustedGap = Math.min(
+        naturalGap,
+        maxGapPx * worldUnitsPerPixel
+    );
+
+    return -(
+        node.size * visualScale +
+        adjustedGap
+    );
+}
