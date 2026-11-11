@@ -106,6 +106,31 @@ export const constellationNodes: ConstellationNodeData[] = [
             "An immersive 3D developer portfolio built around an interactive constellation, cinematic navigation, and contextual project discovery.",
         disciplines: ["creative", "software"],
     },
+    {
+        id: "nlp-sentiment",
+        label: "NLP Sentiment Analysis",
+        category: "project",
+        position: [-2.0, 3.3, 0.5],
+        color: "#9fd7ff",
+        size: 0.2,
+        description:
+            "Comparative NLP project evaluating sentiment classification approaches using Amazon product reviews.",
+        disciplines: ["ai", "software"],
+    },
+
+    {
+        id: "autoencoder-pca",
+        label: "Autoencoder & PCA",
+        category: "project",
+        position: [-5.8, 3.2, 0.2],
+        color: "#b6caff",
+        size: 0.2,
+        description:
+            "Machine learning project exploring dimensionality reduction and image reconstruction using autoencoders and Principal Component Analysis.",
+        disciplines: ["ai"],
+    },
+
+
 
 
     // Technologies
@@ -226,6 +251,18 @@ export const constellationNodes: ConstellationNodeData[] = [
         size: 0.12,
         disciplines: ["software", "creative"],
     },
+    {
+        id: "dqn-lunarlander",
+        label: "DQN LunarLander",
+        category: "project",
+        position: [-6.0, 0.0, 0.2],
+        color: "#9ec5ff",
+        size: 0.2,
+        description:
+            "Reinforcement learning project exploring Deep Q-Networks for autonomous decision-making in the LunarLander environment.",
+        disciplines: ["ai"],
+    },
+
 ];
 
 export const constellationEdges: ConstellationEdge[] = [
@@ -241,9 +278,8 @@ export const constellationEdges: ConstellationEdge[] = [
     { source: "software", target: "hospitality" },
     { source: "creative", target: "pipboy" },
     { source: "creative", target: "portfolio" },
-
-    // Projects to technologies
-
+    { source: "ai", target: "autoencoder-pca" },
+    { source: "ai", target: "dqn-lunarlander" },
 
     // Projects to technologies
 
@@ -333,6 +369,59 @@ export const constellationEdges: ConstellationEdge[] = [
         target: "typescript",
         description:
             "Type-safe application logic, constellation data, and component interfaces.",
+    },
+
+    // NLP Sentiment Analysis
+    {
+        source: "ai",
+        target: "nlp-sentiment",
+    },
+    {
+        source: "nlp-sentiment",
+        target: "python",
+        description:
+            "Text preprocessing, feature extraction, model training, and evaluation.",
+    },
+    {
+        source: "nlp-sentiment",
+        target: "nlp",
+        description:
+            "Sentiment classification using TF-IDF, lexicon-based methods, and supervised learning.",
+    },
+    {
+        source: "nlp-sentiment",
+        target: "ml",
+        description:
+            "Comparison and evaluation of supervised sentiment classifiers.",
+    },
+
+
+    // Autoencoder & PCA
+    {
+        source: "autoencoder-pca",
+        target: "python",
+        description:
+            "Implementation and evaluation of image-processing and dimensionality-reduction workflows.",
+    },
+    {
+        source: "autoencoder-pca",
+        target: "ml",
+        description:
+            "Autoencoder-based representation learning and comparison with PCA.",
+    },
+
+    // DQN LunarLander
+    {
+        source: "dqn-lunarlander",
+        target: "python",
+        description:
+            "Python-based implementation of the reinforcement learning workflow.",
+    },
+    {
+        source: "dqn-lunarlander",
+        target: "ml",
+        description:
+            "Deep Q-Learning for training an agent through environment interaction and reward feedback.",
     },
 
 

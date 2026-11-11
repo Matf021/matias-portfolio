@@ -247,6 +247,43 @@ export const constellationDetails: Record<
     },
 
 
+    "autoencoder-pca": {
+        summary:
+            "A machine learning project exploring dimensionality reduction and image reconstruction using autoencoders and Principal Component Analysis on the Olivetti Faces dataset.",
+        highlights: [
+            "Explored dimensionality reduction and feature representation using PCA and autoencoders.",
+            "Worked with the Olivetti Faces image dataset.",
+            "Compared learned representations and reconstruction behavior across dimensionality-reduction approaches.",
+        ],
+        technologies: [
+            "Python",
+            "Machine Learning",
+            "Principal Component Analysis",
+            "Autoencoders",
+            "Olivetti Faces Dataset",
+        ],
+    },
+
+
+    "dqn-lunarlander": {
+        summary:
+            "A reinforcement learning project exploring Deep Q-Networks (DQN) to train an agent in the LunarLander environment through trial-and-error interaction and reward-based learning.",
+        highlights: [
+            "Explored value-based reinforcement learning using Deep Q-Networks.",
+            "Worked with the LunarLander environment and its state, action, and reward structure.",
+            "Investigated how an agent can learn decision-making behavior through repeated environment interaction.",
+        ],
+        technologies: [
+            "Python",
+            "Reinforcement Learning",
+            "Deep Q-Networks",
+            "LunarLander",
+        ],
+    },
+
+
+
+
     // TECHNOLOGIES
     python: {
         summary:
