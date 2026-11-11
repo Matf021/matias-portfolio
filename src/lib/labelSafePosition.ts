@@ -4,7 +4,7 @@ import type { LabelRect } from "@/lib/labelCollision";
 
 const SCREEN_MARGIN = 16;
 const PANEL_MARGIN = 20;
-const MAX_SHIFT_PX = 100;
+const MAX_SHIFT_PX = 20;
 
 export function getLabelSafeShiftX(
     label: LabelRect,

@@ -162,7 +162,8 @@ export default function LabelCollisionManager({
             const previousShiftX =
                 labelShiftXRef.current.get(node.id) ?? 0;
 
-            const desiredShiftX = selected
+
+            const rawShiftX = selected
                 ? getLabelSafeShiftX(
                     adjustedRect,
                     panelRect,
@@ -170,8 +171,16 @@ export default function LabelCollisionManager({
                 )
                 : 0;
 
+            const SHIFT_DEAD_ZONE_PX = 12;
+
+            const desiredShiftX =
+                Math.abs(rawShiftX) < SHIFT_DEAD_ZONE_PX
+                    ? 0
+                    : rawShiftX;
+
+
             const shiftSmoothing =
-                1 - Math.exp(-6 * delta);
+                1 - Math.exp(-3.5 * delta);
 
             const shiftX = THREE.MathUtils.lerp(
                 previousShiftX,
