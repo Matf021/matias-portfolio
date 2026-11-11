@@ -17,8 +17,11 @@ import {
 
 import type {
     ConstellationNodeData,
+    ConstellationEdge,
     NodeCategory,
 } from "@/types/constellation";
+
+import { getNodeRelationships } from "@/lib/graph";
 
 export type KeyboardExplorerHandle = {
     focusTrigger: () => void;
@@ -28,6 +31,7 @@ type Props = {
     nodes: ConstellationNodeData[];
     selectedId: string | null;
     onSelect: (id: string) => void;
+    edges: ConstellationEdge[];
 };
 
 const categories: {
@@ -47,6 +51,7 @@ const ConstellationKeyboardExplorer = forwardRef<
     nodes,
     selectedId,
     onSelect,
+    edges,
 }, ref) {
 
     const [open, setOpen] = useState(false);
@@ -69,6 +74,26 @@ const ConstellationKeyboardExplorer = forwardRef<
             return next;
         });
     }
+
+
+    const selectedNode = selectedId
+        ? nodes.find((node) => node.id === selectedId)
+        : null;
+
+    const relatedNodes = selectedId
+        ? (() => {
+            const relationships = getNodeRelationships(
+                selectedId,
+                nodes,
+                edges
+            );
+
+            return nodes.filter(
+                (node) => relationships.all.has(node.id)
+            );
+        })()
+        : [];
+
 
     const panelId = useId();
     const triggerRef = useRef<HTMLButtonElement>(null);
@@ -160,10 +185,10 @@ const ConstellationKeyboardExplorer = forwardRef<
                     "
                 >
                     <div className="mb-4 flex items-center justify-between gap-3">
+
                         <h2 className="text-sm font-semibold text-foreground">
                             Constellation Explorer
                         </h2>
-
 
                         <button
                             type="button"
@@ -183,6 +208,85 @@ const ConstellationKeyboardExplorer = forwardRef<
                         </button>
 
                     </div>
+
+
+                    {selectedNode && relatedNodes.length > 0 && (
+                        <section
+                            aria-label={`Connections for ${selectedNode.label}`}
+                            className="
+            mb-4 rounded-lg
+            border border-white/10
+            bg-white/[0.035]
+            p-3
+        "
+                        >
+                            <p className="
+            mb-1 text-[10px]
+            font-semibold uppercase
+            tracking-[0.16em]
+            text-[#8ea9ce]
+        ">
+                                Currently exploring
+                            </p>
+
+                            <p className="mb-3 text-sm font-medium text-white">
+                                {selectedNode.label}
+                            </p>
+
+                            <p className="
+            mb-2 text-[10px]
+            font-semibold uppercase
+            tracking-[0.16em]
+            text-[#8ea9ce]
+        ">
+                                Related nodes
+                            </p>
+
+                            <div className="space-y-1">
+                                {relatedNodes.map((node) => (
+                                    <button
+                                        key={node.id}
+                                        type="button"
+                                        onClick={() => selectNode(node.id)}
+                                        className="
+                        flex w-full items-center
+                        gap-2 rounded-md
+                        px-2 py-2 text-left
+                        text-xs text-[#b6c9e8]
+                        transition-colors
+                        hover:bg-white/10
+                        hover:text-white
+                        focus-visible:outline-2
+                        focus-visible:outline-blue-400
+                    "
+                                    >
+                                        <span
+                                            className="
+                            h-2 w-2 shrink-0
+                            rounded-full
+                        "
+                                            style={{
+                                                backgroundColor: node.color,
+                                            }}
+                                            aria-hidden="true"
+                                        />
+
+                                        <span className="min-w-0 flex-1">
+                                            {node.label}
+                                        </span>
+
+                                        <span className="
+                        shrink-0 text-[10px]
+                        capitalize text-[#7892b5]
+                    ">
+                                            {node.category}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
 
 
                     <div className="space-y-2">

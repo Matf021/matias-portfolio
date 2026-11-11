@@ -165,6 +165,7 @@ export default function ConstellationScene() {
                 nodes={constellationNodes}
                 selectedId={selectedId}
                 onSelect={handleKeyboardExplorerSelect}
+                edges={constellationEdges}
             />
             <Canvas
                 camera={{
