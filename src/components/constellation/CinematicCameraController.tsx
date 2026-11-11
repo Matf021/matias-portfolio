@@ -79,6 +79,27 @@ export default function CinematicCameraController({
         [nodes, size.width, size.height]
     );
 
+    const overviewFraming = useMemo(() => {
+        // Shift the constellation upward on screen,
+        // leaving room for the interaction hint.
+        const verticalOffset =
+            size.width >= 640 ? 0.45 : 0;
+
+        return {
+            ...framing,
+            target: [
+                framing.target[0],
+                framing.target[1] - verticalOffset,
+                framing.target[2],
+            ] as [number, number, number],
+            position: [
+                framing.position[0],
+                framing.position[1] - verticalOffset,
+                framing.position[2],
+            ] as [number, number, number],
+        };
+    }, [framing, size.width]);
+
     const selectedNode = useMemo(
         () => nodes.find((node) => node.id === selectedId),
         [nodes, selectedId]
@@ -143,7 +164,7 @@ export default function CinematicCameraController({
                 camera as THREE.PerspectiveCamera,
                 selectionPositions
             )
-            : framing;
+            : overviewFraming;
 
         const destination = selectedNode
             ? applyCameraSafeArea(
@@ -208,7 +229,7 @@ export default function CinematicCameraController({
         selectedId,
         selectedNode,
         selectionPositions,
-        framing,
+        overviewFraming,
         camera,
         controlsRef,
         panelRect,
