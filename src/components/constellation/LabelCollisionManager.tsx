@@ -208,13 +208,20 @@ export default function LabelCollisionManager({
             candidates.push({
                 id: node.id,
                 rect: finalRect,
-                priority: getLabelPriority(
-                    node.category,
-                    selected,
-                    hovered,
-                    connected,
-                    selectedId !== null
-                ),
+                priority:
+                    getLabelPriority(
+                        node.category,
+                        selected,
+                        hovered,
+                        connected,
+                        selectedId !== null
+                    ) +
+                    (
+                        node.id === "portfolio" &&
+                            selectedId === null
+                            ? 5
+                            : 0
+                    ),
             });
         }
 

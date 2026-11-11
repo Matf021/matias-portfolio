@@ -199,8 +199,14 @@ export default function ConstellationLabel({
                 distanceVisibility *
                 (3 - 2 * distanceVisibility);
 
+            const isBridgeProject = node.id === "portfolio";
+
+            const effectiveMinimumOpacity = isBridgeProject
+                ? 0.55
+                : minimumOpacity;
+
             targetOpacity = THREE.MathUtils.lerp(
-                minimumOpacity,
+                effectiveMinimumOpacity,
                 maximumOpacity,
                 smoothVisibility
             );
@@ -209,7 +215,8 @@ export default function ConstellationLabel({
         if (
             hiddenLabelsRef.current.has(node.id) &&
             !selected &&
-            !hovered
+            !hovered &&
+            node.id !== "portfolio"
         ) {
             targetOpacity *= 0.08;
         }
