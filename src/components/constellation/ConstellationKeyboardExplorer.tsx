@@ -25,6 +25,7 @@ import { getNodeRelationships } from "@/lib/graph";
 
 export type KeyboardExplorerHandle = {
     focusTrigger: () => void;
+    close: () => void;
 };
 
 type Props = {
@@ -131,6 +132,9 @@ const ConstellationKeyboardExplorer = forwardRef<
     useImperativeHandle(ref, () => ({
         focusTrigger() {
             triggerRef.current?.focus();
+        },
+        close() {
+            setOpen(false);
         },
     }), []);
 

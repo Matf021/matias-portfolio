@@ -57,6 +57,8 @@ export default function ConstellationScene() {
 
 
     function handleSelect(id: string) {
+        keyboardExplorerRef.current?.close();
+
         setHasInteracted(true);
         setFocusHeading(false);
 
@@ -75,6 +77,8 @@ export default function ConstellationScene() {
         setSelectedId(id);
     }
     function handleOverview() {
+        keyboardExplorerRef.current?.close();
+
         setFocusHeading(false);
         setSelectedId(null);
         setOverviewRequest((current) => current + 1);
