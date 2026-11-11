@@ -31,7 +31,7 @@ export const constellationLayout: Record<
             "voice-notes": [-1.5, -1.3, 1.1],
             aws: [1.4, 1.1, -0.4],
             chalice: [2.1, -0.2, -0.5],
-            nlp: [-0.4, -1.5, 1],
+            nlp: [-2.2, 0.3, 1.5],
         },
     },
 

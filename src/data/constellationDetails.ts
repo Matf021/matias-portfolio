@@ -426,4 +426,202 @@ export const constellationDetails: Record<
             "Oracle Hospitality Management",
         ],
     },
+
+
+    nextjs: {
+        summary:
+            "React-based application framework used to structure and deliver the interactive developer portfolio.",
+        highlights: [
+            "Organizes the portfolio using reusable application components.",
+            "Integrates the interactive constellation with the surrounding interface.",
+        ],
+        technologies: ["Next.js", "React", "TypeScript"],
+    },
+
+    threejs: {
+        summary:
+            "3D graphics library used to create the constellation's geometry, materials, lighting effects, and cinematic camera behavior.",
+        highlights: [
+            "Supports custom stellar shaders and animated visual effects.",
+            "Provides the underlying 3D scene and camera mathematics.",
+        ],
+        technologies: ["Three.js", "WebGL", "GLSL"],
+    },
+
+    r3f: {
+        summary:
+            "React renderer for Three.js, used to build the constellation as a component-based interactive 3D experience.",
+        highlights: [
+            "Integrates 3D objects with React's component architecture.",
+            "Coordinates scene rendering with application state and interactions.",
+        ],
+        technologies: ["React Three Fiber", "React", "Three.js"],
+    },
+
+    glsl: {
+        summary:
+            "Shader programming language used to create procedural visual effects for the portfolio's 3D constellation.",
+        highlights: [
+            "Developed custom shaders for stellar surface appearance and atmospheric effects.",
+            "Used shader uniforms to control animation, color, intensity, and selection responses.",
+            "Integrated GPU-based visual effects into the Three.js rendering pipeline.",
+        ],
+        technologies: [
+            "GLSL",
+            "Three.js",
+            "WebGL",
+        ],
+    },
+
+    tailwind: {
+        summary:
+            "Utility-first CSS framework used to style the portfolio's responsive interface and navigation system.",
+        highlights: [
+            "Built responsive information panels and navigation components.",
+            "Implemented consistent spacing, typography, and interaction states.",
+            "Adapted interface layouts across desktop and mobile viewports.",
+        ],
+        technologies: [
+            "Tailwind CSS",
+            "React",
+            "Next.js",
+        ],
+    },
+
+
+    "scikit-learn": {
+        summary:
+            "Python machine learning library used for supervised learning, dimensionality reduction, and model evaluation.",
+        highlights: [
+            "Trained and evaluated sentiment classifiers using text-derived features.",
+            "Applied Principal Component Analysis to dimensionality-reduction experiments.",
+            "Worked with classification metrics and comparative model evaluation.",
+        ],
+        technologies: [
+            "Python",
+            "Scikit-learn",
+            "Machine Learning",
+        ],
+    },
+
+    librosa: {
+        summary:
+            "Python library for audio and music analysis, used in the Manatee Call Detector's signal-processing pipeline.",
+        highlights: [
+            "Processed and segmented audio recordings.",
+            "Extracted MFCC features for acoustic modeling.",
+            "Prepared audio features for Hidden Markov Model inference.",
+        ],
+        technologies: [
+            "Python",
+            "Librosa",
+            "MFCC",
+            "Audio Processing",
+        ],
+    },
+
+    "reinforcement-learning": {
+        summary:
+            "Machine learning approach in which agents learn behavior through interaction with an environment and reward feedback.",
+        highlights: [
+            "Explored Deep Q-Networks for value-based decision-making.",
+            "Worked with environment observations, actions, and rewards.",
+            "Applied reinforcement learning concepts in the LunarLander project.",
+        ],
+        technologies: [
+            "Python",
+            "Reinforcement Learning",
+            "Deep Q-Networks",
+        ],
+    },
+
+    plsql: {
+        summary:
+            "Oracle's procedural SQL extension, used to implement business logic, validation, and automated tests for the hospitality database system.",
+        highlights: [
+            "Developed modular packages for reservation, stay, and folio management.",
+            "Implemented validation for reservation conflicts, room capacity, and operational constraints.",
+            "Created automated tests covering valid workflows and expected errors.",
+        ],
+        technologies: [
+            "PL/SQL",
+            "Oracle Database",
+            "SQL",
+        ],
+        relatedProjects: [
+            "Oracle Hospitality Management",
+        ],
+    },
+
+    powershell: {
+        summary:
+            "Windows scripting and automation language used to support local data persistence and file operations in the Pip-Boy productivity dashboard.",
+        highlights: [
+            "Integrated PowerShell scripts with Rainmeter and Lua workflows.",
+            "Supported local file reading and writing for productivity data.",
+            "Contributed to the dashboard's local-first architecture.",
+        ],
+        technologies: [
+            "PowerShell",
+            "Lua",
+            "Rainmeter",
+        ],
+        relatedProjects: [
+            "Matt Daily Dashboard",
+        ],
+    },
+
+    s3: {
+        summary:
+            "Amazon Web Services object-storage service used to store audio recordings for the Voice Notes Organizer.",
+        highlights: [
+            "Integrated audio uploads with cloud object storage.",
+            "Used stored audio as input for transcription workflows.",
+            "Connected S3 storage with a Python-based serverless backend.",
+        ],
+        technologies: [
+            "Amazon S3",
+            "AWS",
+            "Python",
+        ],
+        relatedProjects: [
+            "AWS Voice Notes Organizer",
+        ],
+    },
+
+    transcribe: {
+        summary:
+            "AWS speech-recognition service used to convert recorded voice notes into text.",
+        highlights: [
+            "Integrated automated speech-to-text processing.",
+            "Connected transcription results to the application's note-management workflow.",
+            "Used transcription output as input for downstream natural-language analysis.",
+        ],
+        technologies: [
+            "Amazon Transcribe",
+            "AWS",
+            "Python",
+        ],
+        relatedProjects: [
+            "AWS Voice Notes Organizer",
+        ],
+    },
+
+    comprehend: {
+        summary:
+            "AWS natural language processing service used to extract sentiment and key phrases from transcribed voice notes.",
+        highlights: [
+            "Integrated managed sentiment analysis into the application.",
+            "Extracted key phrases from transcribed text.",
+            "Connected NLP results to user-facing note information.",
+        ],
+        technologies: [
+            "Amazon Comprehend",
+            "AWS",
+            "Natural Language Processing",
+        ],
+        relatedProjects: [
+            "AWS Voice Notes Organizer",
+        ],
+    },
 };
