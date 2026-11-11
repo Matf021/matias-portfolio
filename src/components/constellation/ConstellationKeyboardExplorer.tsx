@@ -50,6 +50,26 @@ const ConstellationKeyboardExplorer = forwardRef<
 }, ref) {
 
     const [open, setOpen] = useState(false);
+
+    const [expandedCategories, setExpandedCategories] =
+        useState<Set<NodeCategory>>(
+            () => new Set(["discipline"])
+        );
+
+    function toggleCategory(category: NodeCategory) {
+        setExpandedCategories((previous) => {
+            const next = new Set(previous);
+
+            if (next.has(category)) {
+                next.delete(category);
+            } else {
+                next.add(category);
+            }
+
+            return next;
+        });
+    }
+
     const panelId = useId();
     const triggerRef = useRef<HTMLButtonElement>(null);
     useImperativeHandle(ref, () => ({
@@ -164,24 +184,78 @@ const ConstellationKeyboardExplorer = forwardRef<
 
                     </div>
 
-                    <div className="space-y-4">
+
+                    <div className="space-y-2">
                         {categories.map((category) => {
                             const categoryNodes = nodes.filter(
-                                (node) =>
-                                    node.category === category.id
+                                (node) => node.category === category.id
                             );
 
                             if (categoryNodes.length === 0) {
                                 return null;
                             }
 
+                            const expanded = expandedCategories.has(
+                                category.id
+                            );
+
+                            const categoryPanelId =
+                                `${panelId}-${category.id}`;
+
                             return (
-                                <section key={category.id}>
-                                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-secondary">
-                                        {category.label}
+                                <section
+                                    key={category.id}
+                                    className="
+                                        border-b border-white/10
+                                        pb-2 last:border-b-0
+                                    "
+                                >
+                                    <h3>
+                                        <button
+                                            type="button"
+                                            aria-expanded={expanded}
+                                            aria-controls={categoryPanelId}
+                                            onClick={() =>
+                                                toggleCategory(category.id)
+                                            }
+                                            className="
+                                                flex w-full items-center
+                                                justify-between gap-3
+                                                rounded-md px-2 py-2
+                                                text-left text-xs
+                                                font-semibold uppercase
+                                                tracking-wider
+                                                text-[#b6c9e8]
+                                                transition-colors
+                                                hover:bg-white/5
+                                                hover:text-white
+                                                focus-visible:outline-2
+                                                focus-visible:outline-blue-400
+                                            "
+                                        >
+                                            <span>{category.label}</span>
+
+                                            <ChevronDown
+                                                size={14}
+                                                aria-hidden="true"
+                                                className={`
+                                                    shrink-0
+                                                    transition-transform
+                                                    duration-200
+                                                    ${expanded
+                                                        ? "rotate-180"
+                                                        : ""
+                                                    }
+                                                `}
+                                            />
+                                        </button>
                                     </h3>
 
-                                    <div className="space-y-1">
+                                    <div
+                                        id={categoryPanelId}
+                                        hidden={!expanded}
+                                        className="mt-1 space-y-1"
+                                    >
                                         {categoryNodes.map((node) => (
                                             <button
                                                 key={node.id}
@@ -196,19 +270,24 @@ const ConstellationKeyboardExplorer = forwardRef<
                                                 }
                                                 className="
                                                     flex w-full items-center
-                                                    gap-2 rounded-md px-2 py-2
+                                                    gap-2 rounded-md
+                                                    px-2 py-2
                                                     text-left text-sm
-                                                    text-text-secondary
-                                                    hover:bg-surface
-                                                    hover:text-foreground
+                                                    text-[#a9bddb]
+                                                    transition-colors
+                                                    hover:bg-white/10
+                                                    hover:text-white
                                                     focus-visible:outline-2
-                                                    focus-visible:outline-accent
-                                                    aria-current:bg-surface
-                                                    aria-current:text-foreground
+                                                    focus-visible:outline-blue-400
+                                                    aria-current:bg-white/10
+                                                    aria-current:text-white
                                                 "
                                             >
                                                 <span
-                                                    className="h-2 w-2 shrink-0 rounded-full"
+                                                    className="
+                                                        h-2 w-2 shrink-0
+                                                        rounded-full
+                                                    "
                                                     style={{
                                                         backgroundColor:
                                                             node.color,
