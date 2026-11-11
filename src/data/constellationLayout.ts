@@ -66,7 +66,7 @@ export const constellationLayout: Record<
  */
 export const bridgePositions: Record<string, Position3D> = {
     react: [-0.7, -2.2, 1.5],
-    portfolio: [-2.0, -3.9, 0.9],
+    portfolio: [-2.0, -4.0, 0.9],
 };
 
 

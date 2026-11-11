@@ -89,6 +89,24 @@ export default function SceneContent({
         [layoutMode]
     );
 
+
+    const directionalPalettes = useMemo(
+        () =>
+            new Map(
+                positionedNodes.map((node) => [
+                    node.id,
+                    node.stellarColorMode === "directional"
+                        ? getDirectionalStellarPalette(
+                            node,
+                            positionedNodes
+                        )
+                        : null,
+                ])
+            ),
+        [positionedNodes]
+    );
+
+
     const nodeMap = useMemo(
         () =>
             new Map(
@@ -172,12 +190,7 @@ export default function SceneContent({
                     key={node.id}
                     node={node}
                     directionalPalette={
-                        node.stellarColorMode === "directional"
-                            ? getDirectionalStellarPalette(
-                                node,
-                                positionedNodes
-                            )
-                            : null
+                        directionalPalettes.get(node.id) ?? null
                     }
                     selectedId={selectedId}
                     connectedIds={connectedIds}

@@ -26,10 +26,6 @@ const LABEL_DISTANCE = {
         near: 8,
         far: 15,
     },
-    technology: {
-        near: 5,
-        far: 10,
-    },
 } as const;
 
 type ConstellationLabelProps = {
