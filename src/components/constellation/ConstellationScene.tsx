@@ -15,8 +15,14 @@ import { getNodeRelationships } from "@/lib/graph";
 import ConstellationKeyboardExplorer, {
     type KeyboardExplorerHandle,
 } from "./ConstellationKeyboardExplorer";
+import { resolveNodePositions } from "@/lib/constellationLayout";
+import type { ConstellationNodeData } from "@/types/constellation";
 
 export default function ConstellationScene() {
+    const nodes = useMemo<ConstellationNodeData[]>(
+        () => resolveNodePositions(constellationNodes, "desktop"),
+        []
+    );
     const [selectedId, setSelectedId] =
         useState<string | null>(null);
 
@@ -28,10 +34,9 @@ export default function ConstellationScene() {
     const keyboardExplorerRef =
         useRef<KeyboardExplorerHandle>(null);
 
-    const selectedNode = constellationNodes.find(
+    const selectedNode = nodes.find(
         (node) => node.id === selectedId
     );
-
 
     const relatedNodes = useMemo(() => {
         if (!selectedId) {
@@ -40,16 +45,16 @@ export default function ConstellationScene() {
 
         const relationships = getNodeRelationships(
             selectedId,
-            constellationNodes,
+            nodes,
             constellationEdges
         );
 
-        return constellationNodes.filter(
+        return nodes.filter(
             (node) =>
                 node.id !== selectedId &&
                 relationships.all.has(node.id)
         );
-    }, [selectedId]);
+    }, [selectedId, nodes]);
 
 
     const [panelRect, setPanelRect] =
@@ -166,7 +171,7 @@ export default function ConstellationScene() {
             </p>
             <ConstellationKeyboardExplorer
                 ref={keyboardExplorerRef}
-                nodes={constellationNodes}
+                nodes={nodes}
                 selectedId={selectedId}
                 onSelect={handleKeyboardExplorerSelect}
                 edges={constellationEdges}

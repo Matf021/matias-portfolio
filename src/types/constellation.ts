@@ -1,39 +1,26 @@
-export type NodeCategory =
-    | "identity"
-    | "discipline"
-    | "project"
-    | "technology";
-
-import type {
-    DisciplineId,
-} from "@/data/disciplines";
+import type { DisciplineId } from "@/data/disciplines";
 
 export type { DisciplineId };
-
+export type NodeCategory = "identity" | "discipline" | "project" | "technology";
 export type Position3D = [number, number, number];
 
-export interface ConstellationNodeData {
+export interface ConstellationNodeDefinition {
     id: string;
     label: string;
     category: NodeCategory;
-    position: Position3D;
     color: string;
     size: number;
     description?: string;
     stellarColorMode?: "organic" | "directional";
-
     disciplines?: DisciplineId[];
 }
 
+export interface ConstellationNodeData extends ConstellationNodeDefinition {
+    position: Position3D;
+}
 
 export interface ConstellationEdge {
     source: string;
     target: string;
-
-    /**
-     * Optional explanation of why
-     * these two nodes are connected.
-     */
     description?: string;
 }
-

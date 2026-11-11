@@ -1,9 +1,4 @@
-
-import type { Position3D } from "@/types/constellation";
-
-import type {
-    DisciplineId,
-} from "@/types/constellation";
+import type { DisciplineId, Position3D } from "@/types/constellation";
 
 export type ClusterId = DisciplineId;
 type ClusterLayout = {
@@ -11,10 +6,7 @@ type ClusterLayout = {
     offsets: Record<string, Position3D>;
 };
 
-export const constellationLayout: Record<
-    ClusterId,
-    ClusterLayout
-> = {
+export const constellationLayout: Record<ClusterId, ClusterLayout> = {
     ai: {
         center: [-2.4, 2.2, 0.4],
         offsets: {
@@ -24,7 +16,6 @@ export const constellationLayout: Record<
             python: [0.4, -1.5, 1],
         },
     },
-
     cloud: {
         center: [4.5, 3.6, -1.0],
         offsets: {
@@ -34,7 +25,6 @@ export const constellationLayout: Record<
             nlp: [-2.2, 0.3, 1.5],
         },
     },
-
     creative: {
         center: [-5.2, -4.2, -0.8],
         offsets: {
@@ -43,7 +33,6 @@ export const constellationLayout: Record<
             lua: [-2.1, 0.2, -0.5],
         },
     },
-
     software: {
         center: [2.7, -1.0, 0.6],
         offsets: {
@@ -56,27 +45,33 @@ export const constellationLayout: Record<
     },
 };
 
-
-/**
- * Nodes that occupy independent positions because
- * they connect multiple discipline clusters.
- *
- * These coordinates are absolute world positions,
- * not offsets from a discipline center.
- */
+/** Absolute positions for cross-discipline bridge nodes. */
 export const bridgePositions: Record<string, Position3D> = {
     react: [-0.7, -2.2, 1.5],
     portfolio: [-2.0, -4.0, 0.9],
 };
 
+/** Absolute positions for nodes not assigned to cluster-relative offsets. */
+export const independentPositions: Record<string, Position3D> = {
+    matias: [0, 0, 0],
+    "nlp-sentiment": [-2.0, 3.3, 0.5],
+    "autoencoder-pca": [-5.8, 3.2, 0.2],
+    "dqn-lunarlander": [-6.0, 0.0, 0.2],
+    "nextjs": [-0.4, -3.5, 1.2],
+    "threejs": [0.5, -4.2, -0.3],
+    "r3f": [0.0, -5.1, 1.4],
+    "glsl": [0.9, -5.6, -0.8],
+    "tailwind": [1.5, -4.7, 0.9],
+    "scikit-learn": [-2.8, 4.4, -0.5],
+    "librosa": [-6.5, 1.7, 1.0],
+    "reinforcement-learning": [-7.0, -0.9, -0.7],
+    "plsql": [6.2, -3.5, 0.8],
+    "powershell": [-4.5, -4.7, 0.9],
+    "s3": [6.3, 2.7, 0.6],
+    "transcribe": [6.6, 1.5, -0.7],
+    "comprehend": [5.9, 0.3, 1.0],
+};
 
-export function addPositions(
-    a: Position3D,
-    b: Position3D
-): Position3D {
-    return [
-        a[0] + b[0],
-        a[1] + b[1],
-        a[2] + b[2],
-    ];
+export function addPositions(a: Position3D, b: Position3D): Position3D {
+    return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
