@@ -40,7 +40,6 @@ type ConstellationLabelProps = {
     hasSelection: boolean;
     hiddenLabelsRef: React.RefObject<Set<string>>;
     labelOffsetsRef: React.RefObject<Map<string, number>>;
-    panelRect: ScreenRect | null;
     labelShiftXRef: React.RefObject<Map<string, number>>;
 };
 
@@ -52,7 +51,6 @@ export default function ConstellationLabel({
     hasSelection,
     hiddenLabelsRef,
     labelOffsetsRef,
-    panelRect,
     labelShiftXRef,
 }: ConstellationLabelProps) {
     const materialRef = useRef<THREE.MeshBasicMaterial>(null);
@@ -82,12 +80,16 @@ export default function ConstellationLabel({
 
     const labelSize = getLabelFontSize(node);
 
+
     const labelColor =
-        selected || hovered
+        selected
             ? "#ffffff"
-            : isConnectedLabel
-                ? "#dce9ff"
-                : "#c4d4eb";
+            : hovered
+                ? "#f4f8ff"
+                : isConnectedLabel
+                    ? "#b8cbe5"
+                    : "#a7b9d2";
+
 
     const emphasizedLabelSize =
         selected
@@ -164,12 +166,14 @@ export default function ConstellationLabel({
 
         let targetOpacity = 0;
 
-        if (isPriority) {
+        if (selected) {
+            targetOpacity = 1;
+        } else if (hovered) {
             targetOpacity = 1;
         } else if (isConnectedLabel) {
-            targetOpacity = 0.9;
+            targetOpacity = 0.82;
         } else if (!hasSelection && isOverviewLabel) {
-            targetOpacity = 1;
+            targetOpacity = 0.9;
         } else if (!hasSelection && node.category === "project") {
             const { near, far } = LABEL_DISTANCE.project;
 

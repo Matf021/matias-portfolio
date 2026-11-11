@@ -363,7 +363,6 @@ export default function ConstellationNode({
                 hasSelection={selectedId !== null}
                 hiddenLabelsRef={hiddenLabelsRef}
                 labelOffsetsRef={labelOffsetsRef}
-                panelRect={panelRect}
                 labelShiftXRef={labelShiftXRef}
             />
         </group>
