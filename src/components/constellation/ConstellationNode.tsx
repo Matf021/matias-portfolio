@@ -21,6 +21,8 @@ import type {
     DirectionalStellarPalette,
 } from "@/lib/directionalStellarPalette";
 
+import type { ScreenRect } from "@/types/camera";
+
 const NODE_LIGHTING = {
     identity: {
         idle: 0.08,
@@ -76,6 +78,8 @@ type ConstellationNodeProps = {
     onHoverChange: (id: string | null) => void;
     labelOffsetsRef: React.RefObject<Map<string, number>>;
     directionalPalette?: DirectionalStellarPalette | null;
+    panelRect: ScreenRect | null;
+    labelShiftXRef: React.RefObject<Map<string, number>>;
 };
 
 export default function ConstellationNode({
@@ -90,6 +94,8 @@ export default function ConstellationNode({
     onHoverChange,
     labelOffsetsRef,
     directionalPalette,
+    panelRect,
+    labelShiftXRef,
 }: ConstellationNodeProps) {
     const meshRef = useRef<THREE.Mesh>(null);
     const materialRef =
@@ -357,6 +363,8 @@ export default function ConstellationNode({
                 hasSelection={selectedId !== null}
                 hiddenLabelsRef={hiddenLabelsRef}
                 labelOffsetsRef={labelOffsetsRef}
+                panelRect={panelRect}
+                labelShiftXRef={labelShiftXRef}
             />
         </group>
     );

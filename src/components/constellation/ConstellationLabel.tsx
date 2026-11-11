@@ -19,6 +19,8 @@ import type {
     ConstellationNodeData,
 } from "@/types/constellation";
 
+import type { ScreenRect } from "@/types/camera";
+
 const LABEL_DISTANCE = {
     project: {
         near: 8,
@@ -38,6 +40,8 @@ type ConstellationLabelProps = {
     hasSelection: boolean;
     hiddenLabelsRef: React.RefObject<Set<string>>;
     labelOffsetsRef: React.RefObject<Map<string, number>>;
+    panelRect: ScreenRect | null;
+    labelShiftXRef: React.RefObject<Map<string, number>>;
 };
 
 export default function ConstellationLabel({
@@ -48,11 +52,14 @@ export default function ConstellationLabel({
     hasSelection,
     hiddenLabelsRef,
     labelOffsetsRef,
+    panelRect,
+    labelShiftXRef,
 }: ConstellationLabelProps) {
     const materialRef = useRef<THREE.MeshBasicMaterial>(null);
     const billboardRef = useRef<THREE.Group>(null);
     const worldPosition = useRef(new THREE.Vector3());
     const textRef = useRef<THREE.Mesh>(null);
+    const cameraSpaceRef = useRef(new THREE.Vector3());
 
     const visualScale = getStellarVisualScale(
         selected,
@@ -94,16 +101,12 @@ export default function ConstellationLabel({
         const billboard = billboardRef.current;
         const text = textRef.current;
 
-
         if (text && camera instanceof THREE.PerspectiveCamera) {
             const offsetPx =
                 labelOffsetsRef.current.get(node.id) ?? 0;
 
-            const nodeWorldPosition = new THREE.Vector3(
-                ...node.position
-            );
-
-            const cameraSpace = nodeWorldPosition
+            const cameraSpace = cameraSpaceRef.current
+                .set(...node.position)
                 .applyMatrix4(camera.matrixWorldInverse);
 
             const depth = -cameraSpace.z;
@@ -131,6 +134,13 @@ export default function ConstellationLabel({
                     offsetPx * worldUnitsPerPixel;
 
                 text.position.y = targetY;
+
+                const shiftPx =
+                    labelShiftXRef.current.get(node.id) ?? 0;
+
+                text.position.x =
+                    shiftPx * worldUnitsPerPixel;
+
 
                 const screenScale = getLabelScreenScale(
                     node,

@@ -62,6 +62,9 @@ export default function SceneContent({
     const labelOffsetsRef = useRef<Map<string, number>>(
         new Map()
     );
+    const labelShiftXRef = useRef<Map<string, number>>(
+        new Map()
+    );
 
     const [hoveredId, setHoveredId] = useState<string | null>(null);
 
@@ -158,6 +161,8 @@ export default function SceneContent({
                 hoveredIdsRef={hoveredIdsRef}
                 hiddenLabelsRef={hiddenLabelsRef}
                 labelOffsetsRef={labelOffsetsRef}
+                panelRect={panelRect}
+                labelShiftXRef={labelShiftXRef}
             />
 
             {positionedNodes.map((node) => (
@@ -181,6 +186,8 @@ export default function SceneContent({
                     hoverConnectedIds={hoverConnectedIds}
                     onHoverChange={setHoveredId}
                     labelOffsetsRef={labelOffsetsRef}
+                    panelRect={panelRect}
+                    labelShiftXRef={labelShiftXRef}
                 />
             ))}
 

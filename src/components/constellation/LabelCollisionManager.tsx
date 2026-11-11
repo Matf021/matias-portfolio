@@ -31,6 +31,9 @@ import type {
     ConstellationEdge,
 } from "@/types/constellation";
 
+import type { ScreenRect } from "@/types/camera";
+import { getLabelSafeShiftX } from "@/lib/labelSafePosition";
+
 type Props = {
     nodes: ConstellationNodeData[];
     selectedId: string | null;
@@ -39,6 +42,8 @@ type Props = {
     hiddenLabelsRef: React.RefObject<Set<string>>;
     edges: ConstellationEdge[];
     labelOffsetsRef: React.RefObject<Map<string, number>>;
+    panelRect: ScreenRect | null;
+    labelShiftXRef: React.RefObject<Map<string, number>>;
 };
 
 export default function LabelCollisionManager({
@@ -49,6 +54,8 @@ export default function LabelCollisionManager({
     hiddenLabelsRef,
     edges,
     labelOffsetsRef,
+    panelRect,
+    labelShiftXRef,
 }: Props) {
     const { camera, size } = useThree();
 
@@ -75,6 +82,7 @@ export default function LabelCollisionManager({
         );
 
         const nextOffsets = new Map<string, number>();
+        const nextShiftX = new Map<string, number>();
         const candidates: LabelCandidate[] = [];
 
         for (const node of nodes) {
@@ -151,9 +159,36 @@ export default function LabelCollisionManager({
                 y: rect.y + finalOffset,
             };
 
+            const previousShiftX =
+                labelShiftXRef.current.get(node.id) ?? 0;
+
+            const desiredShiftX = selected
+                ? getLabelSafeShiftX(
+                    adjustedRect,
+                    panelRect,
+                    size.width
+                )
+                : 0;
+
+            const shiftSmoothing =
+                1 - Math.exp(-6 * delta);
+
+            const shiftX = THREE.MathUtils.lerp(
+                previousShiftX,
+                desiredShiftX,
+                shiftSmoothing
+            );
+
+            nextShiftX.set(node.id, shiftX);
+
+            const finalRect = {
+                ...adjustedRect,
+                x: adjustedRect.x + shiftX,
+            };
+
             candidates.push({
                 id: node.id,
-                rect: adjustedRect,
+                rect: finalRect,
                 priority: getLabelPriority(
                     node.category,
                     selected,
@@ -165,6 +200,7 @@ export default function LabelCollisionManager({
         }
 
         labelOffsetsRef.current = nextOffsets;
+        labelShiftXRef.current = nextShiftX;
 
         hiddenLabelsRef.current = resolveLabelCollisions(
             candidates,
