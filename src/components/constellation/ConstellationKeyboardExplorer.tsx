@@ -56,6 +56,9 @@ const ConstellationKeyboardExplorer = forwardRef<
 
     const [open, setOpen] = useState(false);
 
+    const [relatedExpanded, setRelatedExpanded] =
+        useState(true);
+
     const [expandedCategories, setExpandedCategories] =
         useState<Set<NodeCategory>>(
             () => new Set(["discipline"])
@@ -93,6 +96,16 @@ const ConstellationKeyboardExplorer = forwardRef<
             );
         })()
         : [];
+
+    const relatedGroups = categories
+        .map((category) => ({
+            ...category,
+            nodes: relatedNodes.filter(
+                (node) => node.category === category.id
+            ),
+        }))
+        .filter((group) => group.nodes.length > 0);
+
 
 
     const panelId = useId();
@@ -176,6 +189,12 @@ const ConstellationKeyboardExplorer = forwardRef<
                         w-[min(85vw,20rem)]
                         max-h-[min(65svh,420px)]
                         overflow-y-auto
+                        [scrollbar-width:thin]
+                        [scrollbar-color:#405475_transparent]
+                        [&::-webkit-scrollbar]:w-1.5
+                        [&::-webkit-scrollbar-track]:bg-transparent
+                        [&::-webkit-scrollbar-thumb]:rounded-full
+                        [&::-webkit-scrollbar-thumb]:bg-[#405475]
                         rounded-xl
                         border border-white/10
                         bg-[#081120]/95
@@ -210,6 +229,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                     </div>
 
 
+
                     {selectedNode && relatedNodes.length > 0 && (
                         <section
                             aria-label={`Connections for ${selectedNode.label}`}
@@ -220,74 +240,139 @@ const ConstellationKeyboardExplorer = forwardRef<
             p-3
         "
                         >
-                            <p className="
-            mb-1 text-[10px]
-            font-semibold uppercase
-            tracking-[0.16em]
-            text-[#8ea9ce]
-        ">
-                                Currently exploring
-                            </p>
+                            {/* Selected node */}
+                            <div>
+                                <p className="
+                mb-1 text-[10px]
+                font-semibold uppercase
+                tracking-[0.16em]
+                text-[#8ea9ce]
+            ">
+                                    Currently exploring
+                                </p>
 
-                            <p className="mb-3 text-sm font-medium text-white">
-                                {selectedNode.label}
-                            </p>
+                                <p className="text-sm font-medium text-white">
+                                    {selectedNode.label}
+                                </p>
+                            </div>
 
-                            <p className="
-            mb-2 text-[10px]
-            font-semibold uppercase
-            tracking-[0.16em]
-            text-[#8ea9ce]
-        ">
-                                Related nodes
-                            </p>
-
-                            <div className="space-y-1">
-                                {relatedNodes.map((node) => (
+                            {/* Related nodes toggle */}
+                            <div className="mt-3 border-t border-white/10 pt-2">
+                                <h3>
                                     <button
-                                        key={node.id}
                                         type="button"
-                                        onClick={() => selectNode(node.id)}
+                                        aria-expanded={relatedExpanded}
+                                        aria-controls={`${panelId}-related`}
+                                        onClick={() =>
+                                            setRelatedExpanded((current) => !current)
+                                        }
                                         className="
                         flex w-full items-center
-                        gap-2 rounded-md
-                        px-2 py-2 text-left
-                        text-xs text-[#b6c9e8]
+                        justify-between gap-2
+                        rounded-md px-1 py-2
+                        text-left
                         transition-colors
-                        hover:bg-white/10
-                        hover:text-white
+                        hover:bg-white/5
                         focus-visible:outline-2
                         focus-visible:outline-blue-400
                     "
                                     >
-                                        <span
-                                            className="
-                            h-2 w-2 shrink-0
-                            rounded-full
-                        "
-                                            style={{
-                                                backgroundColor: node.color,
-                                            }}
-                                            aria-hidden="true"
-                                        />
-
-                                        <span className="min-w-0 flex-1">
-                                            {node.label}
-                                        </span>
-
                                         <span className="
-                        shrink-0 text-[10px]
-                        capitalize text-[#7892b5]
+                        flex items-center gap-2
+                        text-xs font-medium
+                        text-[#b6c9e8]
                     ">
-                                            {node.category}
+                                            <Network
+                                                size={13}
+                                                aria-hidden="true"
+                                            />
+
+                                            Related Nodes
+
+                                            <span className="text-[#7892b5]">
+                                                {relatedNodes.length}
+                                            </span>
                                         </span>
+
+                                        <ChevronDown
+                                            size={14}
+                                            aria-hidden="true"
+                                            className={`
+                            text-[#8ea9ce]
+                            transition-transform duration-200
+                            ${relatedExpanded
+                                                    ? "rotate-180"
+                                                    : ""
+                                                }
+                        `}
+                                        />
                                     </button>
-                                ))}
+                                </h3>
+
+                                {/* Related groups */}
+                                <div
+                                    id={`${panelId}-related`}
+                                    hidden={!relatedExpanded}
+                                    className="space-y-3 pt-3"
+                                >
+                                    {relatedGroups.map((group) => (
+                                        <div key={group.id}>
+                                            <p className="
+                            mb-1.5 flex items-center
+                            justify-between
+                            text-[10px] font-semibold
+                            uppercase tracking-[0.12em]
+                            text-[#8ea9ce]
+                        ">
+                                                <span>{group.label}</span>
+                                                <span>{group.nodes.length}</span>
+                                            </p>
+
+                                            <div className="space-y-1">
+                                                {group.nodes.map((node) => (
+                                                    <button
+                                                        key={node.id}
+                                                        type="button"
+                                                        onClick={() =>
+                                                            selectNode(node.id)
+                                                        }
+                                                        className="
+                                        flex w-full items-center
+                                        gap-2 rounded-md
+                                        px-2 py-2
+                                        text-left text-xs
+                                        text-[#b6c9e8]
+                                        transition-colors
+                                        hover:bg-white/10
+                                        hover:text-white
+                                        focus-visible:outline-2
+                                        focus-visible:outline-blue-400
+                                    "
+                                                    >
+                                                        <span
+                                                            className="
+                                            h-2 w-2 shrink-0
+                                            rounded-full
+                                        "
+                                                            style={{
+                                                                backgroundColor:
+                                                                    node.color,
+                                                            }}
+                                                            aria-hidden="true"
+                                                        />
+
+                                                        <span className="min-w-0 flex-1">
+                                                            {node.label}
+                                                        </span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </section>
                     )}
-
-
 
                     <div className="space-y-2">
                         {categories.map((category) => {
