@@ -19,6 +19,24 @@ const CONNECTION_COLORS = {
     selected: new THREE.Color("#8ab8ff"),
 };
 
+type ConnectionCategory =
+    | "identity-discipline"
+    | "discipline-project"
+    | "project-technology"
+    | "discipline-technology"
+    | "other";
+
+const CONNECTION_OPACITY: Record<
+    ConnectionCategory,
+    number
+> = {
+    "identity-discipline": 0.65,
+    "discipline-project": 0.40,
+    "project-technology": 0.22,
+    "discipline-technology": 0.12,
+    other: 0.30,
+};
+
 type ConstellationConnectionProps = {
     start: Position3D;
     end: Position3D;
@@ -27,6 +45,7 @@ type ConstellationConnectionProps = {
     hoveredId: string | null;
     startRadius: number;
     endRadius: number;
+    connectionCategory: ConnectionCategory;
 };
 
 const vertexShader = `
@@ -97,7 +116,6 @@ const fragmentShader = `
     }
 `;
 
-
 function getEdgeDelay(
     source: string,
     target: string
@@ -121,6 +139,7 @@ export default function ConstellationConnection({
     hoveredId,
     startRadius,
     endRadius,
+    connectionCategory,
 }: ConstellationConnectionProps) {
     const materialRef =
         useRef<THREE.ShaderMaterial>(null);
@@ -204,6 +223,9 @@ export default function ConstellationConnection({
         edge.target
     );
 
+    const overviewOpacity =
+        CONNECTION_OPACITY[connectionCategory];
+
     useFrame((_, delta) => {
         const material = materialRef.current;
 
@@ -216,7 +238,7 @@ export default function ConstellationConnection({
                     : 0.05
                 : hoverHighlighted
                     ? 0.78
-                    : 0.5;
+                    : overviewOpacity;
 
         const targetColor = highlighted
             ? CONNECTION_COLORS.selected

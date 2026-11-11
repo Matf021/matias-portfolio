@@ -42,6 +42,51 @@ type SceneContentProps = {
     overviewRequest: number;
 };
 
+function getConnectionCategory(
+    sourceCategory: string,
+    targetCategory: string
+):
+    | "identity-discipline"
+    | "discipline-project"
+    | "project-technology"
+    | "discipline-technology"
+    | "other" {
+    const pair = new Set([
+        sourceCategory,
+        targetCategory,
+    ]);
+
+    if (
+        pair.has("identity") &&
+        pair.has("discipline")
+    ) {
+        return "identity-discipline";
+    }
+
+    if (
+        pair.has("discipline") &&
+        pair.has("project")
+    ) {
+        return "discipline-project";
+    }
+
+    if (
+        pair.has("project") &&
+        pair.has("technology")
+    ) {
+        return "project-technology";
+    }
+
+    if (
+        pair.has("discipline") &&
+        pair.has("technology")
+    ) {
+        return "discipline-technology";
+    }
+
+    return "other";
+}
+
 export default function SceneContent({
     selectedId,
     onSelect,
@@ -168,6 +213,10 @@ export default function SceneContent({
                         edge={edge}
                         selectedId={selectedId}
                         hoveredId={hoveredId}
+                        connectionCategory={getConnectionCategory(
+                            source.category,
+                            target.category
+                        )}
                     />
                 );
             })}

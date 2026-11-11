@@ -23,8 +23,10 @@ import { getLabelLines } from "@/lib/labelLayout";
 
 const LABEL_DISTANCE = {
     project: {
-        near: 8,
-        far: 15,
+        near: 7,
+        far: 19,
+        minimumOpacity: 0.12,
+        maximumOpacity: 0.9,
     },
 } as const;
 
@@ -179,7 +181,12 @@ export default function ConstellationLabel({
         } else if (!hasSelection && isOverviewLabel) {
             targetOpacity = 0.9;
         } else if (!hasSelection && node.category === "project") {
-            const { near, far } = LABEL_DISTANCE.project;
+            const {
+                near,
+                far,
+                minimumOpacity,
+                maximumOpacity,
+            } = LABEL_DISTANCE.project;
 
             const distanceVisibility = THREE.MathUtils.clamp(
                 (far - distance) / (far - near),
@@ -187,10 +194,15 @@ export default function ConstellationLabel({
                 1
             );
 
+            const smoothVisibility =
+                distanceVisibility *
+                distanceVisibility *
+                (3 - 2 * distanceVisibility);
+
             targetOpacity = THREE.MathUtils.lerp(
-                0.35,
-                1,
-                distanceVisibility
+                minimumOpacity,
+                maximumOpacity,
+                smoothVisibility
             );
         }
 
