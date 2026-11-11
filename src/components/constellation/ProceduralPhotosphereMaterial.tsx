@@ -14,7 +14,7 @@ type ProceduralPhotosphereMaterialProps = {
     materialRef: React.RefObject<THREE.ShaderMaterial | null>;
     palette?: StellarPalette;
     directionalPalette?: DirectionalStellarPalette | null;
-    detail?: "primary" | "secondary";
+    detail?: "primary" | "secondary" | "technology";
 };
 
 const STELLAR_RIFT = {
@@ -426,6 +426,7 @@ export default function ProceduralPhotosphereMaterial({
     directionalPalette,
 }: ProceduralPhotosphereMaterialProps) {
     const isPrimary = detail === "primary";
+    const isTechnology = detail === "technology";
 
     const directionalSources = useMemo(
         () => directionalPalette?.sources.slice(0, 3) ?? [],
@@ -467,13 +468,13 @@ export default function ProceduralPhotosphereMaterial({
 
             // Restore the procedural surface controls.
             uLargeFrequency: {
-                value: isPrimary ? 5.0 : 6.5,
+                value: isTechnology ? 4.0 : isPrimary ? 5.0 : 6.5,
             },
             uFineFrequency: {
-                value: isPrimary ? 17.0 : 21.0,
+                value: isTechnology ? 12.0 : isPrimary ? 17.0 : 21.0,
             },
             uVariationStrength: {
-                value: isPrimary ? 0.42 : 0.34,
+                value: isTechnology ? 0.22 : isPrimary ? 0.42 : 0.34,
             },
             uDirectionalCount: {
                 value: directionalSources.length,
@@ -512,6 +513,7 @@ export default function ProceduralPhotosphereMaterial({
             palette?.tertiary,
             palette?.colorCount,
             isPrimary,
+            isTechnology,
             directionalSources,
         ]
     );

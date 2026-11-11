@@ -34,6 +34,11 @@ const NODE_LIGHTING = {
         selected: 0.15,
         halo: 0.09,
     },
+    technology: {
+        idleBrightness: 0.88,
+        selectedBrightness: 0.94,
+        hoverBrightness: 0.92,
+    },
     detail: {
         idle: 0.04,
         selected: 0.12,
@@ -108,6 +113,9 @@ export default function ConstellationNode({
     const isPrimaryStar = tier === "identity";
     const isDisciplineStar = tier === "discipline";
     const isProjectStar = node.category === "project";
+    // D.4.5B.1 — Single-node technology prototype.
+    const isTechnologyStar =
+        node.category === "technology";
     const isDiscoverableProject =
         isProjectStar &&
         isConnected &&
@@ -122,7 +130,7 @@ export default function ConstellationNode({
     const lighting = NODE_LIGHTING[tier];
 
     const usesProceduralPhotosphere =
-        hasStellarAtmosphere || isProjectStar;
+        hasStellarAtmosphere || isTechnologyStar;
 
     const isHoverRelated =
         hoveredId !== null &&
@@ -249,9 +257,17 @@ export default function ConstellationNode({
                 ? NODE_LIGHTING.discoveryProjectBoost
                 : 0;
 
-        const targetBrightness = isProjectStar
-            ? 1.0 + projectDiscoveryBoost
-            : 1 + targetEmissive * brightnessMultiplier;
+        const targetBrightness = isTechnologyStar
+            ? isEclipsed
+                ? 0.65
+                : isSelected
+                    ? NODE_LIGHTING.technology.selectedBrightness
+                    : hovered
+                        ? NODE_LIGHTING.technology.hoverBrightness
+                        : NODE_LIGHTING.technology.idleBrightness
+            : isProjectStar
+                ? 1.0 + projectDiscoveryBoost
+                : 1 + targetEmissive * brightnessMultiplier;
 
         uniforms.uBrightness.value = THREE.MathUtils.lerp(
             uniforms.uBrightness.value,
@@ -262,7 +278,7 @@ export default function ConstellationNode({
 
     return (
         <group position={node.position}>
-            {hasStellarAtmosphere ? (
+            {(hasStellarAtmosphere || isTechnologyStar) ? (
                 <StellarCorona
                     color={
                         isProjectStar
@@ -281,6 +297,11 @@ export default function ConstellationNode({
                             : isDisciplineStar
                                 ? 0.7
                                 : 0.5
+                    }
+                    variant={
+                        isTechnologyStar
+                            ? "technology"
+                            : "standard"
                     }
                     debug={false}
                 />
@@ -320,7 +341,13 @@ export default function ConstellationNode({
                     <ProceduralPhotosphereMaterial
                         color={node.color}
                         materialRef={materialRef}
-                        detail={isPrimaryStar ? "primary" : "secondary"}
+                        detail={
+                            isTechnologyStar
+                                ? "technology"
+                                : isPrimaryStar
+                                    ? "primary"
+                                    : "secondary"
+                        }
                         palette={
                             isProjectStar
                                 ? stellarPalette

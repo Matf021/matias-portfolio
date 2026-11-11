@@ -19,6 +19,7 @@ type StellarCoronaProps = {
     intensityScale?: number;
     debug?: boolean;
     directionalPalette?: DirectionalStellarPalette | null;
+    variant?: "standard" | "technology";
 };
 
 const CORONA_LUMINOSITY = {
@@ -439,6 +440,7 @@ export default function StellarCorona({
     debug = false,
     intensityScale = 1,
     directionalPalette,
+    variant = "standard",
 }: StellarCoronaProps) {
     const meshRef = useRef<THREE.Mesh>(null);
     const selectionLuminosityRef = useRef(0);
@@ -564,14 +566,20 @@ export default function StellarCorona({
             selectionGlow *
             SELECTION_LUMINOSITY.outerBoost;
 
-        const targetInner =
-            (innerBase + arrival * 0.16) *
+        const isTechnology = variant === "technology";
+
+        const targetInner = isTechnology
+            ? (eclipsed ? 0.035 : selected ? 0.16 : 0.10) +
+            arrival * 0.025
+            : (innerBase + arrival * 0.16) *
             intensityScale *
             luminosity.inner *
             selectionInnerMultiplier;
 
-        const targetOuter =
-            (outerBase + arrival * 0.12) *
+        const targetOuter = isTechnology
+            ? (eclipsed ? 0.008 : selected ? 0.065 : 0.045) +
+            arrival * 0.012
+            : (outerBase + arrival * 0.12) *
             intensityScale *
             luminosity.outer *
             selectionOuterMultiplier;
