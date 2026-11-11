@@ -31,6 +31,7 @@ type Props = {
     controlsRef: React.RefObject<OrbitControlsImpl | null>;
     panelRect: ScreenRect | null;
     overviewRequest: number;
+    cameraFlightActiveRef: React.RefObject<boolean>;
 };
 
 type CameraFlight = {
@@ -50,6 +51,7 @@ export default function CinematicCameraController({
     controlsRef,
     panelRect,
     overviewRequest,
+    cameraFlightActiveRef,
 }: Props) {
     const { camera, size } = useThree();
 
@@ -172,6 +174,7 @@ export default function CinematicCameraController({
             targetDistance < 0.01
         ) {
             flight.current = null;
+            cameraFlightActiveRef.current = false;
             return;
         }
 
@@ -181,6 +184,7 @@ export default function CinematicCameraController({
             controls.update();
 
             initialized.current = true;
+            cameraFlightActiveRef.current = false;
             return;
         }
 
@@ -199,6 +203,7 @@ export default function CinematicCameraController({
             elapsed: 0,
             duration: FLIGHT_DURATION,
         };
+        cameraFlightActiveRef.current = true;
     }, [
         selectedId,
         selectedNode,
@@ -209,6 +214,7 @@ export default function CinematicCameraController({
         panelRect,
         size,
         overviewRequest,
+        cameraFlightActiveRef,
     ]);
 
     // Allow the visitor to interrupt the flight.
@@ -218,6 +224,7 @@ export default function CinematicCameraController({
 
         const interruptFlight = () => {
             flight.current = null;
+            cameraFlightActiveRef.current = false;
         };
 
         controls.addEventListener("start", interruptFlight);
@@ -225,7 +232,7 @@ export default function CinematicCameraController({
         return () => {
             controls.removeEventListener("start", interruptFlight);
         };
-    }, [controlsRef]);
+    }, [controlsRef, cameraFlightActiveRef]);
 
     // Advance the camera flight each frame.
     useFrame((_, delta) => {
@@ -257,6 +264,7 @@ export default function CinematicCameraController({
 
         if (progress >= 1) {
             flight.current = null;
+            cameraFlightActiveRef.current = false;
         }
     });
 

@@ -44,6 +44,7 @@ type Props = {
     labelOffsetsRef: React.RefObject<Map<string, number>>;
     panelRect: ScreenRect | null;
     labelShiftXRef: React.RefObject<Map<string, number>>;
+    cameraFlightActiveRef: React.RefObject<boolean>;
 };
 
 export default function LabelCollisionManager({
@@ -56,6 +57,7 @@ export default function LabelCollisionManager({
     labelOffsetsRef,
     panelRect,
     labelShiftXRef,
+    cameraFlightActiveRef,
 }: Props) {
     const { camera, size } = useThree();
 
@@ -162,14 +164,20 @@ export default function LabelCollisionManager({
             const previousShiftX =
                 labelShiftXRef.current.get(node.id) ?? 0;
 
+            const isCameraFlying =
+                cameraFlightActiveRef.current;
 
-            const rawShiftX = selected
-                ? getLabelSafeShiftX(
-                    adjustedRect,
-                    panelRect,
-                    size.width
-                )
-                : 0;
+            // During a cinematic flight, keep the label
+            // anchored to its star rather than reacting
+            // to temporary panel intersections.
+            const rawShiftX =
+                selected && !isCameraFlying
+                    ? getLabelSafeShiftX(
+                        adjustedRect,
+                        panelRect,
+                        size.width
+                    )
+                    : 0;
 
             const SHIFT_DEAD_ZONE_PX = 12;
 
@@ -178,15 +186,17 @@ export default function LabelCollisionManager({
                     ? 0
                     : rawShiftX;
 
+            // Snap to the natural horizontal position
+            // during flight. Once the camera settles,
+            // animate any necessary panel avoidance.
+            const shiftX = isCameraFlying
+                ? 0
+                : THREE.MathUtils.lerp(
+                    previousShiftX,
+                    desiredShiftX,
+                    1 - Math.exp(-3.5 * delta)
+                );
 
-            const shiftSmoothing =
-                1 - Math.exp(-3.5 * delta);
-
-            const shiftX = THREE.MathUtils.lerp(
-                previousShiftX,
-                desiredShiftX,
-                shiftSmoothing
-            );
 
             nextShiftX.set(node.id, shiftX);
 

@@ -55,6 +55,7 @@ export default function SceneContent({
         size.width < 640 ? "mobile" : "desktop";
     const controlsRef =
         useRef<OrbitControlsImpl>(null);
+    const cameraFlightActiveRef = useRef(false);
 
     const hoveredIdsRef = useRef<Set<string>>(new Set());
     const hiddenLabelsRef = useRef<Set<string>>(new Set());
@@ -163,6 +164,7 @@ export default function SceneContent({
                 labelOffsetsRef={labelOffsetsRef}
                 panelRect={panelRect}
                 labelShiftXRef={labelShiftXRef}
+                cameraFlightActiveRef={cameraFlightActiveRef}
             />
 
             {positionedNodes.map((node) => (
@@ -210,6 +212,7 @@ export default function SceneContent({
                 controlsRef={controlsRef}
                 panelRect={panelRect}
                 overviewRequest={overviewRequest}
+                cameraFlightActiveRef={cameraFlightActiveRef}
             />
             {process.env.NODE_ENV === "development" && (
                 <Stats showPanel={0} />
