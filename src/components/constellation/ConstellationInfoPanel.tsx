@@ -10,6 +10,7 @@ import RelatedNodeSection from "./RelatedNodeSection";
 type Props = {
     node: ConstellationNodeData;
     relatedNodes: ConstellationNodeData[];
+    featuredProjects: ConstellationNodeData[];
     onNavigate: (
         id: string,
         fromKeyboard: boolean
@@ -24,6 +25,7 @@ export default function ConstellationInfoPanel({
     onNavigate,
     focusHeading = false,
     onClose,
+    featuredProjects,
 }: Props) {
     const [expanded, setExpanded] = useState(false);
 
@@ -154,6 +156,16 @@ export default function ConstellationInfoPanel({
                     {node.description ??
                         "Explore the connections within this part of my development journey."}
                 </p>
+
+                {node.category === "identity" && featuredProjects.length > 0 && (
+                    <div className="mt-4 border-t border-border pt-4">
+                        <RelatedNodeSection
+                            title="Featured Projects"
+                            nodes={featuredProjects}
+                            onNavigate={onNavigate}
+                        />
+                    </div>
+                )}
 
                 {/* 
                 {exploreNext.length > 0 && (

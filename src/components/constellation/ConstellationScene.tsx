@@ -56,6 +56,21 @@ export default function ConstellationScene() {
         );
     }, [selectedId, nodes]);
 
+    const featuredProjects = useMemo(() => {
+        const featuredIds = [
+            "manatee",
+            "voice-notes",
+            "portfolio",
+        ];
+
+        return featuredIds
+            .map((id) => nodes.find((node) => node.id === id))
+            .filter(
+                (node): node is ConstellationNodeData =>
+                    node !== undefined
+            );
+    }, [nodes]);
+
 
     const [panelRect, setPanelRect] =
         useState<ScreenRect | null>(null);
@@ -217,6 +232,7 @@ export default function ConstellationScene() {
                             onNavigate={handleRelatedNavigate}
                             focusHeading={focusHeading}
                             onClose={handleOverview}
+                            featuredProjects={featuredProjects}
                         />
                     </div>
                 </div>
