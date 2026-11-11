@@ -10,12 +10,15 @@ export const constellationDetails: Record<
     // IDENTITY
     matias: {
         summary:
-            "Software Engineering Technology graduate specializing in applied AI, backend development, automation, and data-driven systems. I enjoy turning complex technical challenges into practical, interactive applications.",
+            "I'm a software engineering graduate with a focus on applied AI, backend development, and automation. I enjoy tackling complex problems and turning ideas into working systems, from machine-learning applications to interactive 3D experiences.",
+
         highlights: [
-            "Builds across machine learning, cloud services, databases, and interactive software.",
-            "Interested in the intersection of engineering, problem-solving, and creative user experiences.",
-            "Develops personal projects that explore new technologies and increasingly complex systems.",
+            "Developed an HMM-based audio detection pipeline as part of a collaborative research project submitted for academic review.",
+            "Built cloud-backed applications using Python, AWS services, and REST APIs.",
+            "Designed relational database workflows and automated validation using Oracle SQL and PL/SQL.",
+            "Created interactive software combining React, TypeScript, Three.js, and custom GPU shaders.",
         ],
+
         technologies: [
             "Python",
             "TypeScript",
@@ -24,11 +27,13 @@ export const constellationDetails: Record<
             "AWS",
             "Docker",
         ],
+
         relatedProjects: [
             "Manatee Call Detector",
             "AWS Voice Notes Organizer",
-            "Matt Daily Dashboard",
-            "Oracle Hospitality Management",
+            "Interactive Developer Portfolio",
+            "Pip-Boy Widget",
+            "Hospitality Database",
         ],
     },
 

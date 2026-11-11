@@ -12,6 +12,8 @@ export const constellationNodes: ConstellationNodeDefinition[] = [
         category: "identity",
         color: "#8ab8ff",
         size: 0.42,
+        description:
+            "Software engineering graduate building intelligent applications, backend systems, and interactive experiences.",
     },
 
     // Disciplines

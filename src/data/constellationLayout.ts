@@ -17,7 +17,7 @@ export const constellationLayout: Record<ClusterId, ClusterLayout> = {
         },
     },
     cloud: {
-        center: [4.5, 3.6, -1.0],
+        center: [4.5, 3.6, -0.5],
         offsets: {
             "voice-notes": [-1.5, -1.3, 1.1],
             aws: [1.4, 1.1, -0.4],
