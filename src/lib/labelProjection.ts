@@ -13,6 +13,8 @@ import {
     getCameraAwareLabelOffset,
 } from "@/lib/stellarLabel";
 
+import { getLabelLines } from "@/lib/labelLayout";
+
 const LABEL_FONT_SIZE = {
     identity: 0.24,
     discipline: 0.2,
@@ -150,13 +152,28 @@ export function projectLabelBounds(
         scale *
         screenScale;
 
-    // Estimate the label's screen-space dimensions.
+
+    const labelLines = getLabelLines(
+        node,
+        viewportWidth
+    );
+
+    const longestLineLength = Math.max(
+        ...labelLines.map((line) => line.length)
+    );
+
     const estimatedWorldWidth =
-        node.label.length *
+        longestLineLength *
         fontSize *
         CHARACTER_WIDTH_FACTOR;
 
-    const estimatedWorldHeight = fontSize;
+    const estimatedWorldHeight =
+        fontSize *
+        (
+            labelLines.length === 1
+                ? 1
+                : 1 + (labelLines.length - 1) * 1.2
+        );
 
     const width =
         estimatedWorldWidth *

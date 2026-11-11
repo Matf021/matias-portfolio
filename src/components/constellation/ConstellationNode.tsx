@@ -94,7 +94,6 @@ export default function ConstellationNode({
     onHoverChange,
     labelOffsetsRef,
     directionalPalette,
-    panelRect,
     labelShiftXRef,
 }: ConstellationNodeProps) {
     const meshRef = useRef<THREE.Mesh>(null);

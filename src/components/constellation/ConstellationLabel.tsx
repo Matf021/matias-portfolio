@@ -2,7 +2,7 @@
 "use client";
 
 import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Billboard, Text } from "@react-three/drei";
 import * as THREE from "three";
 import {
@@ -19,7 +19,7 @@ import type {
     ConstellationNodeData,
 } from "@/types/constellation";
 
-import type { ScreenRect } from "@/types/camera";
+import { getLabelLines } from "@/lib/labelLayout";
 
 const LABEL_DISTANCE = {
     project: {
@@ -53,6 +53,14 @@ export default function ConstellationLabel({
     labelOffsetsRef,
     labelShiftXRef,
 }: ConstellationLabelProps) {
+    const { size } = useThree();
+
+    const labelLines = getLabelLines(
+        node,
+        size.width
+    );
+
+    const displayLabel = labelLines.join("\n");
     const materialRef = useRef<THREE.MeshBasicMaterial>(null);
     const billboardRef = useRef<THREE.Group>(null);
     const worldPosition = useRef(new THREE.Vector3());
@@ -216,6 +224,7 @@ export default function ConstellationLabel({
             lockZ={false}
         >
             <Text
+                lineHeight={1.2}
                 ref={textRef}
                 position={[0, targetLabelY, 0]}
                 fontSize={emphasizedLabelSize}
@@ -226,7 +235,7 @@ export default function ConstellationLabel({
                 outlineColor="#081120"
                 raycast={() => null}
             >
-                {node.label}
+                {displayLabel}
 
                 <meshBasicMaterial
                     ref={materialRef}
