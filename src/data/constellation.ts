@@ -243,23 +243,98 @@ export const constellationEdges: ConstellationEdge[] = [
     { source: "creative", target: "portfolio" },
 
     // Projects to technologies
-    { source: "manatee", target: "python" },
-    { source: "manatee", target: "flask" },
-    { source: "manatee", target: "ml" },
 
-    { source: "voice-notes", target: "aws" },
-    { source: "voice-notes", target: "chalice" },
-    { source: "voice-notes", target: "nlp" },
-    { source: "voice-notes", target: "python" },
 
-    { source: "hospitality", target: "sql" },
-    { source: "hospitality", target: "oracle" },
+    // Projects to technologies
 
-    { source: "pipboy", target: "rainmeter" },
-    { source: "pipboy", target: "lua" },
+    // Manatee Call Detector
+    {
+        source: "manatee",
+        target: "python",
+        description:
+            "Audio preprocessing, MFCC feature extraction, and HMM inference.",
+    },
+    {
+        source: "manatee",
+        target: "flask",
+        description:
+            "Web application and model inference integration.",
+    },
+    {
+        source: "manatee",
+        target: "ml",
+        description:
+            "Hidden Markov Models for vocalization detection and classification.",
+    },
 
-    { source: "portfolio", target: "react" },
-    { source: "portfolio", target: "typescript" },
+    // AWS Voice Notes
+    {
+        source: "voice-notes",
+        target: "aws",
+        description:
+            "Cloud services for audio storage, transcription, and sentiment analysis.",
+    },
+    {
+        source: "voice-notes",
+        target: "chalice",
+        description:
+            "Serverless backend APIs and integration with AWS services.",
+    },
+    {
+        source: "voice-notes",
+        target: "nlp",
+        description:
+            "Sentiment analysis of transcribed voice notes using Amazon Comprehend.",
+    },
+    {
+        source: "voice-notes",
+        target: "python",
+        description:
+            "Backend logic and orchestration of audio-processing workflows.",
+    },
+
+    // Hospitality Database
+    {
+        source: "hospitality",
+        target: "sql",
+        description:
+            "Relational queries and data operations for hospitality workflows.",
+    },
+    {
+        source: "hospitality",
+        target: "oracle",
+        description:
+            "Relational database platform for managing hospitality data.",
+    },
+
+    // Pip-Boy Widget
+    {
+        source: "pipboy",
+        target: "rainmeter",
+        description:
+            "Desktop widget framework for the interactive productivity dashboard.",
+    },
+    {
+        source: "pipboy",
+        target: "lua",
+        description:
+            "Custom scripting for widget behavior, interactions, and productivity features.",
+    },
+
+    // Interactive Developer Portfolio
+    {
+        source: "portfolio",
+        target: "react",
+        description:
+            "Component-based interface and interactive 3D scene integration.",
+    },
+    {
+        source: "portfolio",
+        target: "typescript",
+        description:
+            "Type-safe application logic, constellation data, and component interfaces.",
+    },
+
 
     // Cross-discipline relationships
     { source: "software", target: "react" },

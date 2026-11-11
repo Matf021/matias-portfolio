@@ -25,7 +25,15 @@ export interface ConstellationNodeData {
     disciplines?: DisciplineId[];
 }
 
+
 export interface ConstellationEdge {
     source: string;
     target: string;
+
+    /**
+     * Optional explanation of why
+     * these two nodes are connected.
+     */
+    description?: string;
 }
+

@@ -107,6 +107,24 @@ const ConstellationKeyboardExplorer = forwardRef<
         .filter((group) => group.nodes.length > 0);
 
 
+    function getRelationshipDescription(
+        relatedId: string
+    ): string | undefined {
+        if (!selectedId) {
+            return undefined;
+        }
+
+        const edge = edges.find(
+            (edge) =>
+                (edge.source === selectedId &&
+                    edge.target === relatedId) ||
+                (edge.target === selectedId &&
+                    edge.source === relatedId)
+        );
+
+        return edge?.description;
+    }
+
 
     const panelId = useId();
     const triggerRef = useRef<HTMLButtonElement>(null);
@@ -329,43 +347,60 @@ const ConstellationKeyboardExplorer = forwardRef<
                                             </p>
 
                                             <div className="space-y-1">
-                                                {group.nodes.map((node) => (
-                                                    <button
-                                                        key={node.id}
-                                                        type="button"
-                                                        onClick={() =>
-                                                            selectNode(node.id)
-                                                        }
-                                                        className="
-                                        flex w-full items-center
-                                        gap-2 rounded-md
-                                        px-2 py-2
-                                        text-left text-xs
-                                        text-[#b6c9e8]
-                                        transition-colors
-                                        hover:bg-white/10
-                                        hover:text-white
-                                        focus-visible:outline-2
-                                        focus-visible:outline-blue-400
-                                    "
-                                                    >
-                                                        <span
-                                                            className="
-                                            h-2 w-2 shrink-0
-                                            rounded-full
-                                        "
-                                                            style={{
-                                                                backgroundColor:
-                                                                    node.color,
-                                                            }}
-                                                            aria-hidden="true"
-                                                        />
 
-                                                        <span className="min-w-0 flex-1">
-                                                            {node.label}
-                                                        </span>
-                                                    </button>
-                                                ))}
+                                                {group.nodes.map((node) => {
+                                                    const description =
+                                                        getRelationshipDescription(node.id);
+
+                                                    return (
+                                                        <button
+                                                            key={node.id}
+                                                            type="button"
+                                                            onClick={() => selectNode(node.id)}
+                                                            className="
+                flex w-full items-start
+                gap-2 rounded-md
+                px-2 py-2
+                text-left
+                transition-colors
+                hover:bg-white/10
+                focus-visible:outline-2
+                focus-visible:outline-blue-400
+            "
+                                                        >
+                                                            <span
+                                                                className="
+                    mt-1 h-2 w-2
+                    shrink-0 rounded-full
+                "
+                                                                style={{
+                                                                    backgroundColor: node.color,
+                                                                }}
+                                                                aria-hidden="true"
+                                                            />
+
+                                                            <span className="min-w-0 flex-1">
+                                                                <span className="
+                    block text-xs font-medium
+                    text-[#b6c9e8]
+                ">
+                                                                    {node.label}
+                                                                </span>
+
+                                                                {description && (
+                                                                    <span className="
+                        mt-1 block
+                        text-[11px]
+                        leading-relaxed
+                        text-[#8298b8]
+                    ">
+                                                                        {description}
+                                                                    </span>
+                                                                )}
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     ))}
