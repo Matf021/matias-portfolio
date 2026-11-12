@@ -7,6 +7,8 @@ import { constellationDetails } from "@/data/constellationDetails";
 import type { ConstellationNodeData } from "@/types/constellation";
 import RelatedNodeSection from "./RelatedNodeSection";
 
+import { getNodeAccent } from "@/lib/getNodeAccent";
+
 type Props = {
     node: ConstellationNodeData;
     relatedNodes: ConstellationNodeData[];
@@ -30,6 +32,17 @@ export default function ConstellationInfoPanel({
     const [expanded, setExpanded] = useState(false);
 
     const details = constellationDetails[node.id];
+    const isDirectional = node.stellarColorMode === "directional";
+
+    const nodeGradient = getNodeAccent(
+        node.color,
+        node.disciplines,
+        isDirectional
+    );
+
+    const labelColor = isDirectional
+        ? "#ffc58a"
+        : node.color;
     const relatedProjects = relatedNodes.filter(
         (related) => related.category === "project"
     );
@@ -103,7 +116,7 @@ export default function ConstellationInfoPanel({
         >
             <div
                 className="h-[2px] shrink-0"
-                style={{ backgroundColor: "var(--panel-accent)" }}
+                style={{ background: nodeGradient }}
                 aria-hidden="true"
             />
 
@@ -113,8 +126,10 @@ export default function ConstellationInfoPanel({
                     <div
                         className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full"
                         style={{
-                            backgroundColor: "var(--panel-accent)",
-                            boxShadow: "0 0 12px var(--panel-accent)",
+                            background: nodeGradient,
+                            boxShadow: isDirectional
+                                ? "0 0 12px rgba(255, 197, 138, 0.35)"
+                                : `0 0 12px ${node.color}`,
                         }}
                         aria-hidden="true"
                     />
@@ -122,7 +137,7 @@ export default function ConstellationInfoPanel({
                     <div className="min-w-0">
                         <p
                             className="mb-1 font-mono text-[10px] font-medium uppercase tracking-[0.2em]"
-                            style={{ color: "var(--panel-accent)" }}
+                            style={{ color: labelColor }}
                         >
                             {node.category}
                         </p>

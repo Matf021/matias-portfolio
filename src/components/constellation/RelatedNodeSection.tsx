@@ -3,6 +3,8 @@ import type {
     ConstellationNodeData,
 } from "@/types/constellation";
 
+import { getNodeAccent } from "@/lib/getNodeAccent";
+
 type Props = {
     title: string;
     nodes: ConstellationNodeData[];
@@ -52,7 +54,11 @@ export default function RelatedNodeSection({
                             <span
                                 className="h-2 w-2 shrink-0 rounded-full"
                                 style={{
-                                    backgroundColor: node.color,
+                                    background: getNodeAccent(
+                                        node.color,
+                                        node.disciplines,
+                                        node.stellarColorMode === "directional"
+                                    ),
                                     boxShadow: `0 0 8px ${node.color}55`,
                                 }}
                                 aria-hidden="true"
