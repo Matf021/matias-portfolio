@@ -1,3 +1,10 @@
+export type ProjectStory = {
+    challenge: string;
+    contribution: string;
+    approach: string[];
+    outcome: string;
+};
+
 export type ConstellationDetail = {
     summary?: string;
     highlights?: string[];
@@ -5,4 +12,5 @@ export type ConstellationDetail = {
     relatedProjects?: string[];
     repositoryUrl?: string;
     externalUrl?: string;
+    story?: ProjectStory;
 };

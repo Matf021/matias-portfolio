@@ -127,6 +127,23 @@ export const constellationDetails: Record<
     manatee: {
         summary:
             "A collaborative research application for detecting manatee vocalizations in underwater audio. My primary contribution was the HMM-based detection system and audio preprocessing pipeline.",
+        story: {
+            challenge:
+                "Detecting manatee vocalizations in underwater recordings is challenging because calls vary in duration and acoustic characteristics, while recordings can contain environmental noise and unrelated sounds.",
+
+            contribution:
+                "I was primarily responsible for designing and implementing the Hidden Markov Model detection system, developing the audio preprocessing and MFCC feature extraction pipeline, and contributing to inference integration within the web application.",
+
+            approach: [
+                "Processed audio using filtering, segmentation, and MFCC feature extraction to prepare acoustic observations for classification.",
+                "Trained Gaussian Hidden Markov Models to distinguish manatee vocalizations from other acoustic segments.",
+                "Evaluated model performance using stratified validation and classification metrics.",
+                "Integrated the detection workflow into a Flask application that presents timestamped predictions and confidence scores.",
+            ],
+
+            outcome:
+                "The HMM-based classifier achieved approximately 95–96% accuracy in project evaluations. The broader team application incorporated additional deep-learning components, and the collaborative research was submitted for academic review.",
+        },
         highlights: [
             "Designed and implemented the Hidden Markov Model detection workflow.",
             "Built MFCC extraction and contributed to filtering, denoising, and energy-based segmentation.",
@@ -149,6 +166,24 @@ export const constellationDetails: Record<
     "voice-notes": {
         summary:
             "A serverless voice-note application that converts uploaded audio into transcribed notes enriched with natural-language insights.",
+        story: {
+            challenge:
+                "Turning audio recordings into useful, searchable notes requires coordinating file storage, asynchronous transcription, language analysis, and the presentation of processed results.",
+
+            contribution:
+                "I developed the serverless application workflow, connecting audio uploads, AWS services, backend API endpoints, and the frontend interface used to manage and explore voice notes.",
+
+            approach: [
+                "Implemented audio upload and storage using Amazon S3.",
+                "Integrated Amazon Transcribe to convert recorded speech into text.",
+                "Used Amazon Comprehend to enrich transcripts with sentiment analysis and key-phrase extraction.",
+                "Developed Python-based API endpoints using AWS Chalice to coordinate application operations.",
+                "Connected processed results to a browser interface for viewing and organizing notes.",
+            ],
+
+            outcome:
+                "Built a cloud-backed voice-note application demonstrating the integration of managed AWS services into an end-to-end audio-processing workflow.",
+        },
         highlights: [
             "Implemented an audio upload workflow connected to Amazon S3.",
             "Integrated AWS Transcribe for speech-to-text processing.",
@@ -232,6 +267,25 @@ export const constellationDetails: Record<
     portfolio: {
         summary:
             "An interactive 3D developer portfolio that transforms technical experience, projects, and skills into an explorable constellation. Designed to combine expressive visual presentation with practical navigation and accessibility.",
+        story: {
+            challenge:
+                "Traditional developer portfolios often present projects as isolated cards. I wanted to create a more exploratory experience that communicates the relationships between my skills, disciplines, and projects without sacrificing usability.",
+
+            contribution:
+                "I designed and developed the portfolio's interactive constellation, including its graph structure, 3D rendering, cinematic navigation, procedural stellar effects, and contextual information system.",
+
+            approach: [
+                "Built a component-based 3D scene using React Three Fiber and Three.js.",
+                "Designed a graph-based data model connecting identity, disciplines, projects, and technologies.",
+                "Implemented cinematic camera transitions using Bézier trajectories, selection framing, and interruptible controls.",
+                "Developed custom GLSL shaders for procedural stellar surfaces and atmospheric effects.",
+                "Created responsive information panels, keyboard navigation, and camera-aware label positioning.",
+                "Iteratively refined visual hierarchy, composition, and rendering performance.",
+            ],
+
+            outcome:
+                "Created an interactive portfolio experience that combines 3D graphics, frontend engineering, and contextual project discovery. The constellation has maintained approximately 60 FPS during local testing, with further development ongoing.",
+        },
         highlights: [
             "Built an interactive 3D constellation using React Three Fiber and Three.js.",
             "Implemented cinematic camera transitions with Bézier trajectories and interruptible user controls.",

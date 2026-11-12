@@ -238,6 +238,59 @@ export default function ConstellationInfoPanel({
                             </p>
                         )}
 
+                        {node.category === "project" && details?.story && (
+                            <section className="space-y-4">
+                                <div>
+                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground">
+                                        The Challenge
+                                    </h4>
+                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                        {details.story.challenge}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground">
+                                        My Contribution
+                                    </h4>
+                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                        {details.story.contribution}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground">
+                                        Engineering Approach
+                                    </h4>
+                                    <ul className="space-y-2">
+                                        {details.story.approach.map((step) => (
+                                            <li
+                                                key={step}
+                                                className="flex gap-2 text-sm leading-relaxed text-text-secondary"
+                                            >
+                                                <span
+                                                    className="mt-1 text-accent"
+                                                    aria-hidden="true"
+                                                >
+                                                    •
+                                                </span>
+                                                <span>{step}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground">
+                                        Outcome
+                                    </h4>
+                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                        {details.story.outcome}
+                                    </p>
+                                </div>
+                            </section>
+                        )}
+
                         {details?.highlights &&
                             details.highlights.length > 0 && (
                                 <section>
