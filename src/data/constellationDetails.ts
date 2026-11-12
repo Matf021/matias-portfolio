@@ -205,6 +205,25 @@ export const constellationDetails: Record<
     pipboy: {
         summary:
             "A local-first, retro CRT-inspired productivity dashboard that evolved from a simple notes widget into a state-driven desktop application.",
+        story: {
+            challenge:
+                "Most productivity tools prioritize functionality over personality. I wanted to build a desktop experience that made everyday organization more engaging, while keeping personal data stored locally.",
+
+            contribution:
+                "I independently designed and developed the dashboard, from its Fallout-inspired visual interface to its task management, progression systems, application logic, and local data persistence.",
+
+            approach: [
+                "Built the interface using Rainmeter, with custom meters, navigation, scrolling, and CRT-inspired visual effects.",
+                "Implemented application state and task-management logic using Lua.",
+                "Integrated PowerShell for local file operations and persistent productivity data.",
+                "Designed recurring goals, completion history, statistics, and achievement progression.",
+                "Refined the interface through iterative visual and functional testing.",
+                "Packaged the dashboard as an installable Rainmeter skin.",
+            ],
+
+            outcome:
+                "Released version 1.0 of a local-first productivity dashboard combining notes, task tracking, statistics, and gamified progression. The project evolved from a simple notes widget into a complete desktop experience.",
+        },
         highlights: [
             "Built notes, task management, and recurring weekly/monthly goal tracking.",
             "Designed event-based completion history for calculating progress from recorded activity.",
@@ -225,6 +244,24 @@ export const constellationDetails: Record<
     hospitality: {
         summary:
             "An Oracle SQL and PL/SQL database project modeling hotel reservations, room assignments, guest stays, folios, and hospitality business rules.",
+        story: {
+            challenge:
+                "Hospitality operations involve interconnected business rules for reservations, room availability, guest stays, and financial records. A database must preserve consistency while handling invalid requests and conflicting operations.",
+
+            contribution:
+                "I designed and implemented the relational database structure, PL/SQL business logic, validation procedures, and automated tests for the hospitality management system.",
+
+            approach: [
+                "Designed relational tables and relationships for hotel operations, including guests, rooms, reservations, stays, and folios.",
+                "Developed modular PL/SQL packages to manage reservation and stay workflows.",
+                "Implemented validation for overlapping bookings, room capacity, maintenance restrictions, and duplicate operations.",
+                "Created automated tests covering successful operations and expected error conditions.",
+                "Configured an Oracle Database development environment using Docker.",
+            ],
+
+            outcome:
+                "Built a database-backed foundation for reservation and stay management, with modular business logic and automated validation tests. Payment processing and restaurant-order management remain planned extensions.",
+        },
         highlights: [
             "Designed relational tables and relationships for hospitality operations.",
             "Implemented modular reservation and stay/folio management packages.",

@@ -61,6 +61,7 @@ export default function ConstellationInfoPanel({
             details &&
             (
                 details.summary ||
+                details.story ||
                 details.highlights?.length ||
                 details.technologies?.length ||
                 details.relatedProjects?.length ||
@@ -291,7 +292,8 @@ export default function ConstellationInfoPanel({
                             </section>
                         )}
 
-                        {details?.highlights &&
+                        {!(node.category === "project" && details?.story) &&
+                            details?.highlights &&
                             details.highlights.length > 0 && (
                                 <section>
                                     <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground">
