@@ -282,12 +282,13 @@ export const constellationDetails: Record<
 
     "nlp-sentiment": {
         summary:
-            "A comparative NLP project evaluating lexicon-based and supervised machine-learning approaches to sentiment classification on Amazon product reviews.",
+            "An NLP project comparing lexicon-based sentiment analysis with supervised machine-learning classifiers on Amazon product reviews.",
+
         highlights: [
-            "Built text preprocessing and TF-IDF feature extraction workflows.",
-            "Compared VADER and TextBlob with supervised classifiers.",
-            "Evaluated Logistic Regression, Linear SVM, Naive Bayes, and other models.",
-            "Explored aspect-based sentiment analysis for more granular review interpretation.",
+            "Prepared review text and extracted TF-IDF features for supervised classification.",
+            "Compared VADER and TextBlob against Logistic Regression, Linear SVM, and Naive Bayes.",
+            "Evaluated model performance using classification metrics.",
+            "Explored aspect-based sentiment analysis to examine sentiment toward specific product features.",
         ],
         technologies: [
             "Python",
@@ -345,11 +346,12 @@ export const constellationDetails: Record<
 
     "autoencoder-pca": {
         summary:
-            "A machine learning project exploring dimensionality reduction and image reconstruction using autoencoders and Principal Component Analysis on the Olivetti Faces dataset.",
+            "An image-representation experiment comparing Principal Component Analysis and autoencoders for dimensionality reduction and reconstruction using the Olivetti Faces dataset.",
+
         highlights: [
-            "Explored dimensionality reduction and feature representation using PCA and autoencoders.",
-            "Worked with the Olivetti Faces image dataset.",
-            "Compared learned representations and reconstruction behavior across dimensionality-reduction approaches.",
+            "Applied PCA to explore lower-dimensional representations of facial images.",
+            "Experimented with autoencoders for learned feature representations.",
+            "Compared image reconstruction behavior across the two approaches.",
         ],
         technologies: [
             "Python",
@@ -363,11 +365,12 @@ export const constellationDetails: Record<
 
     "dqn-lunarlander": {
         summary:
-            "A reinforcement learning project exploring Deep Q-Networks (DQN) to train an agent in the LunarLander environment through trial-and-error interaction and reward-based learning.",
+            "A reinforcement-learning experiment using Deep Q-Networks to explore how an agent learns control decisions through interaction with the LunarLander environment.",
+
         highlights: [
-            "Explored value-based reinforcement learning using Deep Q-Networks.",
-            "Worked with the LunarLander environment and its state, action, and reward structure.",
-            "Investigated how an agent can learn decision-making behavior through repeated environment interaction.",
+            "Explored value-based reinforcement learning with Deep Q-Networks.",
+            "Worked with environment states, available actions, and reward feedback.",
+            "Investigated how repeated training interactions influence agent behavior.",
         ],
         technologies: [
             "Python",

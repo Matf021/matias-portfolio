@@ -59,7 +59,7 @@ export const constellationNodes: ConstellationNodeDefinition[] = [
     },
     {
         id: "voice-notes",
-        label: "AWS Voice Notes",
+        label: "AWS Voice Notes Organizer",
         category: "project",
         color: "#c3b0ff",
         size: 0.2,
@@ -69,7 +69,7 @@ export const constellationNodes: ConstellationNodeDefinition[] = [
     },
     {
         id: "hospitality",
-        label: "Hospitality Database",
+        label: "Oracle Hospitality Management",
         category: "project",
         color: "#a8ffe0",
         size: 0.2,
