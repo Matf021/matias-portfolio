@@ -4,14 +4,31 @@ import { useCallback, useState } from "react";
 import ConstellationViewer from "@/components/constellation/ConstellationViewer";
 
 export default function CinematicHero() {
-    const [isExploring, setIsExploring] = useState(false);
+    type HeroMode = "intro" | "explorer";
+
+    const [mode, setMode] = useState<HeroMode>("intro");
+    const [resetRequest, setResetRequest] = useState(0);
+
+    const isExploring = mode === "explorer";
 
     const handleSelectionChange = useCallback(
         (hasSelection: boolean) => {
-            setIsExploring(hasSelection);
+            if (hasSelection) {
+                setMode("explorer");
+            }
         },
         []
     );
+
+    function handleModeChange() {
+        if (mode === "intro") {
+            setMode("explorer");
+            return;
+        }
+
+        setMode("intro");
+        setResetRequest((current) => current + 1);
+    }
 
     return (
         <section
@@ -30,8 +47,31 @@ export default function CinematicHero() {
                 <div className="absolute inset-0">
                     <ConstellationViewer
                         onSelectionChange={handleSelectionChange}
+                        resetRequest={resetRequest}
                     />
                 </div>
+
+                {/* Hero mode switch */}
+                <button
+                    type="button"
+                    onClick={handleModeChange}
+                    className="
+                        absolute left-5 top-20 z-20
+                        rounded-lg border border-white/15
+                        bg-[#081120]/80 px-4 py-2.5
+                        text-sm font-medium text-[#c6d5f0]
+                        backdrop-blur-md
+                        transition-colors duration-200
+                        hover:border-white/30 hover:bg-[#14213a]
+                        hover:text-white
+                        focus-visible:outline-2
+                        focus-visible:outline-offset-2
+                        focus-visible:outline-blue-400
+                        sm:left-8
+                    "
+                >
+                    {isExploring ? "← Introduction" : "Explore constellation ↗"}
+                </button>
 
                 {/* Readability gradient */}
                 <div

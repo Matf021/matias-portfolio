@@ -20,10 +20,12 @@ import type { ConstellationNodeData } from "@/types/constellation";
 
 type ConstellationSceneProps = {
     onSelectionChange?: (hasSelection: boolean) => void;
+    resetRequest?: number;
 };
 
 export default function ConstellationScene({
     onSelectionChange,
+    resetRequest = 0,
 }: ConstellationSceneProps) {
     const nodes = useMemo<ConstellationNodeData[]>(
         () => resolveNodePositions(constellationNodes, "desktop"),
@@ -112,6 +114,21 @@ export default function ConstellationScene({
         setSelectedId(null);
         setOverviewRequest((current) => current + 1);
     }
+    const lastResetRequest = useRef(resetRequest);
+
+    useEffect(() => {
+        if (lastResetRequest.current === resetRequest) {
+            return;
+        }
+
+        lastResetRequest.current = resetRequest;
+
+        keyboardExplorerRef.current?.close();
+
+        setFocusHeading(false);
+        setSelectedId(null);
+        setOverviewRequest((current) => current + 1);
+    }, [resetRequest]);
     function handleKeyboardExplorerSelect(id: string) {
         setHasInteracted(true);
         setFocusHeading(true);
@@ -228,10 +245,10 @@ export default function ConstellationScene({
                 <div
                     ref={panelRef}
                     className="
-            pointer-events-none
-            absolute bottom-0 left-0 right-0 z-10
-            sm:bottom-4 sm:left-4 sm:right-auto sm:w-96
-        "
+                        pointer-events-none
+                        absolute bottom-0 left-0 right-0 z-10
+                        sm:bottom-4 sm:left-auto sm:right-4 sm:w-96
+                    "
                 >
                     <div className="pointer-events-auto">
                         <ConstellationInfoPanel

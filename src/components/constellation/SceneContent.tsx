@@ -276,9 +276,9 @@ export default function SceneContent({
                 overviewRequest={overviewRequest}
                 cameraFlightActiveRef={cameraFlightActiveRef}
             />
-            {process.env.NODE_ENV === "development" && (
+            {/* {process.env.NODE_ENV === "development" && (
                 <Stats showPanel={0} />
-            )}
+            )} */}
         </>
     );
 }
