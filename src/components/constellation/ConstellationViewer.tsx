@@ -2,6 +2,10 @@
 
 import dynamic from "next/dynamic";
 
+type ConstellationViewerProps = {
+  onSelectionChange?: (hasSelection: boolean) => void;
+};
+
 const ConstellationScene = dynamic(
   () => import("./ConstellationScene"),
   {
@@ -16,6 +20,12 @@ const ConstellationScene = dynamic(
   }
 );
 
-export default function ConstellationViewer() {
-  return <ConstellationScene />;
+export default function ConstellationViewer({
+  onSelectionChange,
+}: ConstellationViewerProps) {
+  return (
+    <ConstellationScene
+      onSelectionChange={onSelectionChange}
+    />
+  );
 }

@@ -18,13 +18,22 @@ import ConstellationKeyboardExplorer, {
 import { resolveNodePositions } from "@/lib/constellationLayout";
 import type { ConstellationNodeData } from "@/types/constellation";
 
-export default function ConstellationScene() {
+type ConstellationSceneProps = {
+    onSelectionChange?: (hasSelection: boolean) => void;
+};
+
+export default function ConstellationScene({
+    onSelectionChange,
+}: ConstellationSceneProps) {
     const nodes = useMemo<ConstellationNodeData[]>(
         () => resolveNodePositions(constellationNodes, "desktop"),
         []
     );
     const [selectedId, setSelectedId] =
         useState<string | null>(null);
+    useEffect(() => {
+        onSelectionChange?.(selectedId !== null);
+    }, [selectedId, onSelectionChange]);
 
     const [overviewRequest, setOverviewRequest] = useState(0);
     const [hasInteracted, setHasInteracted] = useState(false);
