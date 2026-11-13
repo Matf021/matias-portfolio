@@ -20,12 +20,14 @@ import type { ConstellationNodeData } from "@/types/constellation";
 
 type ConstellationSceneProps = {
     onSelectionChange?: (hasSelection: boolean) => void;
+    onActivateExplorer?: () => void;
     resetRequest?: number;
 };
 
 export default function ConstellationScene({
     onSelectionChange,
     resetRequest = 0,
+    onActivateExplorer,
 }: ConstellationSceneProps) {
     const nodes = useMemo<ConstellationNodeData[]>(
         () => resolveNodePositions(constellationNodes, "desktop"),
@@ -216,6 +218,7 @@ export default function ConstellationScene({
                 selectedId={selectedId}
                 onSelect={handleKeyboardExplorerSelect}
                 edges={constellationEdges}
+                onActivateExplorer={onActivateExplorer}
             />
             <Canvas
                 camera={{

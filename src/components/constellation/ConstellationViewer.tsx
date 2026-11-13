@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 
 type ConstellationViewerProps = {
     onSelectionChange?: (hasSelection: boolean) => void;
+    onActivateExplorer?: () => void;
     resetRequest?: number;
 };
 
@@ -23,11 +24,13 @@ const ConstellationScene = dynamic(
 
 export default function ConstellationViewer({
     onSelectionChange,
+    onActivateExplorer,
     resetRequest = 0,
 }: ConstellationViewerProps) {
     return (
         <ConstellationScene
             onSelectionChange={onSelectionChange}
+            onActivateExplorer={onActivateExplorer}
             resetRequest={resetRequest}
         />
     );

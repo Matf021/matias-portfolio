@@ -33,6 +33,7 @@ type Props = {
     selectedId: string | null;
     onSelect: (id: string) => void;
     edges: ConstellationEdge[];
+    onActivateExplorer?: () => void;
 };
 
 const categories: {
@@ -53,6 +54,7 @@ const ConstellationKeyboardExplorer = forwardRef<
     selectedId,
     onSelect,
     edges,
+    onActivateExplorer,
 }, ref) {
 
     const [open, setOpen] = useState(false);
@@ -168,7 +170,13 @@ const ConstellationKeyboardExplorer = forwardRef<
                 aria-expanded={open}
                 aria-controls={panelId}
                 aria-label="Explore constellation"
-                onClick={() => setOpen((current) => !current)}
+                onClick={() => {
+                    if (!open) {
+                        onActivateExplorer?.();
+                    }
+
+                    setOpen((current) => !current);
+                }}
                 className="
                     flex items-center gap-2
                     rounded-lg
@@ -189,7 +197,9 @@ const ConstellationKeyboardExplorer = forwardRef<
             >
                 <Network size={14} aria-hidden="true" />
 
-                <span>Explore</span>
+                <span>
+                    {open ? "Hide explorer" : "Explore"}
+                </span>
 
                 <ChevronDown
                     size={13}
