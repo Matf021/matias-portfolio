@@ -24,16 +24,6 @@ export default function CinematicHero() {
         setMode("explorer");
     }, []);
 
-    function handleModeChange() {
-        if (mode === "intro") {
-            setMode("explorer");
-            return;
-        }
-
-        setMode("intro");
-        setResetRequest((current) => current + 1);
-    }
-
     function returnToIntroduction() {
         setMode("intro");
         setResetRequest((current) => current + 1);
@@ -57,56 +47,10 @@ export default function CinematicHero() {
                     <ConstellationViewer
                         onSelectionChange={handleSelectionChange}
                         onActivateExplorer={handleActivateExplorer}
+                        onReturnToIntroduction={returnToIntroduction}
                         resetRequest={resetRequest}
                     />
                 </div>
-
-                {/* Return to introduction — Explorer mode only */}
-                {isExploring && (
-                    <button
-                        type="button"
-                        onClick={returnToIntroduction}
-                        className="
-                            absolute left-5 top-20 z-20
-                            rounded-lg border border-white/15
-                            bg-[#081120]/80 px-4 py-2.5
-                            text-sm font-medium text-[#c6d5f0]
-                            backdrop-blur-md
-                            transition-colors duration-200
-                            hover:border-white/30
-                            hover:bg-[#14213a]
-                            hover:text-white
-                            focus-visible:outline-2
-                            focus-visible:outline-offset-2
-                            focus-visible:outline-blue-400
-                            sm:left-8
-                        "
-                    >
-                        ← Introduction
-                    </button>
-                )}
-
-                {/* Hero mode switch */}
-                {/* <button
-                    type="button"
-                    onClick={handleModeChange}
-                    className="
-                        absolute left-5 top-20 z-20
-                        rounded-lg border border-white/15
-                        bg-[#081120]/80 px-4 py-2.5
-                        text-sm font-medium text-[#c6d5f0]
-                        backdrop-blur-md
-                        transition-colors duration-200
-                        hover:border-white/30 hover:bg-[#14213a]
-                        hover:text-white
-                        focus-visible:outline-2
-                        focus-visible:outline-offset-2
-                        focus-visible:outline-blue-400
-                        sm:left-8
-                    "
-                >
-                    {isExploring ? "← Introduction" : "Explore constellation ↗"}
-                </button> */}
 
                 {/* Readability gradient */}
                 <div

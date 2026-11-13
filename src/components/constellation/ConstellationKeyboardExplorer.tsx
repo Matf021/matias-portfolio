@@ -34,6 +34,7 @@ type Props = {
     onSelect: (id: string) => void;
     edges: ConstellationEdge[];
     onActivateExplorer?: () => void;
+    onReturnToIntroduction?: () => void;
 };
 
 const categories: {
@@ -55,6 +56,7 @@ const ConstellationKeyboardExplorer = forwardRef<
     onSelect,
     edges,
     onActivateExplorer,
+    onReturnToIntroduction,
 }, ref) {
 
     const [open, setOpen] = useState(false);
@@ -218,44 +220,50 @@ const ConstellationKeyboardExplorer = forwardRef<
 
                     className="
                         absolute left-0 top-12
-                        flex w-[min(85vw,19rem)] flex-col
+                        flex w-[min(86vw,17rem)] flex-col
                         max-h-[calc(100svh-7rem)]
                         overflow-hidden
                         rounded-xl
-                        border border-white/15
-                        bg-[#081120]/90
-                        shadow-2xl
-                        backdrop-blur-xl
+                        border border-white/10
+                        bg-[#081120]/65
+                        shadow-[0_18px_55px_rgba(0,0,0,0.28)]
+                        backdrop-blur-md
                     "
                 >
-                    <div className="mb-4 flex items-center justify-between gap-3">
+                    <div
+                        className="
+        flex shrink-0 items-center justify-between gap-3
+        border-b border-white/10
+        px-4 py-3
+    "
+                    >
+                        <div className="flex min-w-0 items-center gap-2">
+                            <Network
+                                size={15}
+                                aria-hidden="true"
+                                className="shrink-0 text-[#9bbaff]"
+                            />
 
-                        <h2 className="
-                            flex shrink-0 items-center justify-between gap-3
-                            border-b border-white/10
-                            px-4 py-4
-                        "
-                        >
-                            Constellation Explorer
-                        </h2>
+                            <h2 className="truncate text-sm font-semibold text-white">
+                                Constellation Explorer
+                            </h2>
+                        </div>
 
                         <button
                             type="button"
                             onClick={closeExplorer}
                             className="
-                                rounded-md p-1.5
-                                text-[#a9bddb]
-                                transition-colors
-                                hover:bg-white/10
-                                hover:text-white
-                                focus-visible:outline-2
-                                focus-visible:outline-blue-400
-                            "
+            shrink-0 rounded-md p-1.5
+            text-[#a9bddb]
+            transition-colors
+            hover:bg-white/10 hover:text-white
+            focus-visible:outline-2
+            focus-visible:outline-blue-400
+        "
                             aria-label="Close constellation explorer"
                         >
                             <X size={16} aria-hidden="true" />
                         </button>
-
                     </div>
                     <div
                         className="
@@ -383,7 +391,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                                                                 className="
                                                                 flex w-full items-start
                                                                 gap-2 rounded-md
-                                                                px-2 py-2
+                                                                px-2 py-1.5
                                                                 text-left
                                                                 transition-colors
                                                                 hover:bg-white/10
@@ -468,7 +476,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                                                 className="
                                                 flex w-full items-center
                                                 justify-between gap-3
-                                                rounded-md px-2 py-2
+                                                rounded-md px-2 py-1.5
                                                 text-left text-xs
                                                 font-semibold uppercase
                                                 tracking-wider
@@ -518,7 +526,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                                                     className="
                                                     flex w-full items-center
                                                     gap-2 rounded-md
-                                                    px-2 py-2
+                                                    px-2 py-1.5
                                                     text-left text-sm
                                                     text-[#a9bddb]
                                                     transition-colors
@@ -549,6 +557,25 @@ const ConstellationKeyboardExplorer = forwardRef<
                                     </section>
                                 );
                             })}
+                        </div>
+                        <div className="shrink-0 border-t border-white/10 p-3">
+                            <button
+                                type="button"
+                                onClick={onReturnToIntroduction}
+                                className="
+            flex w-full items-center gap-2
+            rounded-lg px-3 py-2.5
+            text-left text-xs font-medium
+            text-[#b6c9e8]
+            transition-colors
+            hover:bg-white/10 hover:text-white
+            focus-visible:outline-2
+            focus-visible:outline-blue-400
+        "
+                            >
+                                <span aria-hidden="true">←</span>
+                                Return to Introduction
+                            </button>
                         </div>
                     </div>
                 </div>
