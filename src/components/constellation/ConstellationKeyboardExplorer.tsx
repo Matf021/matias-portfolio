@@ -7,6 +7,7 @@ import {
     useImperativeHandle,
     useRef,
     useState,
+    useEffect,
 } from "react";
 
 import {
@@ -35,6 +36,7 @@ type Props = {
     edges: ConstellationEdge[];
     onActivateExplorer?: () => void;
     onReturnToIntroduction?: () => void;
+    onOpenChange?: (open: boolean) => void;
 };
 
 const categories: {
@@ -57,6 +59,7 @@ const ConstellationKeyboardExplorer = forwardRef<
     edges,
     onActivateExplorer,
     onReturnToIntroduction,
+    onOpenChange,
 }, ref) {
 
     const [open, setOpen] = useState(false);
@@ -130,6 +133,9 @@ const ConstellationKeyboardExplorer = forwardRef<
         return edge?.description;
     }
 
+    useEffect(() => {
+        onOpenChange?.(open);
+    }, [open, onOpenChange]);
 
     const panelId = useId();
     const triggerRef = useRef<HTMLButtonElement>(null);
@@ -222,7 +228,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                         absolute left-0 top-12
                         flex w-[min(86vw,17rem)] flex-col
                         max-h-[calc(100svh-7rem)]
-                        overflow-hiddenF
+                        overflow-hidden
                         rounded-xl
                         border border-white/10
                         bg-[#081120]/65

@@ -15,6 +15,8 @@ import { getConnectedNodes } from "@/lib/graph";
 import { getSelectionFramingPositions } from "@/lib/cameraSelection";
 import { applyCameraSafeArea } from "@/lib/cameraComposition";
 import type { ScreenRect } from "@/types/camera";
+import { applyExplorerOverviewComposition } from
+    "@/lib/cameraOverviewComposition";
 
 import type {
     ConstellationEdge,
@@ -32,6 +34,7 @@ type Props = {
     panelRect: ScreenRect | null;
     overviewRequest: number;
     cameraFlightActiveRef: React.RefObject<boolean>;
+    explorerOpen: boolean;
 };
 
 type CameraFlight = {
@@ -52,6 +55,7 @@ export default function CinematicCameraController({
     panelRect,
     overviewRequest,
     cameraFlightActiveRef,
+    explorerOpen,
 }: Props) {
     const { camera, size } = useThree();
 
@@ -60,6 +64,7 @@ export default function CinematicCameraController({
     const lastSelectionRef = useRef<string | null | undefined>(undefined);
 
     const lastOverviewRequestRef = useRef(overviewRequest);
+    const lastExplorerOpenRef = useRef(explorerOpen);
 
     const lastViewportRef = useRef({
         width: 0,
@@ -137,12 +142,15 @@ export default function CinematicCameraController({
 
         const overviewRequested =
             lastOverviewRequestRef.current !== overviewRequest;
+        const explorerChanged =
+            lastExplorerOpenRef.current !== explorerOpen;
 
         // Ignore panel-only changes after initialization.
         if (
             initialized.current &&
             !selectionChanged &&
             !viewportChanged &&
+            !explorerChanged &&
             !overviewRequested
         ) {
             return;
@@ -150,6 +158,7 @@ export default function CinematicCameraController({
 
         lastSelectionRef.current = selectedId;
         lastOverviewRequestRef.current = overviewRequest;
+        lastExplorerOpenRef.current = explorerOpen;
 
         lastViewportRef.current = {
             width: size.width,
@@ -173,7 +182,12 @@ export default function CinematicCameraController({
                 size,
                 panelRect
             )
-            : baseDestination;
+            : applyExplorerOverviewComposition(
+                baseDestination,
+                camera as THREE.PerspectiveCamera,
+                size,
+                explorerOpen
+            );
 
         const endPosition = new THREE.Vector3(
             ...destination.position

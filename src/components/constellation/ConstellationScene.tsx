@@ -41,6 +41,7 @@ export default function ConstellationScene({
         onSelectionChange?.(selectedId !== null);
     }, [selectedId, onSelectionChange]);
 
+    const [explorerOpen, setExplorerOpen] = useState(false);
     const [overviewRequest, setOverviewRequest] = useState(0);
     const [hasInteracted, setHasInteracted] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -222,6 +223,7 @@ export default function ConstellationScene({
                 edges={constellationEdges}
                 onActivateExplorer={onActivateExplorer}
                 onReturnToIntroduction={onReturnToIntroduction}
+                onOpenChange={setExplorerOpen}
             />
             <Canvas
                 camera={{
@@ -239,6 +241,7 @@ export default function ConstellationScene({
                     onExplore={() => setHasInteracted(true)}
                     panelRect={selectedId ? panelRect : null}
                     overviewRequest={overviewRequest}
+                    explorerOpen={explorerOpen}
                 />
             </Canvas>
 

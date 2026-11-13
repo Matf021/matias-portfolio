@@ -40,6 +40,7 @@ type SceneContentProps = {
     onExplore: () => void;
     panelRect: ScreenRect | null;
     overviewRequest: number;
+    explorerOpen: boolean;
 };
 
 function getConnectionCategory(
@@ -93,6 +94,7 @@ export default function SceneContent({
     onExplore,
     panelRect,
     overviewRequest,
+    explorerOpen,
 }: SceneContentProps) {
     const { size } = useThree();
 
@@ -275,6 +277,7 @@ export default function SceneContent({
                 panelRect={panelRect}
                 overviewRequest={overviewRequest}
                 cameraFlightActiveRef={cameraFlightActiveRef}
+                explorerOpen={explorerOpen}
             />
             {/* {process.env.NODE_ENV === "development" && (
                 <Stats showPanel={0} />
