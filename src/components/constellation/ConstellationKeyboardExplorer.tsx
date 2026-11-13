@@ -62,11 +62,11 @@ const ConstellationKeyboardExplorer = forwardRef<
     const [open, setOpen] = useState(false);
 
     const [relatedExpanded, setRelatedExpanded] =
-        useState(true);
+        useState(false);
 
     const [expandedCategories, setExpandedCategories] =
         useState<Set<NodeCategory>>(
-            () => new Set(["discipline"])
+            () => new Set<NodeCategory>()
         );
 
     function toggleCategory(category: NodeCategory) {
@@ -222,7 +222,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                         absolute left-0 top-12
                         flex w-[min(86vw,17rem)] flex-col
                         max-h-[calc(100svh-7rem)]
-                        overflow-hidden
+                        overflow-hiddenF
                         rounded-xl
                         border border-white/10
                         bg-[#081120]/65
@@ -558,11 +558,12 @@ const ConstellationKeyboardExplorer = forwardRef<
                                 );
                             })}
                         </div>
-                        <div className="shrink-0 border-t border-white/10 p-3">
-                            <button
-                                type="button"
-                                onClick={onReturnToIntroduction}
-                                className="
+                    </div>
+                    <div className="shrink-0 border-t border-white/10 p-3">
+                        <button
+                            type="button"
+                            onClick={onReturnToIntroduction}
+                            className="
             flex w-full items-center gap-2
             rounded-lg px-3 py-2.5
             text-left text-xs font-medium
@@ -572,11 +573,10 @@ const ConstellationKeyboardExplorer = forwardRef<
             focus-visible:outline-2
             focus-visible:outline-blue-400
         "
-                            >
-                                <span aria-hidden="true">←</span>
-                                Return to Introduction
-                            </button>
-                        </div>
+                        >
+                            <span aria-hidden="true">←</span>
+                            Return to Introduction
+                        </button>
                     </div>
                 </div>
             )}
