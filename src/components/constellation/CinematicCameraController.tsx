@@ -249,6 +249,7 @@ export default function CinematicCameraController({
         panelRect,
         size,
         overviewRequest,
+        explorerOpen,
         cameraFlightActiveRef,
     ]);
 
