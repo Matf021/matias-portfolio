@@ -59,7 +59,6 @@ const ConstellationKeyboardExplorer = forwardRef<
     onSelect,
     edges,
     onActivateExplorer,
-    onReturnToIntroduction,
     onOpenChange,
 }, ref) {
 

@@ -1,8 +1,7 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { CSSProperties } from "react";
+import { useEffect, useRef } from "react";
 
 type Star = {
     id: string;

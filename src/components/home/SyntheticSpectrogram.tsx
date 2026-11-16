@@ -147,7 +147,7 @@ export default function SyntheticSpectrogram() {
                         height={PLOT.height / ROWS + 0.1}
                         fill="#91BCFF"
                         fillOpacity={
-                            Math.pow(cell.intensity, 0.8) * 0.92
+                            (Math.pow(cell.intensity, 0.8) * 0.92).toFixed(4)
                         }
                     />
                 ))}

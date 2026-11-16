@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import SyntheticSpectrogram from "./SyntheticSpectrogram";
 
 const samples = Array.from({ length: 180 }, (_, index) => {
@@ -25,8 +28,88 @@ const waveformPath = samples
     .join(" ");
 
 export default function ManateeSignalVisual() {
+    const figureRef = useRef<HTMLElement>(null);
+    const [revealProgress, setRevealProgress] = useState(0);
+
+    useEffect(() => {
+        const figure = figureRef.current;
+        if (!figure) return;
+
+        const reducedMotionQuery = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        );
+
+        let frameId: number | null = null;
+
+        const updateProgress = () => {
+            frameId = null;
+
+            if (reducedMotionQuery.matches) {
+                setRevealProgress(1);
+                return;
+            }
+
+            const rect = figure.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+
+            // Start when the card enters the lower viewport.
+            const startY = viewportHeight * 0.88;
+
+            // Finish when the card reaches the upper viewport.
+            const endY = viewportHeight * 0.22;
+
+            const progress = Math.max(
+                0,
+                Math.min(
+                    1,
+                    (startY - rect.top) / (startY - endY)
+                )
+            );
+
+            setRevealProgress((previous) =>
+                Math.abs(previous - progress) > 0.001
+                    ? progress
+                    : previous
+            );
+        };
+
+        const scheduleUpdate = () => {
+            if (frameId !== null) return;
+
+            frameId = requestAnimationFrame(updateProgress);
+        };
+
+        scheduleUpdate();
+
+        window.addEventListener("scroll", scheduleUpdate, {
+            passive: true,
+        });
+
+        window.addEventListener("resize", scheduleUpdate);
+        reducedMotionQuery.addEventListener(
+            "change",
+            scheduleUpdate
+        );
+
+        return () => {
+            window.removeEventListener("scroll", scheduleUpdate);
+            window.removeEventListener("resize", scheduleUpdate);
+
+            reducedMotionQuery.removeEventListener(
+                "change",
+                scheduleUpdate
+            );
+
+            if (frameId !== null) {
+                cancelAnimationFrame(frameId);
+            }
+        };
+    }, []);
     return (
-        <figure className="relative overflow-hidden rounded-2xl border border-accent/20 bg-[#0B1427] p-5 shadow-[0_0_60px_rgba(100,148,230,0.05)] sm:p-7">
+        <figure
+            ref={figureRef}
+            className="relative overflow-hidden rounded-2xl border border-accent/20 bg-[#0B1427] p-5 shadow-[0_0_60px_rgba(100,148,230,0.05)] sm:p-7"
+        >
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_45%_45%,rgba(100,160,255,0.09),transparent_65%)]"
@@ -116,6 +199,9 @@ export default function ManateeSignalVisual() {
                     strokeWidth="1.8"
                     strokeLinejoin="round"
                     strokeLinecap="round"
+                    pathLength={1}
+                    strokeDasharray={1}
+                    strokeDashoffset={1 - revealProgress}
                 />
 
                 <text x="155" y="38" fill="#BDD8FF" fontSize="10">
