@@ -199,6 +199,14 @@ export default function CinematicCameraController({
                 ? [selectedNode.position]
                 : selectionPositions;
 
+        const identityNode = nodes.find(
+            (node) => node.id === "matias"
+        );
+
+        // The selected discipline's connection to Identity
+        // remains important even when it is spatially distant.
+        const compositionPositions = focusPositions;
+
         const baseDestination = selectedNode
             ? calculateFocusDestination(
                 selectedNode,
@@ -214,7 +222,8 @@ export default function CinematicCameraController({
                 baseDestination,
                 camera as THREE.PerspectiveCamera,
                 size,
-                panelRect
+                panelRect,
+                compositionPositions
             )
             : introVisible
                 ? applyIntroductionComposition(
