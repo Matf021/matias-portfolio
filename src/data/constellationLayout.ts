@@ -10,37 +10,37 @@ export const constellationLayout: Record<ClusterId, ClusterLayout> = {
     ai: {
         center: [-2.4, 2.2, 0.4],
         offsets: {
-            manatee: [-1.3, -0.9, 0.5],
-            ml: [-1.4, 1.1, -0.4],
-            flask: [-2.1, -0.2, -0.5],
-            python: [0.4, -1.5, 1],
+            manatee: [-1.3, -0.9, 1.1],
+            ml: [-1.4, 1.1, -1.0],
+            flask: [-2.1, -0.2, -0.3],
+            python: [0.4, -1.5, 1.4],
         },
     },
     cloud: {
         center: [4.5, 3.6, -0.5],
         offsets: {
-            "voice-notes": [-1.5, -1.3, 1.1],
-            aws: [1.4, 1.1, -0.4],
-            chalice: [2.1, -0.2, -0.5],
-            nlp: [-2.2, 0.3, 1.5],
+            "voice-notes": [-1.5, -1.3, 1.4],
+            aws: [1.4, 1.1, -0.8],
+            chalice: [2.1, -0.2, -0.2],
+            nlp: [-2.2, 0.3, 0.8],
         },
     },
     creative: {
         center: [-5.2, -4.2, -0.8],
         offsets: {
-            pipboy: [-1.3, -0.9, 1.1],
-            rainmeter: [-1.5, -1.9, -0.4],
-            lua: [-2.1, 0.2, -0.5],
+            pipboy: [-1.3, -0.9, 1.3],
+            rainmeter: [-1.5, -1.9, -0.7],
+            lua: [-2.1, 0.2, -0.3],
         },
     },
     software: {
         center: [2.7, -1.0, 0.6],
         offsets: {
-            hospitality: [1.3, -0.9, 0.5],
-            sql: [2.1, -0.2, -0.5],
-            oracle: [1.5, -1.9, -0.4],
-            docker: [-0.5, -1.8, 0.8],
-            typescript: [-1.5, -0.5, 0.7],
+            hospitality: [1.3, -0.9, 1.0],
+            sql: [2.1, -0.2, -1.0],
+            oracle: [1.5, -1.9, -0.8],
+            docker: [-0.5, -1.8, 1.3],
+            typescript: [-1.5, -0.5, 0.9],
         },
     },
 };
@@ -54,9 +54,9 @@ export const bridgePositions: Record<string, Position3D> = {
 /** Absolute positions for nodes not assigned to cluster-relative offsets. */
 export const independentPositions: Record<string, Position3D> = {
     matias: [0, 0, 0],
-    "nlp-sentiment": [-2.0, 3.3, 0.5],
-    "autoencoder-pca": [-5.8, 3.2, 0.2],
-    "dqn-lunarlander": [-6.0, 0.0, 0.2],
+    "nlp-sentiment": [-2.0, 3.3, -0.2],
+    "autoencoder-pca": [-5.8, 3.2, 0.9],
+    "dqn-lunarlander": [-6.0, 0.0, -0.5],
     "nextjs": [-0.4, -3.5, 1.2],
     "threejs": [0.5, -4.2, -0.9],
     "r3f": [0.0, -5.1, 1.9],
