@@ -46,8 +46,28 @@ export default function AtmosphericStarfield({
             const xy = Math.sqrt(1 - z * z);
 
             // Multiple depth layers
-            const distance =
-                radius * (0.55 + random() * 0.45);
+            // D.6.5A — Three spatial depth regions.
+            //
+            // Near stars: stronger natural parallax.
+            // Mid stars: atmospheric depth.
+            // Far stars: stable astronomical backdrop.
+
+            const depthSample = random();
+
+            let distanceFactor: number;
+
+            if (depthSample < 0.12) {
+                // 12% of stars: near background
+                distanceFactor = 0.35 + random() * 0.15;
+            } else if (depthSample < 0.42) {
+                // 30% of stars: middle background
+                distanceFactor = 0.60 + random() * 0.20;
+            } else {
+                // 58% of stars: distant background
+                distanceFactor = 0.85 + random() * 0.15;
+            }
+
+            const distance = radius * distanceFactor;
 
             const x =
                 distance * xy * Math.cos(theta);
