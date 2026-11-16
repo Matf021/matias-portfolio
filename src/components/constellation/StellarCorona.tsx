@@ -569,21 +569,20 @@ export default function StellarCorona({
         const isTechnology = variant === "technology";
 
         const targetInner = isTechnology
-            ? (eclipsed ? 0.035 : selected ? 0.16 : 0.10) +
-            arrival * 0.025
+            ? (eclipsed ? 0.035 : selected ? 0.25 : 0.16) +
+            arrival * 0.04
             : (innerBase + arrival * 0.16) *
             intensityScale *
             luminosity.inner *
             selectionInnerMultiplier;
 
         const targetOuter = isTechnology
-            ? (eclipsed ? 0.008 : selected ? 0.065 : 0.045) +
-            arrival * 0.012
+            ? (eclipsed ? 0.008 : selected ? 0.10 : 0.065) +
+            arrival * 0.02
             : (outerBase + arrival * 0.12) *
             intensityScale *
             luminosity.outer *
             selectionOuterMultiplier;
-
 
         material.uniforms.uInnerIntensity.value =
             THREE.MathUtils.lerp(

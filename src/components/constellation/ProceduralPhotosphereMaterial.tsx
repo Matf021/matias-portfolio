@@ -53,6 +53,7 @@ const fragmentShader = `
     uniform float uOpacity;
     uniform float uBrightness;
     uniform float uTime;
+    uniform float uTechnology;
     uniform float uLargeFrequency;
     uniform float uFineFrequency;
     uniform float uVariationStrength;
@@ -398,10 +399,22 @@ const fragmentShader = `
             uRiftBrightness *
             riftIntensity;
 
+        // A subtle luminous center for smaller technology stars.
+        // Other node categories retain their existing appearance.
+        float technologyCore = 1.0;
+
+        if (uTechnology > 0.5) {
+            float coreGlow = pow(facing, 2.4);
+
+            technologyCore =
+                0.92 + coreGlow * 0.42;
+        }
+
         float luminosity =
             (1.0 + thermalVariation) *
             limbDarkening *
-            uBrightness;
+            uBrightness *
+            technologyCore;
 
         // Preserve a soft silhouette.
         float edgeSoftness = smoothstep(
@@ -462,6 +475,9 @@ export default function ProceduralPhotosphereMaterial({
             uBrightness: {
                 value: 1,
             },
+            uTechnology: {
+                value: isTechnology ? 1 : 0,
+            },
             uTime: {
                 value: 0,
             },
@@ -474,7 +490,7 @@ export default function ProceduralPhotosphereMaterial({
                 value: isTechnology ? 12.0 : isPrimary ? 17.0 : 21.0,
             },
             uVariationStrength: {
-                value: isTechnology ? 0.22 : isPrimary ? 0.42 : 0.34,
+                value: isTechnology ? 0.32 : isPrimary ? 0.42 : 0.34,
             },
             uDirectionalCount: {
                 value: directionalSources.length,
