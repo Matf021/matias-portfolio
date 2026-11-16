@@ -15,6 +15,7 @@ import { getConnectedNodes } from "@/lib/graph";
 import { getSelectionFramingPositions } from "@/lib/cameraSelection";
 import { applyCameraSafeArea } from "@/lib/cameraComposition";
 import type { ScreenRect } from "@/types/camera";
+import { composeSelectedCamera } from "@/lib/cameraScreenComposition";
 import { applyExplorerOverviewComposition, applyIntroductionComposition } from
     "@/lib/cameraOverviewComposition";
 
@@ -217,23 +218,34 @@ export default function CinematicCameraController({
             )
             : overviewFraming;
 
+        const perspectiveCamera =
+            camera as THREE.PerspectiveCamera;
+
         const destination = selectedNode
-            ? applyCameraSafeArea(
-                baseDestination,
-                camera as THREE.PerspectiveCamera,
-                size,
-                panelRect,
-                compositionPositions
-            )
+            ? size.width >= 900
+                ? composeSelectedCamera(
+                    baseDestination,
+                    perspectiveCamera,
+                    size,
+                    panelRect,
+                    selectedNode.position,
+                    focusPositions
+                )
+                : applyCameraSafeArea(
+                    baseDestination,
+                    perspectiveCamera,
+                    size,
+                    panelRect
+                )
             : introVisible
                 ? applyIntroductionComposition(
                     baseDestination,
-                    camera as THREE.PerspectiveCamera,
+                    perspectiveCamera,
                     size
                 )
                 : applyExplorerOverviewComposition(
                     baseDestination,
-                    camera as THREE.PerspectiveCamera,
+                    perspectiveCamera,
                     size,
                     explorerOpen
                 );
