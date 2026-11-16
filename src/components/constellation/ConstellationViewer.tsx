@@ -7,6 +7,7 @@ type ConstellationViewerProps = {
     onActivateExplorer?: () => void;
     resetRequest?: number;
     onReturnToIntroduction?: () => void;
+    introVisible: boolean;
 };
 
 const ConstellationScene = dynamic(
@@ -28,6 +29,7 @@ export default function ConstellationViewer({
     onActivateExplorer,
     resetRequest = 0,
     onReturnToIntroduction,
+    introVisible,
 }: ConstellationViewerProps) {
     return (
         <ConstellationScene
@@ -35,6 +37,7 @@ export default function ConstellationViewer({
             onActivateExplorer={onActivateExplorer}
             resetRequest={resetRequest}
             onReturnToIntroduction={onReturnToIntroduction}
+            introVisible={introVisible}
         />
     );
 }

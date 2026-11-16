@@ -15,7 +15,7 @@ import { getConnectedNodes } from "@/lib/graph";
 import { getSelectionFramingPositions } from "@/lib/cameraSelection";
 import { applyCameraSafeArea } from "@/lib/cameraComposition";
 import type { ScreenRect } from "@/types/camera";
-import { applyExplorerOverviewComposition } from
+import { applyExplorerOverviewComposition, applyIntroductionComposition } from
     "@/lib/cameraOverviewComposition";
 
 import type {
@@ -35,6 +35,7 @@ type Props = {
     overviewRequest: number;
     cameraFlightActiveRef: React.RefObject<boolean>;
     explorerOpen: boolean;
+    introVisible: boolean
 };
 
 type CameraFlight = {
@@ -56,6 +57,7 @@ export default function CinematicCameraController({
     overviewRequest,
     cameraFlightActiveRef,
     explorerOpen,
+    introVisible,
 }: Props) {
     const { camera, size } = useThree();
 
@@ -65,6 +67,7 @@ export default function CinematicCameraController({
 
     const lastOverviewRequestRef = useRef(overviewRequest);
     const lastExplorerOpenRef = useRef(explorerOpen);
+    const lastIntroVisibleRef = useRef(introVisible);
 
     const lastViewportRef = useRef({
         width: 0,
@@ -144,6 +147,8 @@ export default function CinematicCameraController({
             lastOverviewRequestRef.current !== overviewRequest;
         const explorerChanged =
             lastExplorerOpenRef.current !== explorerOpen;
+        const introChanged =
+            lastIntroVisibleRef.current !== introVisible;
 
         // Ignore panel-only changes after initialization.
         if (
@@ -182,12 +187,18 @@ export default function CinematicCameraController({
                 size,
                 panelRect
             )
-            : applyExplorerOverviewComposition(
-                baseDestination,
-                camera as THREE.PerspectiveCamera,
-                size,
-                explorerOpen
-            );
+            : introVisible
+                ? applyIntroductionComposition(
+                    baseDestination,
+                    camera as THREE.PerspectiveCamera,
+                    size
+                )
+                : applyExplorerOverviewComposition(
+                    baseDestination,
+                    camera as THREE.PerspectiveCamera,
+                    size,
+                    explorerOpen
+                );
 
         const endPosition = new THREE.Vector3(
             ...destination.position
@@ -239,6 +250,7 @@ export default function CinematicCameraController({
             duration: FLIGHT_DURATION,
         };
         cameraFlightActiveRef.current = true;
+        lastIntroVisibleRef.current = introVisible;
     }, [
         selectedId,
         selectedNode,
@@ -251,6 +263,7 @@ export default function CinematicCameraController({
         overviewRequest,
         explorerOpen,
         cameraFlightActiveRef,
+        lastIntroVisibleRef,
     ]);
 
     // Allow the visitor to interrupt the flight.

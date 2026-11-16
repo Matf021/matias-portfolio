@@ -65,3 +65,41 @@ export function applyExplorerOverviewComposition(
         target: target.toArray() as [number, number, number],
     };
 }
+
+export function applyIntroductionComposition(
+    destination: CameraDestination,
+    camera: THREE.PerspectiveCamera,
+    viewport: ViewportSize
+): CameraDestination {
+    if (viewport.width < 900) {
+        return destination;
+    }
+
+    const position = new THREE.Vector3(...destination.position);
+    const target = new THREE.Vector3(...destination.target);
+
+    const direction = position.clone().sub(target).normalize();
+
+    const right = new THREE.Vector3()
+        .crossVectors(camera.up, direction)
+        .normalize();
+
+    const distance = position.distanceTo(target);
+
+    const visibleWidth =
+        2 *
+        distance *
+        Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) *
+        camera.aspect;
+
+    // Shift the constellation's center toward the right.
+    const offset = right.multiplyScalar(-visibleWidth * 0.11);
+
+    position.add(offset);
+    target.add(offset);
+
+    return {
+        position: position.toArray() as [number, number, number],
+        target: target.toArray() as [number, number, number],
+    };
+}

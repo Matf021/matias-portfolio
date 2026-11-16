@@ -49,6 +49,7 @@ export default function CinematicHero() {
                         onActivateExplorer={handleActivateExplorer}
                         onReturnToIntroduction={returnToIntroduction}
                         resetRequest={resetRequest}
+                        introVisible={!isExploring}
                     />
                 </div>
 

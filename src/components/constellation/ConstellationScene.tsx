@@ -23,6 +23,7 @@ type ConstellationSceneProps = {
     onActivateExplorer?: () => void;
     resetRequest?: number;
     onReturnToIntroduction?: () => void;
+    introVisible: boolean
 };
 
 export default function ConstellationScene({
@@ -30,6 +31,7 @@ export default function ConstellationScene({
     resetRequest = 0,
     onActivateExplorer,
     onReturnToIntroduction,
+    introVisible,
 }: ConstellationSceneProps) {
     const nodes = useMemo<ConstellationNodeData[]>(
         () => resolveNodePositions(constellationNodes, "desktop"),
@@ -242,11 +244,12 @@ export default function ConstellationScene({
                     panelRect={selectedId ? panelRect : null}
                     overviewRequest={overviewRequest}
                     explorerOpen={explorerOpen}
+                    introVisible={introVisible}
                 />
             </Canvas>
 
             <ConstellationInteractionHint
-                dismissed={hasInteracted}
+                dismissed={hasInteracted || introVisible}
             />
 
             {/* Information panel */}
