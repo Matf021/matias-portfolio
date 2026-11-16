@@ -90,7 +90,11 @@ export function getSelectionFramingPositions(
         .filter(
             (node) =>
                 node.id !== selectedId &&
-                connectedIds.has(node.id)
+                connectedIds.has(node.id) &&
+                !(
+                    selectedNode.category === "discipline" &&
+                    node.category === "identity"
+                )
         )
         .map((node) => {
             const distance = selectedPosition.distanceTo(
