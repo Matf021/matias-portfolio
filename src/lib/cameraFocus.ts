@@ -31,14 +31,13 @@ export function calculateFocusDestination(
 ): CameraDestination {
     const target = new THREE.Vector3(...node.position);
 
-    // Preserve the current viewing direction.
-    const viewingDirection = currentCameraPosition
-        .clone()
-        .sub(currentTarget);
-
-    if (viewingDirection.lengthSq() < 0.000001) {
-        viewingDirection.set(0, 0, 1);
-    }
+    // A consistent viewing direction for cinematic node selection.
+    // The slight angle preserves a sense of 3D depth.
+    const viewingDirection = new THREE.Vector3(
+        0.12,
+        0.08,
+        1
+    ).normalize();
 
     viewingDirection.normalize();
 

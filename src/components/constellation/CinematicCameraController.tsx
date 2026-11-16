@@ -156,7 +156,8 @@ export default function CinematicCameraController({
             !selectionChanged &&
             !viewportChanged &&
             !explorerChanged &&
-            !overviewRequested
+            !overviewRequested &&
+            !introChanged
         ) {
             return;
         }
@@ -164,6 +165,7 @@ export default function CinematicCameraController({
         lastSelectionRef.current = selectedId;
         lastOverviewRequestRef.current = overviewRequest;
         lastExplorerOpenRef.current = explorerOpen;
+        lastIntroVisibleRef.current = introVisible;
 
         lastViewportRef.current = {
             width: size.width,
@@ -250,7 +252,6 @@ export default function CinematicCameraController({
             duration: FLIGHT_DURATION,
         };
         cameraFlightActiveRef.current = true;
-        lastIntroVisibleRef.current = introVisible;
     }, [
         selectedId,
         selectedNode,
@@ -263,7 +264,7 @@ export default function CinematicCameraController({
         overviewRequest,
         explorerOpen,
         cameraFlightActiveRef,
-        lastIntroVisibleRef,
+        introVisible,
     ]);
 
     // Allow the visitor to interrupt the flight.
