@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 import type {
@@ -114,6 +114,9 @@ const FRAGMENT_SHADER = `
     uniform float uLightStrength;
     uniform vec4 uSelectionWeights;
     uniform float uSelectionBoost;
+    uniform vec3 uCameraPosition;
+    uniform float uNearFadeStart;
+    uniform float uNearFadeEnd;
 
     varying vec2 vUv;
     varying vec3 vWorldPosition;
@@ -265,6 +268,22 @@ const FRAGMENT_SHADER = `
             endFade *
             uOpacity;
 
+        // D.6.5B — Reduce the visibility of dust
+        // when the camera approaches a filament.
+
+        float cameraDistance = distance(
+            vWorldPosition,
+            uCameraPosition
+        );
+
+        float proximityFade = smoothstep(
+            uNearFadeStart,
+            uNearFadeEnd,
+            cameraDistance
+        );
+
+        alpha *= proximityFade;
+
         // Calculate color contribution from stars.
         vec3 illumination =
             calculateStellarIllumination(
@@ -286,6 +305,7 @@ export default function SpatialDust({
     selectedId,
 }: SpatialDustProps) {
     const materialsRef = useRef<THREE.ShaderMaterial[]>([]);
+    const { camera } = useThree();
 
     const filaments = useMemo(
         () =>
@@ -362,6 +382,15 @@ export default function SpatialDust({
                 uSelectionBoost: {
                     value: 3.0,
                 },
+                uCameraPosition: {
+                    value: new THREE.Vector3(),
+                },
+                uNearFadeStart: {
+                    value: 5.0,
+                },
+                uNearFadeEnd: {
+                    value: 14.0,
+                },
             })),
         [filaments, lightPositions, lightColors]
     );
@@ -402,6 +431,10 @@ export default function SpatialDust({
 
         for (const material of materialsRef.current) {
             if (!material) continue;
+
+            material.uniforms.uCameraPosition.value.copy(
+                camera.position
+            );
 
             const weights =
                 material.uniforms.uSelectionWeights
