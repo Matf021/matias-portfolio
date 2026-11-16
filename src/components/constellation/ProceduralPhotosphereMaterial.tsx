@@ -56,6 +56,8 @@ const fragmentShader = `
     uniform float uTime;
     uniform float uTechnology;
     uniform float uStellarSeed;
+    uniform float uStellarActivity;
+    uniform float uActivityPhase;
     uniform float uLargeFrequency;
     uniform float uFineFrequency;
     uniform float uVariationStrength;
@@ -356,9 +358,56 @@ const fragmentShader = `
         }
 
         // Center the variation around zero.
+        // Center the variation around zero.
         float thermalVariation =
             (granulation - 0.5) * uVariationStrength;
 
+        // D.6.4B.4 — Asynchronous stellar activity.
+        // Only technology stars receive this additional effect.
+        float stellarShimmer = 0.0;
+
+        if (uTechnology > 0.5) {
+            float activityTime =
+                uTime * 0.38 + uActivityPhase;
+
+            // A slowly evolving, localized activity field.
+            // The offset ensures each star develops a
+            // different spatial pattern.
+            float activityField = noise3D(
+                surfacePosition * 7.0 +
+                vec3(
+                    activityTime * 0.42,
+                    -activityTime * 0.31,
+                    uStellarSeed * 17.0 +
+                        activityTime * 0.23
+                )
+            );
+
+            // Concentrate activity into brighter regions,
+            // rather than illuminating the whole surface.
+            float activeRegions = smoothstep(
+                0.25,
+                0.82,
+                activityField
+            );
+
+            // Two slow oscillations prevent an obvious
+            // repetitive breathing pattern.
+            float activityCycle =
+                0.5 +
+                0.25 * sin(
+                    uTime * 0.62 + uActivityPhase
+                ) +
+                0.25 * sin(
+                    uTime * 0.37 +
+                    uActivityPhase * 1.73
+                );
+
+            stellarShimmer =
+                activeRegions *
+                activityCycle *
+                uStellarActivity;
+        }
         // Photospheric limb darkening.
         float limbDarkening =
             0.68 + 0.32 * pow(facing, 0.65);
@@ -428,7 +477,7 @@ const fragmentShader = `
         }
 
         float luminosity =
-            (1.0 + thermalVariation) *
+            (1.0 + thermalVariation + stellarShimmer) *
             limbDarkening *
             uBrightness *
             technologyCore;
@@ -547,6 +596,14 @@ export default function ProceduralPhotosphereMaterial({
             },
             uStellarSeed: {
                 value: stellarSeed,
+            },
+            uStellarActivity: {
+                value: isTechnology
+                    ? 0.28 + stellarSeed * 0.10
+                    : 0,
+            },
+            uActivityPhase: {
+                value: stellarSeed * Math.PI * 2,
             },
         }),
         [

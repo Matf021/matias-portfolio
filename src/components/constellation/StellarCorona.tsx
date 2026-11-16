@@ -20,6 +20,7 @@ type StellarCoronaProps = {
     debug?: boolean;
     directionalPalette?: DirectionalStellarPalette | null;
     variant?: "standard" | "technology";
+    stellarSeed?: number;
 };
 
 const CORONA_LUMINOSITY = {
@@ -441,6 +442,7 @@ export default function StellarCorona({
     intensityScale = 1,
     directionalPalette,
     variant = "standard",
+    stellarSeed = 0.5,
 }: StellarCoronaProps) {
     const meshRef = useRef<THREE.Mesh>(null);
     const selectionLuminosityRef = useRef(0);
@@ -568,17 +570,36 @@ export default function StellarCorona({
 
         const isTechnology = variant === "technology";
 
+        // D.6.4B.4 — Independent atmospheric shimmer.
+        // The amplitude stays low so the corona does
+        // not become a blinking halo.
+        const technologyShimmer = isTechnology
+            ? 1 +
+            0.055 * Math.sin(
+                clock.getElapsedTime() * (0.54 + stellarSeed * 0.22) +
+                stellarSeed * Math.PI * 2
+            ) +
+            0.025 * Math.sin(
+                clock.getElapsedTime() * (0.31 + stellarSeed * 0.13) +
+                stellarSeed * 11.0
+            )
+            : 1;
+
         const targetInner = isTechnology
-            ? (eclipsed ? 0.035 : selected ? 0.25 : 0.16) +
-            arrival * 0.04
+            ? (
+                (eclipsed ? 0.035 : selected ? 0.25 : 0.16) *
+                technologyShimmer
+            ) + arrival * 0.04
             : (innerBase + arrival * 0.16) *
             intensityScale *
             luminosity.inner *
             selectionInnerMultiplier;
 
         const targetOuter = isTechnology
-            ? (eclipsed ? 0.008 : selected ? 0.10 : 0.065) +
-            arrival * 0.02
+            ? (
+                (eclipsed ? 0.008 : selected ? 0.10 : 0.065) *
+                technologyShimmer
+            ) + arrival * 0.02
             : (outerBase + arrival * 0.12) *
             intensityScale *
             luminosity.outer *

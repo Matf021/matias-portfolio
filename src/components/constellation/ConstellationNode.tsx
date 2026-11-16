@@ -316,6 +316,7 @@ export default function ConstellationNode({
                             : "standard"
                     }
                     debug={false}
+                    stellarSeed={stellarSeed}
                 />
             ) : (
                 <NodeHalo
