@@ -1,3 +1,5 @@
+import FeaturedProjectBlock from "./FeaturedProjectBlock";
+import ManateeSignalVisual from "./ManateeSignalVisual";
 
 const featuredProjects = [
     {
@@ -83,63 +85,16 @@ export default function SelectedWorkSection() {
                 </div>
 
                 <div className="border-t border-border">
-                    {featuredProjects.map((project) => (
-                        <article
+                    {featuredProjects.map((project, index) => (
+                        <FeaturedProjectBlock
                             key={project.number}
-                            className="group grid gap-6 border-b border-border py-12 md:grid-cols-[100px_1fr] md:gap-10 md:py-16"
-                        >
-                            <div>
-                                <span className="font-mono text-sm text-accent">
-                                    {project.number}
-                                </span>
-                            </div>
-
-                            <div>
-                                <p className="mb-4 font-mono text-xs uppercase tracking-[0.15em] text-text-muted">
-                                    {project.category}
-                                </p>
-
-                                <h3 className="text-3xl font-semibold tracking-tight text-foreground transition-colors duration-300 group-hover:text-accent sm:text-4xl">
-                                    {project.title}
-                                </h3>
-
-                                <p className="mt-6 max-w-2xl text-base leading-relaxed text-text-secondary">
-                                    {project.description}
-                                </p>
-
-                                <div className="mt-8 max-w-2xl border-l-2 border-accent/30 pl-5">
-                                    <p className="mb-2 font-mono text-xs uppercase tracking-wider text-accent">
-                                        My Contribution
-                                    </p>
-
-                                    <p className="text-sm leading-relaxed text-text-secondary">
-                                        {project.contribution}
-                                    </p>
-                                </div>
-
-                                <div className="mt-8 flex flex-wrap gap-2">
-                                    {project.technologies.map((technology) => (
-                                        <span
-                                            key={technology}
-                                            className="rounded-full border border-border bg-surface/35 px-3 py-1.5 font-mono text-xs text-text-secondary"
-                                        >
-                                            {technology}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                <a
-                                    href={project.github}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label={`View ${project.title} on GitHub (opens in a new tab)`}
-                                    className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-foreground"
-                                >
-                                    View Project on GitHub
-                                    <span aria-hidden="true">↗</span>
-                                </a>
-                            </div>
-                        </article>
+                            project={project}
+                            visual={
+                                index === 0
+                                    ? <ManateeSignalVisual />
+                                    : undefined
+                            }
+                        />
                     ))}
                 </div>
             </div>
