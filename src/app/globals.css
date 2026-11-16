@@ -136,48 +136,29 @@ body {
    D.6.4 — CONSTELLATION BRIDGE FORMATION
    ========================================= */
 
+
+/* D.6.4B — Scroll-driven constellation formation */
+
 .bridge-star {
   opacity: 0;
-  transform: scale(0.45);
+  transform: scale(0.5);
   transform-box: fill-box;
   transform-origin: center;
-
-  transition:
-    opacity 700ms ease-out,
-    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.constellation-bridge[data-visible="true"] .bridge-star {
-  opacity: 1;
-  transform: scale(1);
+  will-change: opacity, transform;
 }
 
 .bridge-connection {
   stroke-dashoffset: 1;
-
-  transition:
-    stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: stroke-dashoffset;
 }
 
-.constellation-bridge[data-visible="true"] .bridge-connection {
-  stroke-dashoffset: 0;
-}
-
-/* Accessibility: no staged animation when reduced motion is preferred */
 @media (prefers-reduced-motion: reduce) {
-
-  .bridge-star,
-  .bridge-connection {
-    transition: none !important;
-    transition-delay: 0ms !important;
-  }
-
   .bridge-star {
-    opacity: 1;
-    transform: none;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .bridge-connection {
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 0 !important;
   }
 }
