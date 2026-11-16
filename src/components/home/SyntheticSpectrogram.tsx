@@ -1,53 +1,111 @@
 
-const columns = 72;
-const rows = 20;
+type SpectrogramCell = {
+    x: number;
+    y: number;
+    intensity: number;
+};
 
-const cells = Array.from(
-    { length: columns * rows },
+const COLUMNS = 120;
+const ROWS = 40;
+
+const PLOT = {
+    x: 42,
+    y: 14,
+    width: 520,
+    height: 140,
+};
+
+function gaussian(
+    value: number,
+    center: number,
+    width: number
+): number {
+    const distance = (value - center) / width;
+    return Math.exp(-(distance * distance));
+}
+
+function acousticEvent(
+    time: number,
+    frequency: number,
+    centerTime: number,
+    duration: number,
+    fundamental: number,
+    modulation: number
+): number {
+    const envelope = gaussian(
+        time,
+        centerTime,
+        duration
+    );
+
+    const localTime = time - centerTime;
+
+    // A gently varying fundamental frequency.
+    const contour =
+        fundamental +
+        Math.sin(localTime * 32) * modulation +
+        localTime * 0.22;
+
+    // Multiple synthetic frequency bands.
+    const harmonics =
+        0.95 * gaussian(frequency, contour, 0.024) +
+        0.68 * gaussian(frequency, contour * 1.75, 0.029) +
+        0.42 * gaussian(frequency, contour * 2.45, 0.035);
+
+    // Slight amplitude variation within the event.
+    const modulationEnvelope =
+        0.78 + 0.22 * Math.sin(time * 185) ** 2;
+
+    return envelope * harmonics * modulationEnvelope;
+}
+
+const cells: SpectrogramCell[] = Array.from(
+    { length: COLUMNS * ROWS },
     (_, index) => {
-        const column = index % columns;
-        const row = Math.floor(index / columns);
+        const column = index % COLUMNS;
+        const row = Math.floor(index / COLUMNS);
 
-        const time = column / (columns - 1);
-        const frequency = 1 - row / (rows - 1);
+        const time = column / (COLUMNS - 1);
 
-        // Two illustrative acoustic events.
-        const eventOne =
-            Math.exp(-Math.pow((time - 0.35) / 0.105, 2));
+        // Frequency increases toward the top.
+        const frequency = 1 - row / (ROWS - 1);
 
-        const eventTwo =
-            Math.exp(-Math.pow((time - 0.74) / 0.075, 2));
-
-        // Synthetic frequency contours.
-        const contourOne = 0.28 + time * 0.38;
-        const contourTwo = 0.67 - time * 0.27;
-
-        const bandOne =
-            Math.exp(
-                -Math.pow((frequency - contourOne) / 0.085, 2)
-            );
-
-        const bandTwo =
-            Math.exp(
-                -Math.pow((frequency - contourTwo) / 0.075, 2)
-            );
-
-        // Deterministic texture, not recorded audio.
+        // Deterministic low-level background texture.
         const texture =
-            (Math.sin(column * 2.7 + row * 1.9) + 1) * 0.5;
+            0.5 +
+            0.25 * Math.sin(column * 3.17 + row * 2.41) +
+            0.25 * Math.sin(column * 1.23 - row * 4.13);
 
-        const energy = Math.min(
+        const noiseFloor =
+            0.015 + Math.max(0, texture) * 0.045;
+
+        const firstEvent = acousticEvent(
+            time,
+            frequency,
+            0.34,
+            0.092,
+            0.24,
+            0.045
+        );
+
+        const secondEvent = acousticEvent(
+            time,
+            frequency,
+            0.76,
+            0.067,
+            0.28,
+            0.035
+        );
+
+        const intensity = Math.min(
             1,
-            0.035 +
-            texture * 0.07 +
-            eventOne * (bandOne * 0.85 + bandTwo * 0.35) +
-            eventTwo * (bandTwo * 0.75 + bandOne * 0.25)
+            noiseFloor + firstEvent + secondEvent
         );
 
         return {
-            x: 24 + column * (552 / columns),
-            y: 12 + row * (104 / rows),
-            energy,
+            x: PLOT.x + column * PLOT.width / COLUMNS,
+            y: PLOT.y + row * PLOT.height / ROWS,
+            intensity,
         };
     }
 );
@@ -57,26 +115,26 @@ export default function SyntheticSpectrogram() {
         <div className="mt-5 border-t border-border/60 pt-5">
             <div className="flex items-center justify-between gap-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent">
-                    Time-Frequency Representation
+                    Time-Frequency Analysis
                 </p>
 
                 <span className="font-mono text-[10px] text-text-muted">
-                    Illustrative
+                    Synthetic Data
                 </span>
             </div>
 
             <svg
-                viewBox="0 0 600 145"
+                viewBox="0 0 600 190"
                 className="mt-3 w-full"
                 role="img"
-                aria-label="Synthetic spectrogram showing two illustrative acoustic events with varying frequency energy"
+                aria-label="Illustrative time-frequency spectrogram showing two synthetic acoustic events with multiple harmonic bands"
             >
                 <rect
-                    x="24"
-                    y="12"
-                    width="552"
-                    height="104"
-                    rx="4"
+                    x={PLOT.x}
+                    y={PLOT.y}
+                    width={PLOT.width}
+                    height={PLOT.height}
+                    rx="3"
                     fill="#080F20"
                 />
 
@@ -85,31 +143,64 @@ export default function SyntheticSpectrogram() {
                         key={index}
                         x={cell.x}
                         y={cell.y}
-                        width={552 / columns + 0.2}
-                        height={104 / rows + 0.2}
-                        fill="#8AB8FF"
-                        fillOpacity={cell.energy * 0.9}
+                        width={PLOT.width / COLUMNS + 0.1}
+                        height={PLOT.height / ROWS + 0.1}
+                        fill="#91BCFF"
+                        fillOpacity={
+                            Math.pow(cell.intensity, 0.8) * 0.92
+                        }
                     />
                 ))}
 
-                <text
-                    x="24"
-                    y="136"
-                    fill="#8295B6"
-                    fontSize="11"
-                >
-                    LOW FREQUENCY
-                </text>
+                {[0, 1, 2, 3, 4].map((index) => (
+                    <line
+                        key={`horizontal-${index}`}
+                        x1={PLOT.x}
+                        x2={PLOT.x + PLOT.width}
+                        y1={PLOT.y + index * PLOT.height / 4}
+                        y2={PLOT.y + index * PLOT.height / 4}
+                        stroke="#A5BBE0"
+                        strokeOpacity="0.13"
+                    />
+                ))}
 
-                <text
-                    x="576"
-                    y="136"
-                    textAnchor="end"
+                {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <line
+                        key={`vertical-${index}`}
+                        x1={PLOT.x + index * PLOT.width / 5}
+                        x2={PLOT.x + index * PLOT.width / 5}
+                        y1={PLOT.y}
+                        y2={PLOT.y + PLOT.height}
+                        stroke="#A5BBE0"
+                        strokeOpacity="0.09"
+                    />
+                ))}
+
+                <g
                     fill="#8295B6"
-                    fontSize="11"
+                    fontSize="10"
+                    fontFamily="monospace"
                 >
-                    TIME →
-                </text>
+                    <text x="35" y="21" textAnchor="end">
+                        HIGH
+                    </text>
+
+                    <text x="35" y="153" textAnchor="end">
+                        LOW
+                    </text>
+
+                    <text x={PLOT.x} y="177">
+                        FREQUENCY ↑
+                    </text>
+
+                    <text
+                        x={PLOT.x + PLOT.width}
+                        y="177"
+                        textAnchor="end"
+                    >
+                        TIME →
+                    </text>
+                </g>
             </svg>
         </div>
     );
