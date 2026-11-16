@@ -28,7 +28,7 @@ export const constellationLayout: Record<ClusterId, ClusterLayout> = {
     creative: {
         center: [-5.2, -4.2, -0.8],
         offsets: {
-            pipboy: [-1.3, -0.9, 0.5],
+            pipboy: [-1.3, -0.9, 1.1],
             rainmeter: [-1.5, -1.9, -0.4],
             lua: [-2.1, 0.2, -0.5],
         },
@@ -48,7 +48,7 @@ export const constellationLayout: Record<ClusterId, ClusterLayout> = {
 /** Absolute positions for cross-discipline bridge nodes. */
 export const bridgePositions: Record<string, Position3D> = {
     react: [-0.7, -2.2, 1.5],
-    portfolio: [-2.0, -4.0, 0.9],
+    portfolio: [-2.0, -4.0, 1.4],
 };
 
 /** Absolute positions for nodes not assigned to cluster-relative offsets. */
@@ -58,8 +58,8 @@ export const independentPositions: Record<string, Position3D> = {
     "autoencoder-pca": [-5.8, 3.2, 0.2],
     "dqn-lunarlander": [-6.0, 0.0, 0.2],
     "nextjs": [-0.4, -3.5, 1.2],
-    "threejs": [0.5, -4.2, -0.3],
-    "r3f": [0.0, -5.1, 1.4],
+    "threejs": [0.5, -4.2, -0.9],
+    "r3f": [0.0, -5.1, 1.9],
     "glsl": [0.9, -5.6, -0.8],
     "tailwind": [1.5, -4.7, 0.9],
     "scikit-learn": [-2.8, 4.4, -0.5],
