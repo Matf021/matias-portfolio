@@ -1,5 +1,6 @@
 import CinematicHero from "@/components/home/CinematicHero";
 import AboutSection from "@/components/home/AboutSection";
+import SelectedWorkSection from "@/components/home/SelectedWorkSection";
 
 export default function Home() {
   return (
@@ -26,9 +27,8 @@ export default function Home() {
           "
         />
       </div>
-
-      {/* D.6 — Atmospheric transition prototype */}
       <AboutSection />
+      <SelectedWorkSection />
     </main>
   );
 }
