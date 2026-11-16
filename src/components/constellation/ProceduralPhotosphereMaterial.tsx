@@ -134,11 +134,29 @@ const fragmentShader = `
             vec3(-t * 1.2, t * 0.8, t)
         );
 
-        // Combine spatial scales.
-        float granulation =
-            largePattern * 0.65 +
-            finePattern * 0.35;
+        // Fine photospheric detail.
+        // Higher spatial frequency creates smaller
+        // surface structures without changing the
+        // large-scale activity.
+        float microPattern = noise3D(
+            surfacePosition * uFineFrequency * 2.4 +
+            vec3(
+                t * 0.35,
+                -t * 0.25,
+                t * 0.18
+            )
+        );
 
+        // Multi-scale surface granulation.
+        // Technology stars receive finer detail,
+        // while other stars retain their appearance.
+        float granulation = uTechnology > 0.5
+            ? largePattern * 0.48 +
+            finePattern * 0.34 +
+            microPattern * 0.18
+            : largePattern * 0.65 +
+            finePattern * 0.35;
+            
         // Broad regions of different stellar temperatures.
         // These reuse the existing noise system.
         
@@ -403,10 +421,21 @@ const fragmentShader = `
                     uActivityPhase * 1.73
                 );
 
+            // Introduce fine structure inside active regions.
+            // This changes local contrast without increasing
+            // the overall activity intensity.
+            float activityTexture = mix(
+                0.82,
+                1.18,
+                finePattern * 0.65 +
+                microPattern * 0.35
+            );
+
             stellarShimmer =
                 activeRegions *
                 activityCycle *
-                uStellarActivity;
+                uStellarActivity *
+                activityTexture;
         }
         // Photospheric limb darkening.
         float limbDarkening =
@@ -414,7 +443,11 @@ const fragmentShader = `
 
         // Mildly warmer/brighter regions.
         float whiteningStrength =
-            uColorCount > 1.5 ? 0.06 : 0.10;
+            uTechnology > 0.5
+                ? 0.055
+                : uColorCount > 1.5
+                    ? 0.06
+                    : 0.10;
 
         vec3 brightColor = mix(
             blendedColor,
@@ -557,7 +590,7 @@ export default function ProceduralPhotosphereMaterial({
             },
             uFineFrequency: {
                 value: isTechnology
-                    ? 10.5 + stellarSeed * 4.0
+                    ? 13.0 + stellarSeed * 3.0
                     : isPrimary ? 17.0 : 21.0,
             },
             uVariationStrength: {
