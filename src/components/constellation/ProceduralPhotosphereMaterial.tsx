@@ -15,6 +15,7 @@ type ProceduralPhotosphereMaterialProps = {
     palette?: StellarPalette;
     directionalPalette?: DirectionalStellarPalette | null;
     detail?: "primary" | "secondary" | "technology";
+    stellarSeed?: number;
 };
 
 const STELLAR_RIFT = {
@@ -54,6 +55,7 @@ const fragmentShader = `
     uniform float uBrightness;
     uniform float uTime;
     uniform float uTechnology;
+    uniform float uStellarSeed;
     uniform float uLargeFrequency;
     uniform float uFineFrequency;
     uniform float uVariationStrength;
@@ -404,10 +406,25 @@ const fragmentShader = `
         float technologyCore = 1.0;
 
         if (uTechnology > 0.5) {
-            float coreGlow = pow(facing, 2.4);
+            float coreExponent = mix(
+                2.1,
+                2.8,
+                uStellarSeed
+            );
+
+            float coreStrength = mix(
+                0.34,
+                0.44,
+                uStellarSeed
+            );
+
+            float coreGlow = pow(
+                facing,
+                coreExponent
+            );
 
             technologyCore =
-                0.92 + coreGlow * 0.42;
+                0.92 + coreGlow * coreStrength;
         }
 
         float luminosity =
@@ -437,6 +454,7 @@ export default function ProceduralPhotosphereMaterial({
     palette,
     detail = "primary",
     directionalPalette,
+    stellarSeed = 0.5,
 }: ProceduralPhotosphereMaterialProps) {
     const isPrimary = detail === "primary";
     const isTechnology = detail === "technology";
@@ -484,13 +502,19 @@ export default function ProceduralPhotosphereMaterial({
 
             // Restore the procedural surface controls.
             uLargeFrequency: {
-                value: isTechnology ? 4.0 : isPrimary ? 5.0 : 6.5,
+                value: isTechnology
+                    ? 3.6 + stellarSeed * 1.2
+                    : isPrimary ? 5.0 : 6.5,
             },
             uFineFrequency: {
-                value: isTechnology ? 12.0 : isPrimary ? 17.0 : 21.0,
+                value: isTechnology
+                    ? 10.5 + stellarSeed * 4.0
+                    : isPrimary ? 17.0 : 21.0,
             },
             uVariationStrength: {
-                value: isTechnology ? 0.32 : isPrimary ? 0.42 : 0.34,
+                value: isTechnology
+                    ? 0.27 + stellarSeed * 0.10
+                    : isPrimary ? 0.42 : 0.34,
             },
             uDirectionalCount: {
                 value: directionalSources.length,
@@ -521,6 +545,9 @@ export default function ProceduralPhotosphereMaterial({
             uRiftIrregularity: {
                 value: STELLAR_RIFT.irregularity,
             },
+            uStellarSeed: {
+                value: stellarSeed,
+            },
         }),
         [
             color,
@@ -530,6 +557,7 @@ export default function ProceduralPhotosphereMaterial({
             palette?.colorCount,
             isPrimary,
             isTechnology,
+            stellarSeed,
             directionalSources,
         ]
     );

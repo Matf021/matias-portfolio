@@ -71,6 +71,17 @@ function getNodeTier(id: string): NodeTier {
     return "detail";
 }
 
+function getStellarSeed(id: string): number {
+    let hash = 2166136261;
+
+    for (let i = 0; i < id.length; i++) {
+        hash ^= id.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+
+    return (hash >>> 0) / 4294967295;
+}
+
 type ConstellationNodeProps = {
     node: ConstellationNodeData;
     selectedId: string | null;
@@ -113,6 +124,7 @@ export default function ConstellationNode({
     const isPrimaryStar = tier === "identity";
     const isDisciplineStar = tier === "discipline";
     const isProjectStar = node.category === "project";
+    const stellarSeed = getStellarSeed(node.id);
     // D.4.5B.1 — Single-node technology prototype.
     const isTechnologyStar =
         node.category === "technology";
@@ -348,6 +360,7 @@ export default function ConstellationNode({
                                     ? "primary"
                                     : "secondary"
                         }
+                        stellarSeed={stellarSeed}
                         palette={
                             isProjectStar
                                 ? stellarPalette
