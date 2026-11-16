@@ -1,62 +1,199 @@
+
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+
+type Star = {
+    id: string;
+    x: number;
+    y: number;
+    radius: number;
+    delay: number;
+};
+
+const stars: Star[] = [
+    { id: "a", x: 85, y: 116, radius: 3.5, delay: 0 },
+    { id: "b", x: 210, y: 60, radius: 4.5, delay: 100 },
+    { id: "c", x: 270, y: 145, radius: 2.5, delay: 200 },
+    { id: "d", x: 375, y: 96, radius: 7, delay: 300 },
+    { id: "e", x: 480, y: 40, radius: 3.5, delay: 400 },
+    { id: "f", x: 530, y: 142, radius: 2.5, delay: 500 },
+    { id: "g", x: 635, y: 85, radius: 5.5, delay: 600 },
+    { id: "h", x: 735, y: 43, radius: 3, delay: 700 },
+    { id: "i", x: 815, y: 110, radius: 4.5, delay: 800 },
+    { id: "j", x: 935, y: 66, radius: 3.5, delay: 900 },
+    { id: "k", x: 1035, y: 120, radius: 2.5, delay: 1000 },
+    { id: "l", x: 1110, y: 65, radius: 3.5, delay: 1100 },
+];
+
+const connections = [
+    ["a", "b"],
+    ["b", "d"],
+    ["b", "c"],
+    ["c", "d"],
+    ["d", "e"],
+    ["d", "f"],
+    ["d", "g"],
+    ["e", "g"],
+    ["f", "g"],
+    ["g", "h"],
+    ["g", "i"],
+    ["h", "i"],
+    ["i", "j"],
+    ["i", "k"],
+    ["j", "l"],
+    ["k", "l"],
+] as const;
+
+const starById = new Map(stars.map((star) => [star.id, star]));
+
+const backgroundStars = [
+    [145, 25],
+    [330, 35],
+    [450, 168],
+    [585, 22],
+    [710, 164],
+    [865, 29],
+    [990, 151],
+    [1150, 142],
+];
+
 export default function SectionConstellationBridge() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        const element = containerRef.current;
+        if (!element) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    setVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.3 }
+        );
+
+        observer.observe(element);
+
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <div
+            ref={containerRef}
             aria-hidden="true"
-            className="relative mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 sm:py-10"
+            data-visible={visible}
+            className="constellation-bridge relative mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 sm:py-10"
         >
-            <div className="relative h-24 sm:h-28">
-                {/* subtle glow backdrop */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,160,255,0.08),transparent_65%)]" />
-
+            <div className="relative h-28 sm:h-36">
                 <svg
                     viewBox="0 0 1200 180"
-                    className="absolute inset-0 h-full w-full overflow-visible"
+                    preserveAspectRatio="xMidYMid meet"
+                    className="absolute inset-0 h-full w-full"
                     fill="none"
                 >
-                    {/* connection lines */}
-                    <path
-                        d="M110 105 C 240 40, 330 135, 470 88"
-                        stroke="rgba(160,190,255,0.18)"
-                        strokeWidth="1.2"
-                    />
-                    <path
-                        d="M470 88 C 610 35, 710 130, 860 76"
-                        stroke="rgba(160,190,255,0.16)"
-                        strokeWidth="1.2"
-                    />
-                    <path
-                        d="M860 76 C 960 48, 1040 110, 1110 84"
-                        stroke="rgba(160,190,255,0.14)"
-                        strokeWidth="1.2"
-                    />
+                    <defs>
+                        <radialGradient id="bridge-star-gradient">
+                            <stop offset="0%" stopColor="#F0F5FF" />
+                            <stop offset="40%" stopColor="#B6CFFF" />
+                            <stop offset="100%" stopColor="#729CE6" />
+                        </radialGradient>
 
-                    {/* secondary faint lines */}
-                    <path
-                        d="M210 135 C 370 95, 520 120, 680 100"
-                        stroke="rgba(160,190,255,0.08)"
-                        strokeWidth="1"
-                    />
-                    <path
-                        d="M620 55 C 760 85, 910 35, 1040 70"
-                        stroke="rgba(160,190,255,0.08)"
-                        strokeWidth="1"
-                    />
+                        <radialGradient id="bridge-glow-gradient">
+                            <stop
+                                offset="0%"
+                                stopColor="#8AB8FF"
+                                stopOpacity="0.3"
+                            />
+                            <stop
+                                offset="100%"
+                                stopColor="#8AB8FF"
+                                stopOpacity="0"
+                            />
+                        </radialGradient>
+                    </defs>
 
-                    {/* stars */}
-                    <circle cx="110" cy="105" r="4" fill="rgba(210,225,255,0.75)" />
-                    <circle cx="210" cy="135" r="2.5" fill="rgba(210,225,255,0.5)" />
-                    <circle cx="470" cy="88" r="5" fill="rgba(210,225,255,0.85)" />
-                    <circle cx="620" cy="55" r="2.5" fill="rgba(210,225,255,0.45)" />
-                    <circle cx="680" cy="100" r="3" fill="rgba(210,225,255,0.55)" />
-                    <circle cx="860" cy="76" r="4.5" fill="rgba(210,225,255,0.78)" />
-                    <circle cx="960" cy="48" r="2.5" fill="rgba(210,225,255,0.45)" />
-                    <circle cx="1040" cy="70" r="3" fill="rgba(210,225,255,0.55)" />
-                    <circle cx="1110" cy="84" r="3.8" fill="rgba(210,225,255,0.7)" />
+                    {/* Faint atmospheric stars */}
+                    <g fill="#91A6C4" opacity="0.35">
+                        {backgroundStars.map(([x, y], index) => (
+                            <circle
+                                key={index}
+                                cx={x}
+                                cy={y}
+                                r="1.4"
+                            />
+                        ))}
+                    </g>
+
+                    {/* Connections draw after their stars appear */}
+                    <g
+                        stroke="#8AB8FF"
+                        strokeWidth="1"
+                        strokeOpacity="0.38"
+                        strokeLinecap="round"
+                    >
+                        {connections.map(([fromId, toId], index) => {
+                            const from = starById.get(fromId)!;
+                            const to = starById.get(toId)!;
+
+                            const style = {
+                                transitionDelay: `${900 + index * 90}ms`,
+                            } satisfies CSSProperties;
+
+                            return (
+                                <path
+                                    key={`${fromId}-${toId}`}
+                                    d={`M ${from.x} ${from.y} L ${to.x} ${to.y}`}
+                                    pathLength={1}
+                                    strokeDasharray="1"
+                                    className="bridge-connection"
+                                    style={style}
+                                />
+                            );
+                        })}
+                    </g>
+
+                    {/* Stars appear progressively */}
+                    {stars.map((star) => {
+                        const style = {
+                            transitionDelay: `${star.delay}ms`,
+                        } satisfies CSSProperties;
+
+                        return (
+                            <g
+                                key={star.id}
+                                className="bridge-star"
+                                style={style}
+                            >
+                                <circle
+                                    cx={star.x}
+                                    cy={star.y}
+                                    r={star.radius * 5}
+                                    fill="url(#bridge-glow-gradient)"
+                                />
+
+                                <circle
+                                    cx={star.x}
+                                    cy={star.y}
+                                    r={star.radius}
+                                    fill="url(#bridge-star-gradient)"
+                                />
+
+                                <circle
+                                    cx={star.x - star.radius * 0.2}
+                                    cy={star.y - star.radius * 0.25}
+                                    r={star.radius * 0.22}
+                                    fill="#FFFFFF"
+                                    opacity="0.7"
+                                />
+                            </g>
+                        );
+                    })}
                 </svg>
-
-                {/* star glow points */}
-                <div className="absolute left-[38%] top-[42%] h-3 w-3 rounded-full bg-blue-200/50 blur-md" />
-                <div className="absolute left-[71%] top-[34%] h-3 w-3 rounded-full bg-blue-200/40 blur-md" />
             </div>
         </div>
     );
