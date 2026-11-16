@@ -143,36 +143,39 @@ export default function CinematicHero() {
                 </div>
 
                 {/* Scroll discovery */}
-                <a
-                    href="#introduction"
-                    aria-label="Scroll to introduction"
-                    className="
+                {!isExploring && (
+                    <a
+                        href="#introduction"
+                        aria-label="Scroll to introduction"
+                        className="
             group absolute bottom-8 left-1/2 z-[3]
             flex -translate-x-1/2 flex-col
             items-center gap-2
             text-text-muted transition-colors
             hover:text-accent
           "
-                >
-                    <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.3em]">
-                        Scroll to explore
-                    </span>
-
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                        className="transition-transform duration-300 group-hover:translate-y-1"
                     >
-                        <path d="M12 4v16M5 13l7 7 7-7" />
-                    </svg>
-                </a>
+
+                        <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.3em]">
+                            Scroll to explore
+                        </span>
+
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                            className="transition-transform duration-300 group-hover:translate-y-1"
+                        >
+                            <path d="M12 4v16M5 13l7 7 7-7" />
+                        </svg>
+                    </a>
+                )}
             </div>
         </section>
     );
