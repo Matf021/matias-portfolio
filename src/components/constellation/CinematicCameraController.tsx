@@ -68,6 +68,7 @@ export default function CinematicCameraController({
     const lastOverviewRequestRef = useRef(overviewRequest);
     const lastExplorerOpenRef = useRef(explorerOpen);
     const lastIntroVisibleRef = useRef(introVisible);
+    const lastPanelRectRef = useRef<ScreenRect | null>(null);
 
     const lastViewportRef = useRef({
         width: 0,
@@ -149,6 +150,23 @@ export default function CinematicCameraController({
             lastExplorerOpenRef.current !== explorerOpen;
         const introChanged =
             lastIntroVisibleRef.current !== introVisible;
+        const previousPanelRect = lastPanelRectRef.current;
+
+        const panelGeometryChanged =
+            selectedId !== null &&
+            (
+                (panelRect === null) !== (previousPanelRect === null) ||
+                (
+                    panelRect !== null &&
+                    previousPanelRect !== null &&
+                    (
+                        Math.abs(panelRect.x - previousPanelRect.x) > 2 ||
+                        Math.abs(panelRect.y - previousPanelRect.y) > 2 ||
+                        Math.abs(panelRect.width - previousPanelRect.width) > 2 ||
+                        Math.abs(panelRect.height - previousPanelRect.height) > 2
+                    )
+                )
+            );
 
         // Ignore panel-only changes after initialization.
         if (
@@ -157,7 +175,8 @@ export default function CinematicCameraController({
             !viewportChanged &&
             !explorerChanged &&
             !overviewRequested &&
-            !introChanged
+            !introChanged &&
+            !panelGeometryChanged
         ) {
             return;
         }
@@ -166,11 +185,19 @@ export default function CinematicCameraController({
         lastOverviewRequestRef.current = overviewRequest;
         lastExplorerOpenRef.current = explorerOpen;
         lastIntroVisibleRef.current = introVisible;
+        lastPanelRectRef.current = panelRect
+            ? { ...panelRect }
+            : null;
 
         lastViewportRef.current = {
             width: size.width,
             height: size.height,
         };
+
+        const focusPositions =
+            selectedNode?.category === "identity"
+                ? [selectedNode.position]
+                : selectionPositions;
 
         const baseDestination = selectedNode
             ? calculateFocusDestination(
@@ -178,7 +205,7 @@ export default function CinematicCameraController({
                 camera.position,
                 controls.target,
                 camera as THREE.PerspectiveCamera,
-                selectionPositions
+                focusPositions
             )
             : overviewFraming;
 
@@ -238,6 +265,10 @@ export default function CinematicCameraController({
 
         const startPosition = camera.position.clone();
         const startTarget = controls.target.clone();
+
+        // Prevent residual OrbitControls damping from
+        // interfering with the cinematic camera movement.
+        controls.update();
 
         flight.current = {
             curve: createCameraTrajectory(

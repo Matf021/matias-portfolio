@@ -120,7 +120,7 @@ export function applyCameraSafeArea(
     }
 
     const offset = right
-        .multiplyScalar(-offsetX)
+        .multiplyScalar(offsetX)
         .addScaledVector(up, offsetY);
 
     position.add(offset);
