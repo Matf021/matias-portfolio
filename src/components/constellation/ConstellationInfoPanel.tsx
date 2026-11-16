@@ -173,6 +173,31 @@ export default function ConstellationInfoPanel({
                         "Explore the connections within this part of my development journey."}
                 </p>
 
+
+                {node.category === "project" && details?.repositoryUrl && (
+                    <a
+                        href={details.repositoryUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="
+            mt-3 inline-flex items-center gap-2
+            rounded-md border border-border
+            bg-surface/40 px-3 py-2
+            text-xs font-medium text-text-secondary
+            transition-colors
+            hover:border-white/25 hover:bg-surface
+            hover:text-foreground
+            focus-visible:outline-2
+            focus-visible:outline-offset-2
+            focus-visible:outline-accent
+        "
+                    >
+                        View on GitHub
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                )}
+
+
                 {node.category === "identity" && featuredProjects.length > 0 && (
                     <div className="mt-4 border-t border-border pt-4">
                         <RelatedNodeSection
@@ -373,19 +398,6 @@ export default function ConstellationInfoPanel({
                             nodes={relatedTechnologies}
                             onNavigate={onNavigate}
                         />
-
-
-                        {details?.repositoryUrl && (
-                            <a
-                                href={details.repositoryUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-foreground"
-                            >
-                                View GitHub Repository
-                                <span aria-hidden="true">↗</span>
-                            </a>
-                        )}
 
                         {details?.externalUrl && (
                             <a
