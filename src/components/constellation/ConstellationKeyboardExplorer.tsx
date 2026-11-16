@@ -26,6 +26,7 @@ import { getNodeRelationships } from "@/lib/graph";
 
 export type KeyboardExplorerHandle = {
     focusTrigger: () => void;
+    open: () => void;
     close: () => void;
 };
 
@@ -142,6 +143,9 @@ const ConstellationKeyboardExplorer = forwardRef<
     useImperativeHandle(ref, () => ({
         focusTrigger() {
             triggerRef.current?.focus();
+        },
+        open() {
+            setOpen(true);
         },
         close() {
             setOpen(false);
@@ -565,25 +569,7 @@ const ConstellationKeyboardExplorer = forwardRef<
                             })}
                         </div>
                     </div>
-                    <div className="shrink-0 border-t border-white/10 p-3">
-                        <button
-                            type="button"
-                            onClick={onReturnToIntroduction}
-                            className="
-            flex w-full items-center gap-2
-            rounded-lg px-3 py-2.5
-            text-left text-xs font-medium
-            text-[#b6c9e8]
-            transition-colors
-            hover:bg-white/10 hover:text-white
-            focus-visible:outline-2
-            focus-visible:outline-blue-400
-        "
-                        >
-                            <span aria-hidden="true">←</span>
-                            Return to Introduction
-                        </button>
-                    </div>
+
                 </div>
             )}
         </div>

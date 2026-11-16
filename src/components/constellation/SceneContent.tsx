@@ -263,7 +263,7 @@ export default function SceneContent({
                 ref={controlsRef}
                 enableRotate
                 enablePan={false}
-                enableZoom
+                enableZoom={false}
                 minDistance={3}
                 maxDistance={40}
                 enableDamping

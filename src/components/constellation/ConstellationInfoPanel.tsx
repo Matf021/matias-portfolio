@@ -273,11 +273,12 @@ export default function ConstellationInfoPanel({
                 {expanded && (
                     <div className="constellation-details-enter mt-4 space-y-4 border-t border-border pt-4">
 
-                        {details?.summary && (
-                            <p className="text-sm leading-relaxed text-text-secondary">
-                                {details.summary}
-                            </p>
-                        )}
+                        {details?.summary &&
+                            !(node.category === "project" && details.story) && (
+                                <p className="text-sm leading-relaxed text-text-secondary">
+                                    {details.summary}
+                                </p>
+                            )}
 
                         {node.category === "project" && details?.story && (
                             <section className="space-y-4">

@@ -108,8 +108,8 @@ export default function CinematicHero() {
                         </h1>
 
                         <p className="mt-6 max-w-sm text-base leading-relaxed text-text-secondary sm:text-lg">
-                            I build intelligent systems and interactive
-                            experiences, turning curiosity into code.
+                            I build intelligent systems and immersive digital
+                            experiences, bringing engineering and creativity together.
                         </p>
 
                         <div className="pointer-events-auto mt-8 flex flex-wrap gap-3">
@@ -138,6 +138,28 @@ export default function CinematicHero() {
                             >
                                 GitHub ↗
                             </a>
+                        </div>
+                        <div
+                            className="
+        pointer-events-none
+        mt-7 flex items-center gap-2.5
+        text-xs leading-relaxed text-text-muted
+        sm:text-sm
+    "
+                        >
+                            <span
+                                aria-hidden="true"
+                                className="text-accent"
+                            >
+                                ✦
+                            </span>
+
+                            <p>
+                                Curious?{" "}
+                                <span className="text-text-secondary">
+                                    Click a star to explore my projects in 3D.
+                                </span>
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -93,9 +93,7 @@ export default function ConstellationScene({
     const [panelRect, setPanelRect] =
         useState<ScreenRect | null>(null);
 
-
     function handleSelect(id: string) {
-        keyboardExplorerRef.current?.close();
 
         setHasInteracted(true);
         setFocusHeading(false);
@@ -215,7 +213,7 @@ export default function ConstellationScene({
             <p className="sr-only">
                 Interactive constellation of projects and technical skills.
                 Select a node to explore its details.
-                Drag to rotate the constellation and scroll to zoom.
+                Drag to rotate the constellation and select nodes to explore.
             </p>
             <ConstellationKeyboardExplorer
                 ref={keyboardExplorerRef}
@@ -303,6 +301,28 @@ export default function ConstellationScene({
                 <span aria-hidden="true">◎</span>
                 Overview
             </button>
+            {!introVisible && (
+                <button
+                    type="button"
+                    onClick={onReturnToIntroduction}
+                    className="
+            absolute bottom-5 left-5 z-10
+            flex items-center gap-2
+            rounded-lg border border-white/10
+            bg-[#081120]/75 px-4 py-2.5
+            text-xs font-medium text-[#b6c9e8]
+            backdrop-blur-md transition-colors
+            hover:border-white/25
+            hover:bg-[#101d33]/85
+            hover:text-white
+            focus-visible:outline-2
+            focus-visible:outline-blue-400
+        "
+                >
+                    <span aria-hidden="true">←</span>
+                    Introduction
+                </button>
+            )}
         </div>
     );
 }
