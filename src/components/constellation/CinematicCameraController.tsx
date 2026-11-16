@@ -8,14 +8,13 @@ import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
 import { calculateCameraFraming } from "@/lib/cameraFraming";
-import { calculateFocusDestination } from "@/lib/cameraFocus";
 import { createCameraTrajectory } from "@/lib/cameraTrajectory";
 import { easeInOutCubic } from "@/lib/cameraEasing";
 import { getConnectedNodes } from "@/lib/graph";
 import { getSelectionFramingPositions } from "@/lib/cameraSelection";
-import { applyCameraSafeArea } from "@/lib/cameraComposition";
 import type { ScreenRect } from "@/types/camera";
-import { composeSelectedCamera } from "@/lib/cameraScreenComposition";
+import { calculateSelectedCameraDestination } from
+    "@/lib/cameraDestination";
 import { applyExplorerOverviewComposition, applyIntroductionComposition } from
     "@/lib/cameraOverviewComposition";
 
@@ -195,56 +194,26 @@ export default function CinematicCameraController({
             height: size.height,
         };
 
-        const focusPositions =
-            selectedNode?.category === "identity"
-                ? [selectedNode.position]
-                : selectionPositions;
-
-        const identityNode = nodes.find(
-            (node) => node.id === "matias"
-        );
-
-        // The selected discipline's connection to Identity
-        // remains important even when it is spatially distant.
-        const compositionPositions = focusPositions;
-
-        const baseDestination = selectedNode
-            ? calculateFocusDestination(
-                selectedNode,
-                camera.position,
-                controls.target,
-                camera as THREE.PerspectiveCamera,
-                focusPositions
-            )
-            : overviewFraming;
 
         const perspectiveCamera =
             camera as THREE.PerspectiveCamera;
 
         const destination = selectedNode
-            ? size.width >= 900
-                ? composeSelectedCamera(
-                    baseDestination,
-                    perspectiveCamera,
-                    size,
-                    panelRect,
-                    selectedNode.position,
-                    focusPositions
-                )
-                : applyCameraSafeArea(
-                    baseDestination,
-                    perspectiveCamera,
-                    size,
-                    panelRect
-                )
+            ? calculateSelectedCameraDestination({
+                node: selectedNode,
+                camera: perspectiveCamera,
+                viewport: size,
+                panelRect,
+                framingPositions: selectionPositions,
+            })
             : introVisible
                 ? applyIntroductionComposition(
-                    baseDestination,
+                    overviewFraming,
                     perspectiveCamera,
                     size
                 )
                 : applyExplorerOverviewComposition(
-                    baseDestination,
+                    overviewFraming,
                     perspectiveCamera,
                     size,
                     explorerOpen
