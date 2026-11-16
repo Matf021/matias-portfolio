@@ -6,22 +6,57 @@ import type {
     Position3D,
 } from "@/types/constellation";
 
-const MAX_NEIGHBOR_DISTANCE: Record<
-    ConstellationNodeData["category"],
-    number
-> = {
+type Category = ConstellationNodeData["category"];
+
+const MAX_NEIGHBOR_DISTANCE: Record<Category, number> = {
     identity: 5.5,
     discipline: 4.5,
     project: 4.5,
     technology: 4,
 };
 
+// Limit how many neighboring stars influence zoom.
+// These are framing limits, not graph visibility limits.
+const MAX_SUPPORTING_NODES: Record<Category, number> = {
+    identity: 0,
+    discipline: 4,
+    project: 5,
+    technology: 5,
+};
+
+// The preferred supporting-node type depends on
+// what the visitor is currently exploring.
+const CATEGORY_PRIORITY: Record<
+    Category,
+    Partial<Record<Category, number>>
+> = {
+    identity: {},
+    discipline: {
+        project: 0,
+        technology: 1,
+        discipline: 2,
+        identity: 3,
+    },
+    project: {
+        technology: 0,
+        discipline: 1,
+        project: 2,
+        identity: 3,
+    },
+    technology: {
+        project: 0,
+        discipline: 1,
+        technology: 2,
+        identity: 3,
+    },
+};
+
 /**
- * Returns positions used to frame a selected node.
+ * Selects supporting nodes for camera framing.
  *
- * Nearby connected nodes influence camera distance.
- * Distant connections remain part of the graph,
- * but do not force the camera to zoom out.
+ * The full graph remains unchanged.
+ * Only directly connected, nearby nodes can
+ * influence the selected camera composition.
  */
 export function getSelectionFramingPositions(
     selectedId: string,
@@ -34,6 +69,13 @@ export function getSelectionFramingPositions(
 
     if (!selectedNode) return [];
 
+    // Identity is the visual anchor of the entire
+    // constellation. Its camera shot is intentionally
+    // composed around the central star.
+    if (selectedNode.category === "identity") {
+        return [selectedNode.position];
+    }
+
     const selectedPosition = new THREE.Vector3(
         ...selectedNode.position
     );
@@ -41,21 +83,50 @@ export function getSelectionFramingPositions(
     const maxDistance =
         MAX_NEIGHBOR_DISTANCE[selectedNode.category];
 
-    return nodes
-        .filter((node) => {
-            if (node.id === selectedId) {
-                return true;
-            }
+    const priority =
+        CATEGORY_PRIORITY[selectedNode.category];
 
-            if (!connectedIds.has(node.id)) {
-                return false;
-            }
-
+    const candidates = nodes
+        .filter(
+            (node) =>
+                node.id !== selectedId &&
+                connectedIds.has(node.id)
+        )
+        .map((node) => {
             const distance = selectedPosition.distanceTo(
                 new THREE.Vector3(...node.position)
             );
 
-            return distance <= maxDistance;
+            return {
+                node,
+                distance,
+                priority: priority[node.category] ?? 99,
+            };
         })
-        .map((node) => node.position);
+        .filter(
+            (candidate) =>
+                candidate.distance <= maxDistance
+        );
+
+    // Select important relationships first.
+    // Use distance only to break ties, keeping
+    // the final result deterministic.
+    candidates.sort(
+        (a, b) =>
+            a.priority - b.priority ||
+            a.distance - b.distance ||
+            a.node.id.localeCompare(b.node.id)
+    );
+
+    const supportingPositions = candidates
+        .slice(
+            0,
+            MAX_SUPPORTING_NODES[selectedNode.category]
+        )
+        .map(({ node }) => node.position);
+
+    return [
+        selectedNode.position,
+        ...supportingPositions,
+    ];
 }

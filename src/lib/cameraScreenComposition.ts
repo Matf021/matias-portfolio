@@ -211,6 +211,8 @@ export function composeSelectedCamera(
         position.add(translation);
         target.add(translation);
 
+
+
         projectionCamera = createProjectionCamera(
             camera,
             position,
@@ -321,6 +323,79 @@ export function composeSelectedCamera(
 
     position.add(finalTranslation);
     target.add(finalTranslation);
+
+
+    // Final composition pass:
+    // balance the important connected stars inside
+    // the usable screen area, not just the selected star.
+    if (points.length > 1) {
+        const balancedCamera = createProjectionCamera(
+            camera,
+            position,
+            target
+        );
+
+        const projectedPoints = points.map((point) =>
+            projectToScreen(point, balancedCamera, viewport)
+        );
+
+        const left = Math.min(
+            ...projectedPoints.map((point) => point.x)
+        );
+
+        const rightEdge = Math.max(
+            ...projectedPoints.map((point) => point.x)
+        );
+
+        const groupCenterX = (left + rightEdge) / 2;
+
+        // A partial correction keeps the selected star
+        // prominent while improving overall balance.
+        const GROUP_BALANCE = 0.75;
+        const MAX_CORRECTION_PX = 160;
+
+        let cameraShiftX = THREE.MathUtils.clamp(
+            (groupCenterX - desiredCenter.x) * GROUP_BALANCE,
+            -MAX_CORRECTION_PX,
+            MAX_CORRECTION_PX
+        );
+
+        const selectedScreen = projectToScreen(
+            selectedPosition,
+            balancedCamera,
+            viewport
+        );
+
+        // Do not sacrifice visibility of the selected star
+        // just to center the surrounding nodes.
+        const selectedMinX = region.left + 60;
+        const selectedMaxX = region.right - 60;
+
+        const selectedAfterShift =
+            selectedScreen.x - cameraShiftX;
+
+        if (selectedAfterShift < selectedMinX) {
+            cameraShiftX =
+                selectedScreen.x - selectedMinX;
+        } else if (selectedAfterShift > selectedMaxX) {
+            cameraShiftX =
+                selectedScreen.x - selectedMaxX;
+        }
+
+        // Translate the camera and its target together.
+        // This preserves the established viewing angle.
+        const worldUnitsPerPixel =
+            finalVisibleWidth / viewport.width;
+
+        const balancingOffset = right.clone()
+            .multiplyScalar(
+                cameraShiftX * worldUnitsPerPixel
+            );
+
+        position.add(balancingOffset);
+        target.add(balancingOffset);
+    }
+
 
     return {
         position: position.toArray() as Position3D,
