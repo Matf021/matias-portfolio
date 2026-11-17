@@ -150,7 +150,7 @@ export default function SectionConstellationBridge() {
         <div
             ref={containerRef}
             aria-hidden="true"
-            className="relative mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
+            className="relative mx-auto w-full max-w-7xl px-4 py-3 sm:px-6 sm:py-6 lg:py-8"
         >
             <div className="relative h-20 sm:h-24">
                 <svg

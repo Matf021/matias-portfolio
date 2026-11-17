@@ -25,7 +25,7 @@ export default function AboutSection() {
         <section
             id="introduction"
             aria-labelledby="introduction-heading"
-            className="relative isolate overflow-hidden px-5 pb-12 pt-16 sm:px-6 sm:pb-14 sm:pt-20"
+            className="relative isolate overflow-hidden px-5 pb-6 pt-16 sm:px-6 sm:pb-10 sm:pt-20"
         >
             <div
                 aria-hidden="true"
