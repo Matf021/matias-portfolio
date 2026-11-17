@@ -147,31 +147,17 @@ export default function ExperienceSkillsSection() {
                                 </div>
                             </article>
 
-                            <article className="border-l-2 border-border pl-5">
-                                <p className="font-mono text-xs text-text-muted">
-                                    Aug 2024 – Present
-                                </p>
-
-                                <h4 className="mt-3 text-xl font-semibold text-foreground">
-                                    Junior Bartender
-                                </h4>
-
-                                <p className="mt-1 text-sm text-accent">
-                                    Bar Banane · Toronto
-                                </p>
-
-                                <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-                                    Work in a high-volume fine-dining environment where
-                                    accuracy, prioritization, teamwork, and effective
-                                    communication are essential.
+                            <div className="rounded-lg border border-border/60 bg-surface/15 p-5">
+                                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent">
+                                    Beyond Engineering
                                 </p>
 
                                 <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-                                    Coordinate across teams, resolve operational
-                                    challenges, and maintain consistent execution
-                                    under pressure.
+                                    My experience in fine-dining hospitality has strengthened
+                                    my communication, teamwork, adaptability, and ability
+                                    to deliver consistently in fast-paced environments.
                                 </p>
-                            </article>
+                            </div>
                         </div>
                     </div>
                     {/* Skills */}

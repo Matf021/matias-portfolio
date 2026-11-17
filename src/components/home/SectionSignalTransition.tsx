@@ -1,43 +1,51 @@
-
 export default function SectionSignalTransition() {
     return (
         <div
             aria-hidden="true"
-            className="mx-auto flex h-16 max-w-5xl items-center justify-center px-5 sm:px-6"
+            className="mx-auto flex h-20 max-w-5xl items-center justify-center px-5 sm:h-24 sm:px-6"
         >
             <svg
-                viewBox="0 0 640 54"
-                className="h-full w-full max-w-2xl"
+                viewBox="0 0 1000 115"
+                className="h-full w-full"
                 fill="none"
             >
                 <defs>
-                    <linearGradient id="section-signal">
-                        <stop offset="0%" stopColor="#8AB8FF" stopOpacity="0" />
-                        <stop offset="35%" stopColor="#8AB8FF" stopOpacity="0.45" />
-                        <stop offset="65%" stopColor="#D5A377" stopOpacity="0.45" />
-                        <stop offset="100%" stopColor="#D5A377" stopOpacity="0" />
+                    <linearGradient
+                        id="orbital-transition-gradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="0%"
+                    >
+                        <stop offset="0%" stopColor="#86AAE5" stopOpacity="0" />
+                        <stop offset="38%" stopColor="#86AAE5" stopOpacity="0.55" />
+                        <stop offset="70%" stopColor="#D6AB8A" stopOpacity="0.5" />
+                        <stop offset="100%" stopColor="#D6AB8A" stopOpacity="0" />
                     </linearGradient>
                 </defs>
 
                 <path
-                    d="M 0 27 H 170 L 190 27 L 201 16 L 213 38 L 226 27 H 290 L 301 11 L 313 43 L 325 27 H 390 L 402 19 L 414 35 L 427 27 H 640"
-                    stroke="url(#section-signal)"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    d="M0 68 C120 72 190 30 300 43 S470 82 590 49 S780 25 875 55 S950 72 1000 58"
+                    stroke="url(#orbital-transition-gradient)"
+                    strokeWidth="1.4"
                 />
 
-                <g fill="#A8BBDD" opacity="0.35">
-                    {Array.from({ length: 13 }, (_, index) => (
-                        <rect
-                            key={index}
-                            x={248 + index * 12}
-                            y="48"
-                            width="4"
-                            height="2"
-                            rx="1"
-                        />
-                    ))}
+                <path
+                    d="M190 79 Q500 0 825 80"
+                    stroke="#7895C4"
+                    strokeWidth="0.7"
+                    strokeOpacity="0.18"
+                    strokeDasharray="3 7"
+                />
+
+                <g>
+                    <circle cx="300" cy="43" r="13" fill="#86AAE5" fillOpacity="0.05" />
+                    <circle cx="300" cy="43" r="4" stroke="#86AAE5" strokeOpacity="0.6" />
+                    <circle cx="300" cy="43" r="1.6" fill="#B8D4FF" />
+
+                    <circle cx="590" cy="49" r="13" fill="#E0AF88" fillOpacity="0.05" />
+                    <circle cx="590" cy="49" r="4" stroke="#E0AF88" strokeOpacity="0.6" />
+                    <circle cx="590" cy="49" r="1.6" fill="#F2D0AC" />
                 </g>
             </svg>
         </div>
