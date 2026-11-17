@@ -80,7 +80,7 @@ export default function ExperienceSkillsSection() {
         <section
             id="expertise"
             aria-labelledby="expertise-heading"
-            className="relative px-5 pb-24 pt-8 sm:px-6 sm:pb-28 sm:pt-10"
+            className="relative px-5 pb-6 pt-8 sm:px-6 sm:pb-10 sm:pt-10"
         >
             <div className="mx-auto max-w-5xl">
                 <p className="mb-6 font-mono text-xs uppercase tracking-[0.22em] text-accent">

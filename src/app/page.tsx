@@ -4,6 +4,8 @@ import SelectedWorkSection from "@/components/home/SelectedWorkSection";
 import SectionConstellationBridge from "@/components/home/SectionConstellationBridge";
 import ExperienceSkillsSection from "@/components/home/ExperienceSkillsSection";
 import SectionSignalTransition from "@/components/home/SectionSignalTransition";
+import SectionConvergenceTransition from "@/components/home/SectionConvergenceTransition";
+import ContactSection from "@/components/home/ContactSection";
 
 export default function Home() {
   return (
@@ -35,6 +37,8 @@ export default function Home() {
       <SelectedWorkSection />
       <SectionSignalTransition />
       <ExperienceSkillsSection />
+      <SectionConvergenceTransition />
+      <ContactSection />
     </main>
   );
 }
