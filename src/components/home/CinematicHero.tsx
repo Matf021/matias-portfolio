@@ -57,19 +57,17 @@ export default function CinematicHero() {
                 <div
                     aria-hidden="true"
                     className={`
-    pointer-events-none absolute inset-0 z-[1]
-    bg-gradient-to-b
-    from-background/95
-    via-background/75
-    via-[48%]
-    to-transparent
-    transition-opacity duration-500 ease-out
-    lg:bg-gradient-to-r
-    lg:from-background/95
-    lg:via-background/25
-    lg:to-transparent
-    ${isExploring ? "opacity-0" : "opacity-100"}
-`}
+                        pointer-events-none absolute inset-0 z-[1]
+                        bg-[linear-gradient(to_bottom,rgba(8,17,32,0.97)_0%,rgba(8,17,32,0.85)_24%,rgba(8,17,32,0.10)_47%,rgba(8,17,32,0.10)_66%,rgba(8,17,32,0.78)_84%,rgba(8,17,32,0.96)_100%)]
+                        transition-opacity duration-500 ease-out
+
+                        lg:bg-gradient-to-r
+                        lg:from-background/95
+                        lg:via-background/25
+                        lg:to-transparent
+
+                        ${isExploring ? "opacity-0" : "opacity-100"}
+                    `}
                 />
 
                 {/* Introduction */}
@@ -77,9 +75,9 @@ export default function CinematicHero() {
                     className={`
                         pointer-events-none absolute inset-0 z-[2]
                         flex items-start
-                        px-5 pb-28 pt-20
+                        px-5 pb-24 pt-16
                         transition-all duration-500 ease-out
-                        sm:px-8 sm:pt-28
+                        sm:px-8 sm:pt-20
                         lg:items-center lg:px-12 lg:pb-0 lg:pt-0
                         xl:px-20
                         ${isExploring
@@ -102,14 +100,18 @@ export default function CinematicHero() {
                             <h1
                                 id="hero-heading"
                                 className="
-                                text-[clamp(2.75rem,11vw,3.5rem)]
-                                font-semibold leading-[1.05]
-                                tracking-tight text-foreground
-                                sm:text-6xl xl:text-7xl
-                            "
+                                    whitespace-nowrap
+                                    text-[clamp(2rem,8.8vw,2.75rem)]
+                                    font-semibold leading-[1.05]
+                                    tracking-tight text-foreground
+                                    sm:text-[clamp(2.75rem,6.5vw,3.75rem)]
+                                    lg:whitespace-normal
+                                    lg:text-6xl xl:text-7xl
+                                "
                             >
                                 Matias
-                                <br />
+                                <span className="lg:hidden"> </span>
+                                <br className="hidden lg:block" />
                                 Franco<span className="text-accent">.</span>
                             </h1>
 
@@ -147,21 +149,21 @@ export default function CinematicHero() {
                                     GitHub ↗
                                 </a>
                             </div>
-                        </div>
-                        <div className="flex mt-7 items-center gap-2.5 text-xs leading-relaxed text-text-muted sm:text-sm">
-                            <span
-                                aria-hidden="true"
-                                className="text-accent"
-                            >
-                                ✦
-                            </span>
-
-                            <p>
-                                Curious?{" "}
-                                <span className="text-text-secondary">
-                                    Click a star to explore my projects in 3D.
+                            <div className="mt-6 flex items-center gap-2.5 text-xs leading-relaxed text-text-muted sm:text-sm">
+                                <span
+                                    aria-hidden="true"
+                                    className="text-accent"
+                                >
+                                    ✦
                                 </span>
-                            </p>
+
+                                <p>
+                                    Curious?{" "}
+                                    <span className="text-text-secondary">
+                                        Click a star to explore my projects in 3D.
+                                    </span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
