@@ -36,7 +36,8 @@ const waveformPath = samples
 export default function ManateeSignalVisual() {
     const figureRef = useRef<HTMLElement>(null);
     const waveformRef = useRef<SVGPathElement>(null);
-    const spectrogramClipRef = useRef<SVGRectElement>(null);
+    const spectrogramCanvasRef =
+        useRef<HTMLCanvasElement>(null);
     const detectionRefs = useRef<(SVGGElement | null)[]>([]);
     const stageTextRefs = useRef<(HTMLParagraphElement | null)[]>([]);
     const stageBarRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -82,11 +83,14 @@ export default function ManateeSignalVisual() {
                 String(1 - waveform)
             );
 
-            // Reveal the spectrogram through one SVG clip rectangle.
-            spectrogramClipRef.current?.setAttribute(
-                "width",
-                (SPECTROGRAM_WIDTH * spectrogram).toFixed(2)
-            );
+            const canvas = spectrogramCanvasRef.current;
+
+            if (canvas) {
+                const hiddenPercentage = (1 - spectrogram) * 100;
+
+                canvas.style.clipPath =
+                    `inset(0 ${hiddenPercentage.toFixed(2)}% 0 0)`;
+            }
 
             // Fade in both detection regions.
             detectionRefs.current.forEach((element) => {
@@ -297,7 +301,7 @@ export default function ManateeSignalVisual() {
             </svg>
 
             <SyntheticSpectrogram
-                clipRectRef={spectrogramClipRef}
+                canvasRef={spectrogramCanvasRef}
             />
 
             <div className="relative mt-3 grid grid-cols-3 gap-2 border-t border-border/70 pt-5">

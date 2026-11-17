@@ -1,5 +1,5 @@
-import { memo, useId } from "react";
-import type { Ref } from "react";
+import { useEffect } from "react";
+import type { RefObject } from "react";
 
 type SpectrogramCell = {
     x: number;
@@ -112,15 +112,53 @@ const cells: SpectrogramCell[] = Array.from(
     }
 );
 
+
 type Props = {
-    clipRectRef: Ref<SVGRectElement>;
+    canvasRef: RefObject<HTMLCanvasElement | null>;
 };
 
-function SyntheticSpectrogram({
-    clipRectRef,
+export default function SyntheticSpectrogram({
+    canvasRef,
 }: Props) {
-    const reactId = useId();
-    const clipId = `spectrogram-reveal-${reactId.replace(/:/g, "")}`;
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const context = canvas.getContext("2d");
+        if (!context) return;
+
+        // Draw at 2x resolution for sharper rendering.
+        const scale = 2;
+
+        canvas.width = PLOT.width * scale;
+        canvas.height = PLOT.height * scale;
+
+        context.setTransform(scale, 0, 0, scale, 0, 0);
+        context.clearRect(0, 0, PLOT.width, PLOT.height);
+
+        context.fillStyle = "#91BCFF";
+
+        const cellWidth = PLOT.width / COLUMNS;
+        const cellHeight = PLOT.height / ROWS;
+
+        // Render the synthetic acoustic data once.
+        for (const cell of cells) {
+            context.globalAlpha = Number(
+                (
+                    Math.pow(cell.intensity, 0.8) * 0.92
+                ).toFixed(4)
+            );
+
+            context.fillRect(
+                cell.x - PLOT.x,
+                cell.y - PLOT.y,
+                cellWidth + 0.1,
+                cellHeight + 0.1
+            );
+        }
+
+        context.globalAlpha = 1;
+    }, [canvasRef]);
 
     return (
         <div className="mt-5 border-t border-border/60 pt-5">
@@ -134,97 +172,85 @@ function SyntheticSpectrogram({
                 </span>
             </div>
 
-            <svg
-                viewBox="0 0 600 190"
-                className="mt-3 w-full"
-                role="img"
-                aria-label="Illustrative time-frequency spectrogram showing two synthetic acoustic events with multiple harmonic bands"
-            >
-                <defs>
-                    <clipPath id={clipId}>
-                        <rect
-                            ref={clipRectRef}
-                            x={PLOT.x}
-                            y={PLOT.y}
-                            width="0"
-                            height={PLOT.height}
-                        />
-                    </clipPath>
-                </defs>
-                <rect
-                    x={PLOT.x}
-                    y={PLOT.y}
-                    width={PLOT.width}
-                    height={PLOT.height}
-                    rx="3"
-                    fill="#080F20"
-                />
-                <g clipPath={`url(#${clipId})`}>
-                    {cells.map((cell, index) => (
-                        <rect
-                            key={index}
-                            x={cell.x}
-                            y={cell.y}
-                            width={PLOT.width / COLUMNS + 0.1}
-                            height={PLOT.height / ROWS + 0.1}
-                            fill="#91BCFF"
-                            fillOpacity={
-                                (Math.pow(cell.intensity, 0.8) * 0.92).toFixed(4)
-                            }
+            <div className="relative mt-3 aspect-[600/190] w-full">
+                {/* Spectrogram image */}
+                <div
+                    className="absolute overflow-hidden rounded-sm bg-[#080F20]"
+                    style={{
+                        left: `${PLOT.x / 600 * 100}%`,
+                        top: `${PLOT.y / 190 * 100}%`,
+                        width: `${PLOT.width / 600 * 100}%`,
+                        height: `${PLOT.height / 190 * 100}%`,
+                    }}
+                >
+                    <canvas
+                        ref={canvasRef}
+                        className="absolute inset-0 h-full w-full"
+                        style={{
+                            clipPath: "inset(0 100% 0 0)",
+                        }}
+                        aria-hidden="true"
+                    />
+                </div>
+
+                {/* Static grid and axis labels */}
+                <svg
+                    viewBox="0 0 600 190"
+                    className="pointer-events-none absolute inset-0 h-full w-full"
+                    role="img"
+                    aria-label="Illustrative synthetic spectrogram with harmonic frequency bands and two acoustic events"
+                >
+                    {[0, 1, 2, 3, 4].map((index) => (
+                        <line
+                            key={`horizontal-${index}`}
+                            x1={PLOT.x}
+                            x2={PLOT.x + PLOT.width}
+                            y1={PLOT.y + index * PLOT.height / 4}
+                            y2={PLOT.y + index * PLOT.height / 4}
+                            stroke="#A5BBE0"
+                            strokeOpacity="0.13"
                         />
                     ))}
-                </g>
-                {[0, 1, 2, 3, 4].map((index) => (
-                    <line
-                        key={`horizontal-${index}`}
-                        x1={PLOT.x}
-                        x2={PLOT.x + PLOT.width}
-                        y1={PLOT.y + index * PLOT.height / 4}
-                        y2={PLOT.y + index * PLOT.height / 4}
-                        stroke="#A5BBE0"
-                        strokeOpacity="0.13"
-                    />
-                ))}
 
-                {[0, 1, 2, 3, 4, 5].map((index) => (
-                    <line
-                        key={`vertical-${index}`}
-                        x1={PLOT.x + index * PLOT.width / 5}
-                        x2={PLOT.x + index * PLOT.width / 5}
-                        y1={PLOT.y}
-                        y2={PLOT.y + PLOT.height}
-                        stroke="#A5BBE0"
-                        strokeOpacity="0.09"
-                    />
-                ))}
+                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                        <line
+                            key={`vertical-${index}`}
+                            x1={PLOT.x + index * PLOT.width / 5}
+                            x2={PLOT.x + index * PLOT.width / 5}
+                            y1={PLOT.y}
+                            y2={PLOT.y + PLOT.height}
+                            stroke="#A5BBE0"
+                            strokeOpacity="0.09"
+                        />
+                    ))}
 
-                <g
-                    fill="#8295B6"
-                    fontSize="10"
-                    fontFamily="monospace"
-                >
-                    <text x="35" y="21" textAnchor="end">
-                        HIGH
-                    </text>
-
-                    <text x="35" y="153" textAnchor="end">
-                        LOW
-                    </text>
-
-                    <text x={PLOT.x} y="177">
-                        FREQUENCY ↑
-                    </text>
-
-                    <text
-                        x={PLOT.x + PLOT.width}
-                        y="177"
-                        textAnchor="end"
+                    <g
+                        fill="#8295B6"
+                        fontSize="10"
+                        fontFamily="monospace"
                     >
-                        TIME →
-                    </text>
-                </g>
-            </svg>
-        </div >
+                        <text x="35" y="21" textAnchor="end">
+                            HIGH
+                        </text>
+
+                        <text x="35" y="153" textAnchor="end">
+                            LOW
+                        </text>
+
+                        <text x={PLOT.x} y="177">
+                            FREQUENCY ↑
+                        </text>
+
+                        <text
+                            x={PLOT.x + PLOT.width}
+                            y="177"
+                            textAnchor="end"
+                        >
+                            TIME →
+                        </text>
+                    </g>
+                </svg>
+            </div>
+        </div>
     );
 }
-export default memo(SyntheticSpectrogram);
