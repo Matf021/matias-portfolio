@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import SyntheticSpectrogram from "./SyntheticSpectrogram";
+import { phaseProgress } from "@/lib/animationProgress";
 
 const samples = Array.from({ length: 180 }, (_, index) => {
     const x = index / 179;
@@ -52,17 +53,22 @@ export default function ManateeSignalVisual() {
             const rect = figure.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
 
-            // Start when the card enters the lower viewport.
-            const startY = viewportHeight * 0.88;
+            // Start as the top of the card enters the viewport.
+            const startTop = viewportHeight * 0.85;
 
-            // Finish when the card reaches the upper viewport.
-            const endY = viewportHeight * 0.22;
+            // Complete when the bottom of the card reaches
+            // 92% of the viewport height.
+            const endBottom = viewportHeight * 0.92;
+
+            // Convert the desired bottom position into a
+            // corresponding top position.
+            const endTop = endBottom - rect.height;
 
             const progress = Math.max(
                 0,
                 Math.min(
                     1,
-                    (startY - rect.top) / (startY - endY)
+                    (startTop - rect.top) / (startTop - endTop)
                 )
             );
 
@@ -105,6 +111,23 @@ export default function ManateeSignalVisual() {
             }
         };
     }, []);
+    const waveformProgress = phaseProgress(
+        revealProgress, 0, 0.58
+    );
+
+    const spectrogramProgress = phaseProgress(
+        revealProgress, 0.18, 0.78
+    );
+
+    const detectionProgress = phaseProgress(
+        revealProgress, 0.63, 0.88
+    );
+
+    const processingStages = [
+        phaseProgress(revealProgress, 0.74, 0.82),
+        phaseProgress(revealProgress, 0.82, 0.90),
+        phaseProgress(revealProgress, 0.90, 1),
+    ];
     return (
         <figure
             ref={figureRef}
@@ -168,30 +191,46 @@ export default function ManateeSignalVisual() {
                     />
                 ))}
 
-                <rect
-                    x="145"
-                    y="22"
-                    width="140"
-                    height="224"
-                    rx="6"
-                    fill="url(#manatee-region)"
-                    stroke="#8AB8FF"
-                    strokeOpacity="0.35"
-                    strokeDasharray="4 5"
-                />
+                <g opacity={detectionProgress.toFixed(3)}>
+                    <rect
+                        x="145"
+                        y="22"
+                        width="140"
+                        height="224"
+                        rx="6"
+                        fill="url(#manatee-region)"
+                        stroke="#8AB8FF"
+                        strokeOpacity="0.35"
+                        strokeDasharray="4 5"
+                    />
 
-                <rect
-                    x="408"
-                    y="22"
-                    width="100"
-                    height="224"
-                    rx="6"
-                    fill="url(#manatee-region)"
-                    stroke="#8AB8FF"
-                    strokeOpacity="0.35"
-                    strokeDasharray="4 5"
-                />
+                    <text
+                        x="155"
+                        y="38"
+                        fill="#BDD8FF"
+                        fontSize="10"
+                    >
+                        REGION 01
+                    </text>
+                </g>
 
+                <g opacity={detectionProgress.toFixed(3)}>
+                    <rect
+                        x="408"
+                        y="22"
+                        width="100"
+                        height="224"
+                        rx="6"
+                        fill="url(#manatee-region)"
+                        stroke="#8AB8FF"
+                        strokeOpacity="0.35"
+                        strokeDasharray="4 5"
+                    />
+
+                    <text x="418" y="38" fill="#BDD8FF" fontSize="10">
+                        REGION 02
+                    </text>
+                </g>
                 <path
                     d={waveformPath}
                     fill="none"
@@ -201,16 +240,8 @@ export default function ManateeSignalVisual() {
                     strokeLinecap="round"
                     pathLength={1}
                     strokeDasharray={1}
-                    strokeDashoffset={1 - revealProgress}
+                    strokeDashoffset={1 - waveformProgress}
                 />
-
-                <text x="155" y="38" fill="#BDD8FF" fontSize="10">
-                    REGION 01
-                </text>
-
-                <text x="418" y="38" fill="#BDD8FF" fontSize="10">
-                    REGION 02
-                </text>
 
                 <text x="24" y="272" fill="#8295B6" fontSize="11">
                     TIME
@@ -227,19 +258,45 @@ export default function ManateeSignalVisual() {
                 </text>
             </svg>
 
-            <SyntheticSpectrogram />
+            <SyntheticSpectrogram
+                revealProgress={spectrogramProgress}
+            />
 
             <div className="relative mt-3 grid grid-cols-3 gap-2 border-t border-border/70 pt-5">
-                {["FILTER", "MFCC", "HMM"].map((step, index) => (
-                    <div key={step} className="min-w-0">
-                        <p className="font-mono text-[10px] text-text-muted">
-                            0{index + 1}
-                        </p>
-                        <p className="mt-1 font-mono text-xs font-medium text-foreground">
-                            {step}
-                        </p>
-                    </div>
-                ))}
+                {["FILTER", "MFCC", "HMM"].map((step, index) => {
+                    const progress = processingStages[index];
+
+                    return (
+                        <div key={step} className="min-w-0">
+                            <p
+                                className="font-mono text-[10px] text-text-muted"
+                            >
+                                0{index + 1}
+                            </p>
+
+                            <p
+                                className="mt-1 font-mono text-xs font-medium"
+                                style={{
+                                    color: progress > 0
+                                        ? "#BDD8FF"
+                                        : "#8295B6",
+                                    opacity: (0.45 + progress * 0.55).toFixed(3),
+                                }}
+                            >
+                                {step}
+                            </p>
+
+                            <div className="mt-2 h-px bg-border/40">
+                                <div
+                                    className="h-full bg-[#91BCFF]"
+                                    style={{
+                                        width: `${(progress * 100).toFixed(2)}%`,
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
             <figcaption className="relative mt-5 text-xs leading-relaxed text-text-muted">

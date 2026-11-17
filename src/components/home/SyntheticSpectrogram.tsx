@@ -1,3 +1,4 @@
+import { useId } from "react";
 
 type SpectrogramCell = {
     x: number;
@@ -110,7 +111,19 @@ const cells: SpectrogramCell[] = Array.from(
     }
 );
 
-export default function SyntheticSpectrogram() {
+type Props = {
+    revealProgress: number;
+};
+
+export default function SyntheticSpectrogram({
+    revealProgress,
+}: Props) {
+    const reactId = useId();
+    const clipId = `spectrogram-reveal-${reactId.replace(/:/g, "")}`;
+
+    const revealedWidth = (
+        PLOT.width * revealProgress
+    ).toFixed(3);
     return (
         <div className="mt-5 border-t border-border/60 pt-5">
             <div className="flex items-center justify-between gap-3">
@@ -129,6 +142,16 @@ export default function SyntheticSpectrogram() {
                 role="img"
                 aria-label="Illustrative time-frequency spectrogram showing two synthetic acoustic events with multiple harmonic bands"
             >
+                <defs>
+                    <clipPath id={clipId}>
+                        <rect
+                            x={PLOT.x}
+                            y={PLOT.y}
+                            width={revealedWidth}
+                            height={PLOT.height}
+                        />
+                    </clipPath>
+                </defs>
                 <rect
                     x={PLOT.x}
                     y={PLOT.y}
@@ -137,21 +160,21 @@ export default function SyntheticSpectrogram() {
                     rx="3"
                     fill="#080F20"
                 />
-
-                {cells.map((cell, index) => (
-                    <rect
-                        key={index}
-                        x={cell.x}
-                        y={cell.y}
-                        width={PLOT.width / COLUMNS + 0.1}
-                        height={PLOT.height / ROWS + 0.1}
-                        fill="#91BCFF"
-                        fillOpacity={
-                            (Math.pow(cell.intensity, 0.8) * 0.92).toFixed(4)
-                        }
-                    />
-                ))}
-
+                <g clipPath={`url(#${clipId})`}>
+                    {cells.map((cell, index) => (
+                        <rect
+                            key={index}
+                            x={cell.x}
+                            y={cell.y}
+                            width={PLOT.width / COLUMNS + 0.1}
+                            height={PLOT.height / ROWS + 0.1}
+                            fill="#91BCFF"
+                            fillOpacity={
+                                (Math.pow(cell.intensity, 0.8) * 0.92).toFixed(4)
+                            }
+                        />
+                    ))}
+                </g>
                 {[0, 1, 2, 3, 4].map((index) => (
                     <line
                         key={`horizontal-${index}`}
@@ -202,6 +225,6 @@ export default function SyntheticSpectrogram() {
                     </text>
                 </g>
             </svg>
-        </div>
+        </div >
     );
 }
