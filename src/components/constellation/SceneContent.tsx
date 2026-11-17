@@ -4,7 +4,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-//import { Stats } from "@react-three/drei";
+import { Stats } from "@react-three/drei";
 import AtmosphericStarfield from "./AtmosphericStarfield";
 import ConstellationLighting from "./ConstellationLighting";
 import type { ScreenRect } from "@/types/camera";
@@ -282,9 +282,9 @@ export default function SceneContent({
                 explorerOpen={explorerOpen}
                 introVisible={introVisible}
             />
-            {/* {process.env.NODE_ENV === "development" && (
+            {process.env.NODE_ENV === "development" && (
                 <Stats showPanel={0} />
-            )} */}
+            )}
         </>
     );
 }

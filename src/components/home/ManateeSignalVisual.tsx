@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import SyntheticSpectrogram from "./SyntheticSpectrogram";
 import { phaseProgress } from "@/lib/animationProgress";
 
@@ -22,6 +22,11 @@ const samples = Array.from({ length: 180 }, (_, index) => {
     };
 });
 
+const SPECTROGRAM_WIDTH = 520;
+
+const STAGE_STARTS = [0.74, 0.82, 0.90];
+const STAGE_ENDS = [0.82, 0.90, 1];
+
 const waveformPath = samples
     .map(({ x, y }, index) =>
         `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`
@@ -30,7 +35,11 @@ const waveformPath = samples
 
 export default function ManateeSignalVisual() {
     const figureRef = useRef<HTMLElement>(null);
-    const [revealProgress, setRevealProgress] = useState(0);
+    const waveformRef = useRef<SVGPathElement>(null);
+    const spectrogramClipRef = useRef<SVGRectElement>(null);
+    const detectionRefs = useRef<(SVGGElement | null)[]>([]);
+    const stageTextRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+    const stageBarRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     useEffect(() => {
         const figure = figureRef.current;
@@ -42,41 +51,75 @@ export default function ManateeSignalVisual() {
 
         let frameId: number | null = null;
 
+        const clamp = (value: number) =>
+            Math.max(0, Math.min(1, value));
+
         const updateProgress = () => {
             frameId = null;
-
-            if (reducedMotionQuery.matches) {
-                setRevealProgress(1);
-                return;
-            }
 
             const rect = figure.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
 
-            // Start as the top of the card enters the viewport.
             const startTop = viewportHeight * 0.85;
-
-            // Complete when the bottom of the card reaches
-            // 92% of the viewport height.
             const endBottom = viewportHeight * 0.92;
-
-            // Convert the desired bottom position into a
-            // corresponding top position.
             const endTop = endBottom - rect.height;
 
-            const progress = Math.max(
-                0,
-                Math.min(
-                    1,
-                    (startTop - rect.top) / (startTop - endTop)
-                )
+            const denominator = startTop - endTop;
+
+            const progress = reducedMotionQuery.matches
+                ? 1
+                : denominator > 0
+                    ? clamp((startTop - rect.top) / denominator)
+                    : rect.top <= startTop ? 1 : 0;
+
+            const waveform = phaseProgress(progress, 0, 0.58);
+            const spectrogram = phaseProgress(progress, 0.18, 0.78);
+            const detection = phaseProgress(progress, 0.63, 0.88);
+
+            // Reveal the waveform without rerendering React.
+            waveformRef.current?.setAttribute(
+                "stroke-dashoffset",
+                String(1 - waveform)
             );
 
-            setRevealProgress((previous) =>
-                Math.abs(previous - progress) > 0.001
-                    ? progress
-                    : previous
+            // Reveal the spectrogram through one SVG clip rectangle.
+            spectrogramClipRef.current?.setAttribute(
+                "width",
+                (SPECTROGRAM_WIDTH * spectrogram).toFixed(2)
             );
+
+            // Fade in both detection regions.
+            detectionRefs.current.forEach((element) => {
+                if (element) {
+                    element.style.opacity = detection.toFixed(3);
+                }
+            });
+
+            // Progressively illuminate FILTER, MFCC, and HMM.
+            STAGE_STARTS.forEach((start, index) => {
+                const stageProgress = phaseProgress(
+                    progress,
+                    start,
+                    STAGE_ENDS[index]
+                );
+
+                const text = stageTextRefs.current[index];
+                const bar = stageBarRefs.current[index];
+
+                if (text) {
+                    text.style.color = stageProgress > 0
+                        ? "#BDD8FF"
+                        : "#8295B6";
+
+                    text.style.opacity = (
+                        0.45 + stageProgress * 0.55
+                    ).toFixed(3);
+                }
+
+                if (bar) {
+                    bar.style.width = `${(stageProgress * 100).toFixed(2)}%`;
+                }
+            });
         };
 
         const scheduleUpdate = () => {
@@ -92,6 +135,7 @@ export default function ManateeSignalVisual() {
         });
 
         window.addEventListener("resize", scheduleUpdate);
+
         reducedMotionQuery.addEventListener(
             "change",
             scheduleUpdate
@@ -111,23 +155,6 @@ export default function ManateeSignalVisual() {
             }
         };
     }, []);
-    const waveformProgress = phaseProgress(
-        revealProgress, 0, 0.58
-    );
-
-    const spectrogramProgress = phaseProgress(
-        revealProgress, 0.18, 0.78
-    );
-
-    const detectionProgress = phaseProgress(
-        revealProgress, 0.63, 0.88
-    );
-
-    const processingStages = [
-        phaseProgress(revealProgress, 0.74, 0.82),
-        phaseProgress(revealProgress, 0.82, 0.90),
-        phaseProgress(revealProgress, 0.90, 1),
-    ];
     return (
         <figure
             ref={figureRef}
@@ -191,7 +218,12 @@ export default function ManateeSignalVisual() {
                     />
                 ))}
 
-                <g opacity={detectionProgress.toFixed(3)}>
+                <g
+                    ref={(element) => {
+                        detectionRefs.current[0] = element;
+                    }}
+                    opacity="0"
+                >
                     <rect
                         x="145"
                         y="22"
@@ -214,7 +246,12 @@ export default function ManateeSignalVisual() {
                     </text>
                 </g>
 
-                <g opacity={detectionProgress.toFixed(3)}>
+                <g
+                    ref={(element) => {
+                        detectionRefs.current[1] = element;
+                    }}
+                    opacity="0"
+                >
                     <rect
                         x="408"
                         y="22"
@@ -240,7 +277,8 @@ export default function ManateeSignalVisual() {
                     strokeLinecap="round"
                     pathLength={1}
                     strokeDasharray={1}
-                    strokeDashoffset={1 - waveformProgress}
+                    ref={waveformRef}
+                    strokeDashoffset={1}
                 />
 
                 <text x="24" y="272" fill="#8295B6" fontSize="11">
@@ -259,46 +297,41 @@ export default function ManateeSignalVisual() {
             </svg>
 
             <SyntheticSpectrogram
-                revealProgress={spectrogramProgress}
+                clipRectRef={spectrogramClipRef}
             />
 
             <div className="relative mt-3 grid grid-cols-3 gap-2 border-t border-border/70 pt-5">
-                {["FILTER", "MFCC", "HMM"].map((step, index) => {
-                    const progress = processingStages[index];
+                {["FILTER", "MFCC", "HMM"].map((step, index) => (
+                    <div key={step} className="min-w-0">
+                        <p className="font-mono text-[10px] text-text-muted">
+                            0{index + 1}
+                        </p>
 
-                    return (
-                        <div key={step} className="min-w-0">
-                            <p
-                                className="font-mono text-[10px] text-text-muted"
-                            >
-                                0{index + 1}
-                            </p>
+                        <p
+                            ref={(element) => {
+                                stageTextRefs.current[index] = element;
+                            }}
+                            className="mt-1 font-mono text-xs font-medium"
+                            style={{
+                                color: "#8295B6",
+                                opacity: 0.45,
+                            }}
+                        >
+                            {step}
+                        </p>
 
-                            <p
-                                className="mt-1 font-mono text-xs font-medium"
-                                style={{
-                                    color: progress > 0
-                                        ? "#BDD8FF"
-                                        : "#8295B6",
-                                    opacity: (0.45 + progress * 0.55).toFixed(3),
+                        <div className="mt-2 h-px bg-border/40">
+                            <div
+                                ref={(element) => {
+                                    stageBarRefs.current[index] = element;
                                 }}
-                            >
-                                {step}
-                            </p>
-
-                            <div className="mt-2 h-px bg-border/40">
-                                <div
-                                    className="h-full bg-[#91BCFF]"
-                                    style={{
-                                        width: `${(progress * 100).toFixed(2)}%`,
-                                    }}
-                                />
-                            </div>
+                                className="h-full bg-[#91BCFF]"
+                                style={{ width: "0%" }}
+                            />
                         </div>
-                    );
-                })}
+                    </div>
+                ))}
             </div>
-
             <figcaption className="relative mt-5 text-xs leading-relaxed text-text-muted">
                 Illustrative signal and detection regions. Not derived
                 from restricted research recordings or actual model output.

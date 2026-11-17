@@ -47,6 +47,26 @@ export default function ConstellationScene({
     const [overviewRequest, setOverviewRequest] = useState(0);
     const [hasInteracted, setHasInteracted] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [isHeroVisible, setIsHeroVisible] = useState(true);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsHeroVisible(entry.isIntersecting);
+            },
+            {
+                threshold: 0,
+                rootMargin: "100px 0px 100px 0px",
+            }
+        );
+
+        observer.observe(container);
+
+        return () => observer.disconnect();
+    }, []);
     const panelRef = useRef<HTMLDivElement>(null);
     const [focusHeading, setFocusHeading] = useState(false);
     const keyboardExplorerRef =
@@ -226,6 +246,7 @@ export default function ConstellationScene({
                 onOpenChange={setExplorerOpen}
             />
             <Canvas
+                frameloop={isHeroVisible ? "always" : "never"}
                 camera={{
                     position: [0, 0, 16],
                     fov: 55,

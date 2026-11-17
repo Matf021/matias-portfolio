@@ -1,4 +1,5 @@
-import { useId } from "react";
+import { memo, useId } from "react";
+import type { Ref } from "react";
 
 type SpectrogramCell = {
     x: number;
@@ -112,18 +113,15 @@ const cells: SpectrogramCell[] = Array.from(
 );
 
 type Props = {
-    revealProgress: number;
+    clipRectRef: Ref<SVGRectElement>;
 };
 
-export default function SyntheticSpectrogram({
-    revealProgress,
+function SyntheticSpectrogram({
+    clipRectRef,
 }: Props) {
     const reactId = useId();
     const clipId = `spectrogram-reveal-${reactId.replace(/:/g, "")}`;
 
-    const revealedWidth = (
-        PLOT.width * revealProgress
-    ).toFixed(3);
     return (
         <div className="mt-5 border-t border-border/60 pt-5">
             <div className="flex items-center justify-between gap-3">
@@ -145,9 +143,10 @@ export default function SyntheticSpectrogram({
                 <defs>
                     <clipPath id={clipId}>
                         <rect
+                            ref={clipRectRef}
                             x={PLOT.x}
                             y={PLOT.y}
-                            width={revealedWidth}
+                            width="0"
                             height={PLOT.height}
                         />
                     </clipPath>
@@ -228,3 +227,4 @@ export default function SyntheticSpectrogram({
         </div >
     );
 }
+export default memo(SyntheticSpectrogram);
