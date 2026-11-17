@@ -44,7 +44,7 @@ export default function ContactSection() {
 
                     {/* LinkedIn */}
                     <a
-                        href="www.linkedin.com/in/matias-franco-605303273"
+                        href="https://www.linkedin.com/in/matias-franco-605303273"
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="LinkedIn profile (opens in a new tab)"
