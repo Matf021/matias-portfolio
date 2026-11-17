@@ -241,6 +241,24 @@ export default function PortfolioSystemVisual() {
                 ))}
             </div>
 
+            <a
+                href="#home"
+                className="
+        relative mt-5 inline-flex items-center gap-2
+        font-mono text-xs font-medium
+        text-[#E9B17E]
+        transition-colors duration-200
+        hover:text-[#FFE0BD]
+        focus-visible:outline-2
+        focus-visible:outline-offset-4
+        focus-visible:outline-[#E9B17E]
+    "
+            >
+                <span aria-hidden="true">✦</span>
+                Explore the live constellation
+                <span aria-hidden="true">↗</span>
+            </a>
+
             <figcaption className="relative mt-5 text-xs leading-relaxed text-text-muted">
                 Simplified illustration of the interactive
                 constellation&apos;s graphics and navigation systems.
