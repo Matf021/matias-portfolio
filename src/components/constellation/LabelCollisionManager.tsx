@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { projectLabelBounds } from "@/lib/labelProjection";
@@ -61,19 +61,22 @@ export default function LabelCollisionManager({
 }: Props) {
     const { camera, size } = useThree();
 
-    useFrame((_, delta) => {
-        camera.updateMatrixWorld();
-        const perspectiveCamera =
-            camera as THREE.PerspectiveCamera;
-
-        const visibleEdges =
+    const visibleEdges = useMemo(
+        () =>
             selectedId === null
                 ? edges
                 : edges.filter(
                     (edge) =>
                         edge.source === selectedId ||
                         edge.target === selectedId
-                );
+                ),
+        [edges, selectedId]
+    );
+
+    useFrame((_, delta) => {
+        camera.updateMatrixWorld();
+        const perspectiveCamera =
+            camera as THREE.PerspectiveCamera;
 
         const segments = projectConnections(
             nodes,

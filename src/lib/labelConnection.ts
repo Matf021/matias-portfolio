@@ -16,13 +16,20 @@ export type ScreenSegment = {
     y2: number;
 };
 
+
 function projectPoint(
     position: [number, number, number],
     camera: THREE.PerspectiveCamera,
     width: number,
-    height: number
+    height: number,
+    point: THREE.Vector3
 ): { x: number; y: number } | null {
-    const point = new THREE.Vector3(...position);
+    point.set(
+        position[0],
+        position[1],
+        position[2]
+    );
+
     point.project(camera);
 
     if (point.z < -1 || point.z > 1) {
@@ -35,6 +42,7 @@ function projectPoint(
     };
 }
 
+
 export function projectConnections(
     nodes: ConstellationNodeData[],
     edges: ConstellationEdge[],
@@ -45,6 +53,8 @@ export function projectConnections(
     const nodeMap = new Map(
         nodes.map((node) => [node.id, node])
     );
+
+    const projectionPoint = new THREE.Vector3();
 
     const segments: ScreenSegment[] = [];
 
@@ -58,14 +68,16 @@ export function projectConnections(
             source.position,
             camera,
             width,
-            height
+            height,
+            projectionPoint
         );
 
         const end = projectPoint(
             target.position,
             camera,
             width,
-            height
+            height,
+            projectionPoint
         );
 
         if (!start || !end) continue;
