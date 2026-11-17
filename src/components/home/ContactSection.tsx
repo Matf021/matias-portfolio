@@ -1,12 +1,12 @@
 
-const email = "matiasfranco.yion@gmail.com";
+const email = "matias.fyion@gmail.com";
 
 export default function ContactSection() {
     return (
         <section
             id="contact"
             aria-labelledby="contact-heading"
-            className="relative px-5 pb-8 pt-6 sm:px-6 sm:pb-10 sm:pt-8"
+            className="relative px-5 pb-8 pt-2 sm:px-6 sm:pb-10 sm:pt-8"
         >
             <div className="mx-auto max-w-5xl">
                 <p className="font-mono text-xs uppercase tracking-[0.22em] text-accent">

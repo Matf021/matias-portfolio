@@ -3,7 +3,7 @@ export default function SectionConvergenceTransition() {
     return (
         <div
             aria-hidden="true"
-            className="relative mx-auto w-full max-w-5xl overflow-hidden px-5 py-2 sm:px-6"
+            className="relative mx-auto w-full max-w-5xl overflow-hidden px-5 py-0 sm:px-6 sm:py-2"
         >
             <svg
                 viewBox="0 0 900 240"

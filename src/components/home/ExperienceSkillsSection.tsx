@@ -80,7 +80,7 @@ export default function ExperienceSkillsSection() {
         <section
             id="expertise"
             aria-labelledby="expertise-heading"
-            className="relative px-5 pb-6 pt-8 sm:px-6 sm:pb-10 sm:pt-10"
+            className="relative px-5 pb-2 pt-8 sm:px-6 sm:pb-10 sm:pt-10"
         >
             <div className="mx-auto max-w-5xl">
                 <p className="mb-6 font-mono text-xs uppercase tracking-[0.22em] text-accent">
@@ -199,7 +199,7 @@ export default function ExperienceSkillsSection() {
                         {education.map((item) => (
                             <article
                                 key={item.title}
-                                className="grid gap-5 py-8 sm:grid-cols-[96px_minmax(0,1fr)] sm:gap-8 lg:grid-cols-[96px_minmax(0,1.3fr)_minmax(0,0.8fr)]"
+                                className="grid gap-5 py-6 sm:grid-cols-[96px_minmax(0,1fr)] sm:gap-8 sm:py-8 lg:grid-cols-[96px_minmax(0,1.3fr)_minmax(0,0.8fr)]"
                             >
                                 <span className="font-mono text-sm text-accent">
                                     {item.year}
