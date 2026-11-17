@@ -1,6 +1,7 @@
 import FeaturedProjectBlock from "./FeaturedProjectBlock";
 import ManateeSignalVisual from "./ManateeSignalVisual";
 import VoiceNotesPipelineVisual from "./VoiceNotesPipelineVisual";
+import PortfolioSystemVisual from "./PortfolioSystemVisual";
 
 const featuredProjects = [
     {
@@ -9,6 +10,7 @@ const featuredProjects = [
         title: "Manatee Call Detector",
         description:
             "A collaborative research application designed to detect manatee vocalizations in underwater audio recordings using signal processing and machine learning.",
+        contributionLabel: "My Contribution",
         contribution:
             "Designed the Hidden Markov Model detection workflow, developed audio preprocessing and MFCC feature extraction, and contributed to Flask application integration.",
         technologies: [
@@ -27,6 +29,7 @@ const featuredProjects = [
         title: "AWS Voice Notes Organizer",
         description:
             "A serverless application that transforms recorded audio into searchable notes using automatic transcription and sentiment analysis.",
+        contributionLabel: "What I Built",
         contribution:
             "Built backend workflows connecting audio storage, transcription, and NLP services through AWS Chalice.",
         technologies: [
@@ -45,6 +48,7 @@ const featuredProjects = [
         title: "Interactive Developer Portfolio",
         description:
             "An immersive developer portfolio that turns projects, technologies, and skills into an interactive three-dimensional constellation.",
+        contributionLabel: "What I Built",
         contribution:
             "Developed cinematic camera navigation, interactive graph exploration, custom stellar shaders, and responsive interfaces.",
         technologies: [
@@ -95,7 +99,7 @@ export default function SelectedWorkSection() {
                                     ? <ManateeSignalVisual />
                                     : index === 1
                                         ? <VoiceNotesPipelineVisual />
-                                        : undefined
+                                        : <PortfolioSystemVisual />
                             }
                         />
                     ))}

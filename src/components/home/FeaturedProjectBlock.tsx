@@ -7,6 +7,7 @@ export type FeaturedProject = {
     title: string;
     description: string;
     contribution: string;
+    contributionLabel?: string;
     technologies: string[];
     github: string;
 };
@@ -41,7 +42,7 @@ export default function FeaturedProjectBlock({
 
                 <div className="mt-8 border-l-2 border-accent/30 pl-5">
                     <p className="mb-2 font-mono text-xs uppercase tracking-wider text-accent">
-                        My Contribution
+                        {project.contributionLabel ?? "My Contribution"}
                     </p>
 
                     <p className="text-sm leading-relaxed text-text-secondary">
