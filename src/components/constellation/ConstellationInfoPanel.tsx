@@ -8,6 +8,7 @@ import type { ConstellationNodeData } from "@/types/constellation";
 import RelatedNodeSection from "./RelatedNodeSection";
 
 import { getNodeAccent } from "@/lib/getNodeAccent";
+import { ArrowUpRight } from "lucide-react";
 
 type Props = {
     node: ConstellationNodeData;
@@ -193,7 +194,11 @@ export default function ConstellationInfoPanel({
         "
                     >
                         View on GitHub
-                        <span aria-hidden="true">↗</span>
+                        <ArrowUpRight
+                            size={15}
+                            strokeWidth={1.75}
+                            aria-hidden="true"
+                        />
                     </a>
                 )}
 

@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import ConstellationViewer from "@/components/constellation/ConstellationViewer";
+import { ArrowUpRight } from "lucide-react";
 
 export default function CinematicHero() {
     type HeroMode = "intro" | "explorer";
@@ -146,7 +147,14 @@ export default function CinematicHero() {
                                         hover:bg-surface
                                         "
                                 >
-                                    GitHub ↗
+                                    <span className="inline-flex items-center gap-2">
+                                        GitHub
+                                        <ArrowUpRight
+                                            size={16}
+                                            strokeWidth={1.75}
+                                            aria-hidden="true"
+                                        />
+                                    </span>
                                 </a>
                             </div>
                             <div className="mt-6 flex items-center gap-2.5 text-xs leading-relaxed text-text-muted sm:text-sm">

@@ -1,4 +1,5 @@
 import { Mail } from "lucide-react";
+
 const email = "matias.fyion@gmail.com";
 
 export default function ContactSection() {
