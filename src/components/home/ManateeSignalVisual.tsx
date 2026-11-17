@@ -22,8 +22,6 @@ const samples = Array.from({ length: 180 }, (_, index) => {
     };
 });
 
-const SPECTROGRAM_WIDTH = 520;
-
 const STAGE_STARTS = [0.74, 0.82, 0.90];
 const STAGE_ENDS = [0.82, 0.90, 1];
 
