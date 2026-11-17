@@ -16,6 +16,13 @@ const geistMono = Geist_Mono({
 
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    "https://matias-portfolio-theta.vercel.app"
+  ),
+
+  alternates: {
+    canonical: "/",
+  },
   title:
     "Matias Franco | Software Developer & Creative Technologist",
 
