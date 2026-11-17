@@ -3,6 +3,7 @@ import AboutSection from "@/components/home/AboutSection";
 import SelectedWorkSection from "@/components/home/SelectedWorkSection";
 import SectionConstellationBridge from "@/components/home/SectionConstellationBridge";
 import ExperienceSkillsSection from "@/components/home/ExperienceSkillsSection";
+import SectionSignalTransition from "@/components/home/SectionSignalTransition";
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
       <AboutSection />
       <SectionConstellationBridge />
       <SelectedWorkSection />
+      <SectionSignalTransition />
       <ExperienceSkillsSection />
     </main>
   );

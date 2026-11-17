@@ -67,7 +67,7 @@ export default function SelectedWorkSection() {
         <section
             id="selected-work"
             aria-labelledby="selected-work-heading"
-            className="relative px-5 pb-28 pt-10 sm:px-6 sm:pb-36 sm:pt-12"
+            className="relative px-5 pb-4 pt-10 sm:px-6 sm:pb-6 sm:pt-12"
         >
             <div className="mx-auto max-w-5xl">
                 <div className="mb-16">
