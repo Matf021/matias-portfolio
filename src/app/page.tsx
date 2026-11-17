@@ -37,8 +37,10 @@ export default function Home() {
       <SelectedWorkSection />
       <SectionSignalTransition />
       <ExperienceSkillsSection />
-      <SectionConvergenceTransition />
-      <ContactSection />
+      <div className="relative">
+        <SectionConvergenceTransition />
+        <ContactSection />
+      </div>
     </main>
   );
 }

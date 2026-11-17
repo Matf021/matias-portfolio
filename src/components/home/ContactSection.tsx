@@ -6,14 +6,8 @@ export default function ContactSection() {
         <section
             id="contact"
             aria-labelledby="contact-heading"
-            className="relative isolate overflow-hidden px-5 pb-8 pt-6 sm:px-6 sm:pb-10 sm:pt-8"
+            className="relative px-5 pb-8 pt-6 sm:px-6 sm:pb-10 sm:pt-8"
         >
-            {/* Quiet atmospheric finish */}
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[32rem] bg-[radial-gradient(ellipse_at_50%_0%,rgba(138,184,255,0.08),transparent_70%)]"
-            />
-
             <div className="mx-auto max-w-5xl">
                 <p className="font-mono text-xs uppercase tracking-[0.22em] text-accent">
                     04 / Let&apos;s Connect
