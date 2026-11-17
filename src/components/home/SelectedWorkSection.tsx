@@ -1,5 +1,6 @@
 import FeaturedProjectBlock from "./FeaturedProjectBlock";
 import ManateeSignalVisual from "./ManateeSignalVisual";
+import VoiceNotesPipelineVisual from "./VoiceNotesPipelineVisual";
 
 const featuredProjects = [
     {
@@ -92,7 +93,9 @@ export default function SelectedWorkSection() {
                             visual={
                                 index === 0
                                     ? <ManateeSignalVisual />
-                                    : undefined
+                                    : index === 1
+                                        ? <VoiceNotesPipelineVisual />
+                                        : undefined
                             }
                         />
                     ))}
