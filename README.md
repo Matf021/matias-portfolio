@@ -5,7 +5,6 @@ An immersive developer portfolio that transforms projects, technologies, and are
 Built with **Next.js, TypeScript, React Three Fiber, Three.js, and custom GLSL shaders**, the project combines software engineering, interactive graphics, and cinematic navigation.
 
 **[Explore the Live Portfolio](https://matias-portfolio-theta.vercel.app/)**
-![Interactive 3D constellation overview](public/images/constellation-overview.png)
 
 ## Overview
 
