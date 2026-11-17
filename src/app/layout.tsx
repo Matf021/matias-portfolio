@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    "https://matias-portfolio-theta.vercel.app"
+    "https://matias-franco.com/"
   ),
 
   alternates: {
