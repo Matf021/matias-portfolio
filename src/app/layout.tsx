@@ -52,6 +52,7 @@ export const metadata: Metadata = {
 
   openGraph: {
     type: "website",
+    url: "https://matias-franco.com/",
     locale: "en_CA",
     siteName: "Matias Franco",
     title:

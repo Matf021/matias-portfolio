@@ -4,7 +4,7 @@ An immersive developer portfolio that transforms projects, technologies, and are
 
 Built with **Next.js, TypeScript, React Three Fiber, Three.js, and custom GLSL shaders**, the project combines software engineering, interactive graphics, and cinematic navigation.
 
-**[Explore the Live Portfolio](https://matias-portfolio-theta.vercel.app/)**
+**[Explore the Live Portfolio](https://matias-franco.com/)**
 
 ## Overview
 
@@ -207,4 +207,4 @@ Potential future improvements include additional project visualizations, deeper 
 Software Developer & Creative Technologist  
 Toronto, Canada
 
-[Live Portfolio](https://matias-portfolio-theta.vercel.app/) · [GitHub](https://github.com/Matf021)
+[Live Portfolio](https://matias-franco.com/) · [GitHub](https://github.com/Matf021)
