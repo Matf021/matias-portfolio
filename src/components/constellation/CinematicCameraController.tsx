@@ -89,25 +89,46 @@ export default function CinematicCameraController({
     );
 
     const overviewFraming = useMemo(() => {
-        // Shift the constellation upward on screen,
-        // leaving room for the interaction hint.
-        const verticalOffset =
-            size.width >= 640 ? 0.45 : 0;
+        const isPhone = size.width < 640;
+        const isTablet =
+            size.width >= 640 && size.width < 1024;
+
+        const visibleHeight =
+            2 *
+            framing.distance *
+            Math.tan(THREE.MathUtils.degToRad(55 / 2));
+
+        let verticalShift: number;
+
+        if (isPhone) {
+            verticalShift = introVisible
+                ? visibleHeight * 0.07
+                : visibleHeight * -0.05;
+        } else if (isTablet) {
+            verticalShift = introVisible
+                ? visibleHeight * 0.06
+                : visibleHeight * -0.03;
+        } else {
+            // Preserve existing desktop composition.
+            verticalShift = -0.45;
+        }
 
         return {
             ...framing,
+
             target: [
                 framing.target[0],
-                framing.target[1] - verticalOffset,
+                framing.target[1] + verticalShift,
                 framing.target[2],
             ] as [number, number, number],
+
             position: [
                 framing.position[0],
-                framing.position[1] - verticalOffset,
+                framing.position[1] + verticalShift,
                 framing.position[2],
             ] as [number, number, number],
         };
-    }, [framing, size.width]);
+    }, [framing, size.width, introVisible]);
 
     const selectedNode = useMemo(
         () => nodes.find((node) => node.id === selectedId),
