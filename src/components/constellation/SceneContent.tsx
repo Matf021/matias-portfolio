@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { TOUCH } from "three";
 import { useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Stats } from "@react-three/drei";
@@ -99,6 +100,7 @@ export default function SceneContent({
     introVisible,
 }: SceneContentProps) {
     const { size } = useThree();
+    const isCompactViewport = size.width < 1024;
 
     const layoutMode =
         size.width < 640 ? "mobile" : "desktop";
@@ -262,12 +264,19 @@ export default function SceneContent({
             <OrbitControls
                 ref={controlsRef}
                 enableRotate
-                enablePan={false}
-                enableZoom={false}
+                enablePan={isCompactViewport}
+                enableZoom={isCompactViewport}
                 minDistance={3}
                 maxDistance={40}
                 enableDamping
                 dampingFactor={0.05}
+                rotateSpeed={isCompactViewport ? 0.65 : 1}
+                zoomSpeed={isCompactViewport ? 0.8 : 1}
+                panSpeed={isCompactViewport ? 0.65 : 1}
+                touches={{
+                    ONE: TOUCH.ROTATE,
+                    TWO: TOUCH.DOLLY_PAN,
+                }}
                 onStart={onExplore}
             />
 
@@ -282,9 +291,9 @@ export default function SceneContent({
                 explorerOpen={explorerOpen}
                 introVisible={introVisible}
             />
-            {process.env.NODE_ENV === "development" && (
+            {/* {process.env.NODE_ENV === "development" && (
                 <Stats showPanel={0} />
-            )}
+            )} */}
         </>
     );
 }

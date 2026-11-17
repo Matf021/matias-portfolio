@@ -326,19 +326,20 @@ export default function ConstellationScene({
                 <button
                     type="button"
                     onClick={onReturnToIntroduction}
-                    className="
-            absolute bottom-5 left-5 z-10
-            flex items-center gap-2
-            rounded-lg border border-white/10
-            bg-[#081120]/75 px-4 py-2.5
-            text-xs font-medium text-[#b6c9e8]
-            backdrop-blur-md transition-colors
-            hover:border-white/25
-            hover:bg-[#101d33]/85
-            hover:text-white
-            focus-visible:outline-2
-            focus-visible:outline-blue-400
-        "
+                    className={`
+                        absolute bottom-5 left-5 z-10
+                        items-center gap-2
+                        rounded-lg border border-white/10
+                        bg-[#081120]/75 px-4 py-2.5
+                        text-xs font-medium text-[#b6c9e8]
+                        backdrop-blur-md transition-colors
+                        hover:border-white/25
+                        hover:bg-[#101d33]/85
+                        hover:text-white
+                        focus-visible:outline-2
+                        focus-visible:outline-blue-400
+                        ${selectedId ? "hidden sm:flex" : "flex"}
+                    `}
                 >
                     <span aria-hidden="true">←</span>
                     Introduction
